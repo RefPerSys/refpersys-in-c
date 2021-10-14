@@ -1,0 +1,255 @@
+//!! GENERATED file rps_manifest.json / DO NOT EDIT!
+//!! This file is part of the Reflective Persistent System.
+//!!  © Copyright 2019 - 2021 The Reflective Persistent System Team.
+//!!  see refpersys.org and contact team@refpersys.org for more.
+//!! _
+//!! This program is free software: you can redistribute it and/or modify
+//!! it under the terms of the GNU General Public License as published by
+//!! the Free Software Foundation, either version 3 of the License, or
+//!! (at your option) any later version.
+//!! _
+//!! This program is distributed in the hope that it will be useful,
+//!! but WITHOUT ANY WARRANTY; without even the implied warranty of
+//!! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//!! GNU General Public License for more details.
+//!! _
+//!! You should have received a copy of the GNU General Public License
+//!! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+{
+ "constset" : 
+ [
+  "_0rgijx7CCnq041IZEd",
+  "_0TwK4TkhEGZ03oTa5m",
+  "_1568ZHTl0Pa00461I2",
+  "_18DO93843oX02UWzq6",
+  "_2sl5Gjb7swO04EcMqf",
+  "_2KnFhlj8xW800kpgPt",
+  "_33DFyPOJxbF015ZYoi",
+  "_41OFI3r0S1t03qdB2E",
+  "_42cCN1FRQSS03bzbTz",
+  "_4x9jd2yAe8A02SqKAx",
+  "_5nSiRIxoYQp00MSnYA",
+  "_6Wi00FwXYID00gl9Ma",
+  "_7oa7eIzzcxv03TmmZH",
+  "_8lKdW7lgcHV00WUOiT",
+  "_8KJHUldX8GJ03G5OWp",
+  "_9uwZtDshW4401x6MsY"
+ ],
+ "format" : "RefPerSysFormat2019A",
+ "globalnames" : 
+ [
+  {
+   "nam" : "display",
+   "obj" : "_006mAbXTG4G00QR5HS"
+  },
+  {
+   "nam" : "display_value_web",
+   "obj" : "_0deGTf5hQwu01xJkyi"
+  },
+  {
+   "nam" : "comment",
+   "obj" : "_0jdbikGJFq100dgX1n"
+  },
+  {
+   "nam" : "email",
+   "obj" : "_0D6zqQNe4eC02bjfGs"
+  },
+  {
+   "nam" : "home_page",
+   "obj" : "_0LbCts6NacB03SMXz4"
+  },
+  {
+   "nam" : "git_id",
+   "obj" : "_0XMNvzdABUM03Bj7WP"
+  },
+  {
+   "nam" : "display_object_payload_web",
+   "obj" : "_0Z23UbC0G9b01WZZPN"
+  },
+  {
+   "nam" : "meta_variable",
+   "obj" : "_1oPsaaqITVi03OYZb9"
+  },
+  {
+   "nam" : "input",
+   "obj" : "_1B7ITSHTZWp00ektj1"
+  },
+  {
+   "nam" : "our_contributors",
+   "obj" : "_1DBiKRl70P304DEMoR"
+  },
+  {
+   "nam" : "name",
+   "obj" : "_1EBVGSfW2m200z18rx"
+  },
+  {
+   "nam" : "RefPerSys_system",
+   "obj" : "_1Io89yIORqn02SXx4p"
+  },
+  {
+   "nam" : "display_object_occurrence_web",
+   "obj" : "_1Zo12toMRTa03uqsXh"
+  },
+  {
+   "nam" : "set_of_core_functions",
+   "obj" : "_2SRhV7RJt3B01yArR6"
+  },
+  {
+   "nam" : "first_name",
+   "obj" : "_3N8vZ2Cw62z024XxCg"
+  },
+  {
+   "nam" : "symbol",
+   "obj" : "_3Q3hJsSgCDN03GTYW5"
+  },
+  {
+   "nam" : "compute_set_of_own_method_selectors",
+   "obj" : "_4bkpL4a6xlO00VnyM8"
+  },
+  {
+   "nam" : "repl_command",
+   "obj" : "_4CZZ2JlnkQT02YJ6sM"
+  },
+  {
+   "nam" : "repl_command_parser",
+   "obj" : "_4I8GwXXfO3P01cdzyd"
+  },
+  {
+   "nam" : "message_sending",
+   "obj" : "_5yQcFbU0seU018B48Z"
+  },
+  {
+   "nam" : "line",
+   "obj" : "_5FMX3lrhiw601iqPy5"
+  },
+  {
+   "nam" : "generate_code",
+   "obj" : "_5VC4IuJ0dyr01b8lA0"
+  },
+  {
+   "nam" : "class",
+   "obj" : "_6fmq7pZkmNd03UyPuO"
+  },
+  {
+   "nam" : "closure_for_method_selector",
+   "obj" : "_6JbWqOsjX5T03M1eGM"
+  },
+  {
+   "nam" : "last_name",
+   "obj" : "_6QAanFi9yLx00spBST"
+  },
+  {
+   "nam" : "repl_precedence",
+   "obj" : "_7iVRsTR8u3D00Cy0hp"
+  },
+  {
+   "nam" : "object",
+   "obj" : "_7X9eGs8601M021nMue"
+  },
+  {
+   "nam" : "display_object_content_web",
+   "obj" : "_8xCV6GDXYMa02mK5xy"
+  },
+  {
+   "nam" : "space",
+   "obj" : "_9uwZtDshW4401x6MsY"
+  }
+ ],
+ "globalroots" : 
+ [
+  "_006mAbXTG4G00QR5HS",
+  "_02iWbXmFx8f04ldLRt",
+  "_0cSUtWqTYdZ00mjeNR",
+  "_0deGTf5hQwu01xJkyi",
+  "_0jdbikGJFq100dgX1n",
+  "_0D6zqQNe4eC02bjfGs",
+  "_0J1C39JoZiv03qA2HA",
+  "_0LbCts6NacB03SMXz4",
+  "_0MInvb6lXCQ006IiJZ",
+  "_0S6DQvp3Gop015zXhL",
+  "_0TvVIbOU16z028VWvv",
+  "_0XMNvzdABUM03Bj7WP",
+  "_0Z23UbC0G9b01WZZPN",
+  "_10YXWeY7lYc01RpQTA",
+  "_14M7WuJSWw702zB0M9",
+  "_1aGtWm38Vw701jDhZn",
+  "_1oPsaaqITVi03OYZb9",
+  "_1rfASGBBbFz02VUsMw",
+  "_1wihX3eWD9o00QnxUX",
+  "_1B7ITSHTZWp00ektj1",
+  "_1DBiKRl70P304DEMoR",
+  "_1DUx3zfUzIb04lqNVt",
+  "_1EBVGSfW2m200z18rx",
+  "_1Io89yIORqn02SXx4p",
+  "_1NWEOIzo3WU03mE42Q",
+  "_1R1LKwGhoTr02e90bn",
+  "_1Win5yzaf1L02cBUlV",
+  "_1Zo12toMRTa03uqsXh",
+  "_2i66FFjmS7n03HNNBx",
+  "_2sl5Gjb7swO04EcMqf",
+  "_2wdmxJecnFZ02VGGFK",
+  "_2A2mrPpR3Qf03p6o5b",
+  "_2SRhV7RJt3B01yArR6",
+  "_36G9Fl8FqDE01dMaZa",
+  "_36I1BY2NetN03WjrOv",
+  "_39OsVkAJDdV00ohD5r",
+  "_3rXxMck40kz03RxRLM",
+  "_3s7ztCCoJsj04puTdQ",
+  "_3FztYBKABxZ02DUPRm",
+  "_3GHJQW0IIqS01QY8qD",
+  "_3HIxVgAGg5303g7AZs",
+  "_3N8vZ2Cw62z024XxCg",
+  "_3O1QUNKZ4bU02amQus",
+  "_3Q3hJsSgCDN03GTYW5",
+  "_41OFI3r0S1t03qdB2E",
+  "_4bkpL4a6xlO00VnyM8",
+  "_4jISxMJ4PYU0050nUl",
+  "_4ojpzRzyRWz02DNWMe",
+  "_4pSwobFHGf301Qgwzh",
+  "_4CZZ2JlnkQT02YJ6sM",
+  "_4FBkYDlynyC02QtkfG",
+  "_4I8GwXXfO3P01cdzyd",
+  "_54CP9eaTmxT00lzbEW",
+  "_55Z5Wgzuprq01MU6Br",
+  "_5dkRQtwGUHs02MVQT0",
+  "_5yhJGgxLwLp00X0xEQ",
+  "_5yQcFbU0seU018B48Z",
+  "_5CYWxcChKN002rw1fI",
+  "_5FMX3lrhiw601iqPy5",
+  "_5VC4IuJ0dyr01b8lA0",
+  "_627ngdqrVfF020ugC5",
+  "_62LTwxwKpQ802SsmjE",
+  "_6fmq7pZkmNd03UyPuO",
+  "_6gxiw0snqrX01tZWW9",
+  "_6ulDdOP2ZNr001cqVZ",
+  "_6vcJz35mTam01zYLjL",
+  "_6JbWqOsjX5T03M1eGM",
+  "_6JYterg6iAu00cV9Ye",
+  "_6NVM7sMcITg01ug5TC",
+  "_6QAanFi9yLx00spBST",
+  "_6XLY6QfcDre02922jz",
+  "_7b8jzCpOStA04e0jxs",
+  "_7iVRsTR8u3D00Cy0hp",
+  "_7OrPRWQEg2o043XvK2",
+  "_7X9eGs8601M021nMue",
+  "_7Y3AyF9gNx700bQJXc",
+  "_8coaw0RX8kD03J64aj",
+  "_8fYqEw8vTED03wsznt",
+  "_8xCV6GDXYMa02mK5xy",
+  "_8zNtuRpzXUP013WG9S",
+  "_8CncrUdoSL303T5lOK",
+  "_8Iz9vBfs4sl041FiuR",
+  "_8J6vNYtP5E800eCr5q",
+  "_8YknAApDQiF04BDe3W",
+  "_98sc8kSOXV003i86w5",
+  "_9j12Nhm4itk00YYUW7",
+  "_9uwZtDshW4401x6MsY",
+  "_9BnrMLXUhfG00llx8X",
+  "_9Gz1oNPCnkB00I6VRS"
+ ],
+ "origitid" : "e8af0c67e8da2dbf13e13d0bc52a2d33e0b86d86",
+ "plugins" : [],
+ "spaceset" : [ "_8J6vNYtP5E800eCr5q" ]
+}
+
+//// end of RefPerSys manifest file
