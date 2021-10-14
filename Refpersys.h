@@ -77,7 +77,8 @@
 extern bool rps_running_in_batch; /* no user interface */
 
 extern struct backtrace_state* rps_backtrace_common_state;
-extern const char* rps_progname;
+extern const char* rps_progname; /* argv[0] of main */
+extern void* rps_dlhandle;	/* global dlopen handle */
 
 /// both backtrace_full and backtrace_simple callbacks are continuing with a 0 return code:
 enum { RPS_CONTINUE_BACKTRACE=0, RPS_STOP_BACKTRACE=1 };

@@ -36,34 +36,39 @@
 /********* global variables ********/
 bool rps_running_in_batch;
 
-struct backtrace_state* rps_backtrace_common_state;
-const char* rps_progname;
-
+struct backtrace_state *rps_backtrace_common_state;
+const char *rps_progname;
+void *rps_dlhandle;
 
 void
-rps_backtrace_error_cb(void *data, const char *msg, int errnum)
+rps_backtrace_error_cb (void *data, const char *msg, int errnum)
 {
 #warning rps_backtrace_error_cb needs a lot of improvement
-  fprintf(stderr, "Refpersys Backtrace Error #%d: %s\n", errnum, msg);
+  fprintf (stderr, "Refpersys Backtrace Error #%d: %s\n", errnum, msg);
 }
 
 int
-main(int argc, char**argv)
+main (int argc, char **argv)
 {
   rps_progname = argv[0];
   rps_backtrace_common_state =
-    backtrace_create_state(rps_progname, (int)true,
-                           rps_backtrace_error_cb,
-                           NULL);
+    backtrace_create_state (rps_progname, (int) true,
+			    rps_backtrace_error_cb, NULL);
   if (!rps_backtrace_common_state)
     {
-      fprintf(stderr, "%s failed to make backtrace state.\n", rps_progname);
-      exit(EXIT_FAILURE);
-    }
-  for (int aix=1; aix<argc; aix++)
-    if (!strcmp(argv[aix], "--batch") || !strcmp(argv[aix], "-B"))
+      fprintf (stderr, "%s failed to make backtrace state.\n", rps_progname);
+      exit (EXIT_FAILURE);
+    };
+  rps_dlhandle = dlopen (NULL, RTLD_NOW);
+  if (!rps_dlhandle)
+    {
+      fprintf (stderr, "%s failed to whole-program dlopen.\n", rps_progname);
+      exit (EXIT_FAILURE);
+    };
+  for (int aix = 1; aix < argc; aix++)
+    if (!strcmp (argv[aix], "--batch") || !strcmp (argv[aix], "-B"))
       rps_running_in_batch = true;
-  pthread_setname_np(pthread_self(), "rps-main");
+  pthread_setname_np (pthread_self (), "rps-main");
   if (!rps_running_in_batch)
-    gtk_init(&argc, &argv);
-} /* end of main function */
+    gtk_init (&argc, &argv);
+}				/* end of main function */
