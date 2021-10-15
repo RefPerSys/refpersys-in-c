@@ -1,0 +1,26 @@
+. "$(dirname "0")/tools/msg.sh"
+. "$(dirname "0")/tools/os.sh"
+
+
+# init configuration script
+_cfg_init() {
+	rps_os_distro
+
+	if [ "$rv" = "Arch" ] ; then
+		rps_msg_ok "Arch Linux detected"
+	else
+		_distro="$rv"
+		rps_os_ver
+		rps_msg_ok "$_distro ($rv) detected"
+	fi
+}
+
+
+# runs configuration script
+_cfg_run() {
+	_cfg_init
+}
+
+
+_cfg_run "$@"
+
