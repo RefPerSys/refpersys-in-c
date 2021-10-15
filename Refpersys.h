@@ -72,6 +72,9 @@
 
 /// GTK3 graphical toolkit gtk.org/gtk3/
 #include "gtk/gtk.h"
+ 
+/// CURL library for HTTP web client curl.se/libcurl/
+#include "curl/curl.h"
 
 /// global variables
 extern bool rps_running_in_batch; /* no user interface */
@@ -79,6 +82,20 @@ extern bool rps_running_in_batch; /* no user interface */
 extern struct backtrace_state* rps_backtrace_common_state;
 extern const char* rps_progname; /* argv[0] of main */
 extern void* rps_dlhandle;	/* global dlopen handle */
+
+/// global variables declared in generated __timestamp.c file:
+extern const char rps_timestamp[]; /* some date string */
+extern const unsigned long rps_timelong; /* some (time_t) */
+extern const char rps_topdirectory[]; /* the source topdirectory */
+extern const char rps_gitid[];
+extern const char rps_lastgittag[];
+extern const char rps_lastgitcommit[];
+extern const char rps_md5sum[];
+extern const char*const rps_files[];
+extern const char rps_makefile[];
+extern const char* rps_subdirectories[];
+extern const char rps_c_compiler_version[];
+extern const char rps_shortgitid[];
 
 /// both backtrace_full and backtrace_simple callbacks are continuing with a 0 return code:
 enum { RPS_CONTINUE_BACKTRACE=0, RPS_STOP_BACKTRACE=1 };
