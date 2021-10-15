@@ -22,6 +22,8 @@ fi
      | head -1 | tr -d '\n\r\f\"\\\\' ; \
  echo '";') 
 
+printf "const char rps_gitremoteoriginurl[]=\"%s\";\n" $(git config --get remote.origin.url)
+
 git archive -o /tmp/refpersys-$$.tar.gz HEAD 
 trap "/bin/rm /tmp/refpersys-$$.tar.gz" EXIT INT 
 
