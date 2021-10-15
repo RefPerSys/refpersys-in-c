@@ -4,7 +4,7 @@
  *
  * Description:
  *      This file is part of the Reflective Persistent System.
- *      It is almost its only public C++ header file.
+ *      It is almost its only public C99 header file.
  *
  * Author(s):
  *      Basile Starynkevitch <basile@starynkevitch.net>
@@ -90,6 +90,7 @@ extern const char rps_topdirectory[]; /* the source topdirectory */
 extern const char rps_gitid[];
 extern const char rps_lastgittag[];
 extern const char rps_lastgitcommit[];
+extern const char rps_gitremoteoriginurl[];
 extern const char rps_md5sum[];
 extern const char*const rps_files[];
 extern const char rps_makefile[];
