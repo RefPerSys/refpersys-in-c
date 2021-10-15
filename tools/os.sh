@@ -33,9 +33,9 @@ rps_os_distro() {
 		    | cut -d ' ' -f 1)
 	fi
 
-	if [ "$rv" != "Arch" ]	\
-	    && [ "$rv" != "Debian" ]	\
-	    && [ "$rv" != "Ubuntu" ] 	\
+	if [ "$rv" != "Arch" ]			\
+	    && [ "$rv" != "Debian" ]		\
+	    && [ "$rv" != "Ubuntu" ] ; then	\
 		rps_msg_fail "Unsupported distribution: $rv"
 	fi
 }
