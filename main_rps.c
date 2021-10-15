@@ -90,6 +90,7 @@ main (int argc, char **argv)
       printf ("\t full git id: %s\n", rps_gitid);
       printf ("\t last git tag: %s\n", rps_lastgittag);
       printf ("\t last git commit: %s\n", rps_lastgitcommit);
+      printf ("\t git remote origin URL: %s\n", rps_gitremoteoriginurl);
       printf ("\t md5sum of files: %s\n", rps_md5sum);
       printf ("\t build makefile: %s\n", rps_makefile);
       printf ("\t built with compiler: %s\n", rps_c_compiler_version);
