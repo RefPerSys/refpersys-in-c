@@ -124,8 +124,10 @@ main (int argc, char **argv)
 	       rps_progname, argperr->code, argperr->message);
       exit (EXIT_FAILURE);
     }
-  if (rps_showing_version)
+  if (rps_showing_version) {
     rps_show_version_info (argc, argv);
+    exit (EXIT_SUCCESS);
+  }
 }				/* end of main function */
 
 
