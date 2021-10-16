@@ -35,10 +35,21 @@
 
 /********* global variables ********/
 bool rps_running_in_batch;
-
+bool rps_showing_version;
+bool rps_with_gui;
 struct backtrace_state *rps_backtrace_common_state;
 const char *rps_progname;
 void *rps_dlhandle;
+const char *rps_load_directory;
+GOptionEntry rps_gopt_entries[] = {
+  {"load-directory", 'L', 0, G_OPTION_ARG_FILENAME, &rps_load_directory,
+   "load persistent heap from directory DIR", "DIR"},
+  {"batch", 'B', 0, G_OPTION_ARG_NONE, &rps_running_in_batch,
+   "run in batch mode, without user interface", NULL},
+  {"version", 0, 0, G_OPTION_ARG_NONE, &rps_showing_version,
+   "show version information", NULL},
+  {NULL}
+};
 
 void
 rps_backtrace_error_cb (void *data, const char *msg, int errnum)
@@ -81,13 +92,11 @@ rps_show_version_info (int argc, char **argv)
     printf ("\t   %s\n", rps_files[fix]);
 }				/* end rps_show_version_info */
 
-
 int
 main (int argc, char **argv)
 {
-  bool show_version_info = false;
-  bool show_help = false;
   rps_progname = argv[0];
+  pthread_setname_np (pthread_self (), "rps-main");
   rps_backtrace_common_state =
     backtrace_create_state (rps_progname, (int) true,
 			    rps_backtrace_error_cb, NULL);
@@ -99,22 +108,26 @@ main (int argc, char **argv)
   rps_dlhandle = dlopen (NULL, RTLD_NOW);
   if (!rps_dlhandle)
     {
-      fprintf (stderr, "%s failed to whole-program dlopen.\n", rps_progname);
+      fprintf (stderr, "%s failed to whole-program dlopen (%s).\n",
+	       rps_progname, dlerror ());
       exit (EXIT_FAILURE);
     };
-  for (int aix = 1; aix < argc; aix++)
-    {
-      if (!strcmp (argv[aix], "--batch") || !strcmp (argv[aix], "-B"))
-	rps_running_in_batch = true;
-      else if (!strcmp (argv[aix], "--version"))
-	show_version_info = true;
-      else if (!strcmp (argv[aix], "--help"))
-	show_help = true;
-    }
-  pthread_setname_np (pthread_self (), "rps-main");
-  if (!rps_running_in_batch)
-    gtk_init (&argc, &argv);
   curl_global_init (CURL_GLOBAL_ALL);
-  if (show_version_info)
+  GError *argperr = NULL;
+  rps_with_gui =
+    gtk_init_with_args (&argc, &argv,
+			"\n** RefPerSys - a symbolic artificial intelligence system. See refpersys.org **",
+			rps_gopt_entries, NULL, &argperr);
+  if (argperr)
+    {
+      fprintf (stderr, "%s: failed to parse program arguments (#%d) : %s\n",
+	       rps_progname, argperr->code, argperr->message);
+      exit (EXIT_FAILURE);
+    }
+  if (rps_showing_version)
     rps_show_version_info (argc, argv);
 }				/* end of main function */
+
+
+
+/************** end of file main_rps.c ****************/
