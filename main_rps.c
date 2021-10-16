@@ -51,6 +51,8 @@ GOptionEntry rps_gopt_entries[] = {
   {NULL}
 };
 
+pthread_t rps_main_thread_handle;
+
 void
 rps_backtrace_error_cb (void *data, const char *msg, int errnum)
 {
@@ -58,9 +60,19 @@ rps_backtrace_error_cb (void *data, const char *msg, int errnum)
   fprintf (stderr, "Refpersys Backtrace Error #%d: %s\n", errnum, msg);
 }
 
+const char *
+rps_hostname (void)
+{
+  static char hnambuf[64];
+  if (!hnambuf[0])
+    gethostname (hnambuf, sizeof (hnambuf) - 1);
+  return hnambuf;
+}				// end rps_hostname
+
 void
 rps_show_version_info (int argc, char **argv)
 {
+  struct utsname uts = { };
   printf ("%s - a Reflexive Persistent System - see refpersys.org\n",
 	  rps_progname);
   printf
@@ -90,13 +102,18 @@ rps_show_version_info (int argc, char **argv)
   printf ("\t Files:\n");
   for (int fix = 0; rps_files[fix] != NULL; fix++)
     printf ("\t   %s\n", rps_files[fix]);
+  printf ("\t Current host: %s\n", rps_hostname ());
+  if (!uname (&uts))
+    printf ("\t This OS: %s, release %s, version %s\n",
+	    uts.sysname, uts.release, uts.version);
 }				/* end rps_show_version_info */
 
 int
 main (int argc, char **argv)
 {
   rps_progname = argv[0];
-  pthread_setname_np (pthread_self (), "rps-main");
+  rps_main_thread_handle = pthread_self ();
+  pthread_setname_np (rps_main_thread_handle, "rps-main");
   rps_backtrace_common_state =
     backtrace_create_state (rps_progname, (int) true,
 			    rps_backtrace_error_cb, NULL);
@@ -124,10 +141,11 @@ main (int argc, char **argv)
 	       rps_progname, argperr->code, argperr->message);
       exit (EXIT_FAILURE);
     }
-  if (rps_showing_version) {
-    rps_show_version_info (argc, argv);
-    exit (EXIT_SUCCESS);
-  }
+  if (rps_showing_version)
+    {
+      rps_show_version_info (argc, argv);
+      exit (EXIT_SUCCESS);
+    }
 }				/* end of main function */
 
 
