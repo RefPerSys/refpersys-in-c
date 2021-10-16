@@ -60,6 +60,8 @@
 #include <sys/personality.h>
 #include <stdint.h>
 #include <stdatomic.h>
+#include <math.h>
+#include <limits.h>
 
 // man7.org/linux/man-pages/man3/gnu_get_libc_version.3.html
 #include <gnu/libc-version.h>
@@ -206,6 +208,13 @@ typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
 
 struct RpsZoneSetOb_st { RPSFIELDS_SETOB; };
 typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
+
+
+extern void rps_load_initial_heap(void);
+extern void rps_abort(void) __attribute__((noreturn));
+
+extern pid_t rps_gettid(void);
+extern double rps_clocktime(clockid_t);
 
 #endif /*REFPERSYS_INCLUDED*/
 //// end of file Refpersys.h
