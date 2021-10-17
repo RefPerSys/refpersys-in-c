@@ -1,5 +1,11 @@
-. "$(dirname "0")/tools/msg.sh"
+. "$(dirname "0")/tools/core.sh"
 . "$(dirname "0")/tools/os.sh"
+. "$(dirname "0")/tools/pkg.sh"
+. "$(dirname "0")/external/shflags/shflags"
+
+
+# flag indicating dependencies are to be installed
+DEFINE_boolean 'install' false 'install required dependencies' 'i'
 
 
 # init configuration script
@@ -16,11 +22,35 @@ _cfg_init() {
 }
 
 
+# install required dependencies
+_cfg_install() {
+	rps_os_distro
+
+	if [ "$rv" = "Arch" ] ; then
+		rps_warn "TODO: dependency install for Arch Linux"
+	else
+		_pkg="libcurl-dev"
+	fi
+
+	rps_pkg_update
+	prs_pkg_install "$_pkg"
+}
+
+
 # runs configuration script
 _cfg_run() {
 	_cfg_init
+
+	if [ "$FLAGS_install" -eq "$FLAGS_TRUE" ] ; then
+		_cfg_install
+	else
+		rps_warn "Nothing to do"
+	fi
 }
 
+
+FLAGS "$@" || exit $?
+eval set -- "$FLAGS_ARGV"
 
 _cfg_run "$@"
 
