@@ -270,8 +270,8 @@ extern void rps_fatal_stop_at (const char *fil, int lineno) __attribute__((noret
 extern void*alloc0_at_rps(size_t sz, const char*fil, int lineno);
 #define RPS_ALLOC_ZEROED(Sz) alloc0_at_rps((Sz),__FILE__,__LINE__)
 
-extern void*alloczone_at_rps(size_t sz, int8_t type, const char*fil, int lineno);
-#define RPS_ALLOC_ZONE(Sz,Ty) alloczone_at_rps((Sz),(Ty),__FILE__,__LINE__)
+extern void*alloczone_at_rps(size_t bytsz, int8_t type, const char*fil, int lineno);
+#define RPS_ALLOC_ZONE(Bsz,Ty) alloczone_at_rps((Bsz),(Ty),__FILE__,__LINE__)
 #define RPS_MAX_ZONE_SIZE (size_t)(1L<<28)
 extern pid_t rps_gettid(void);
 extern double rps_clocktime(clockid_t);
