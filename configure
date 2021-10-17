@@ -33,7 +33,7 @@ _cfg_install() {
 	fi
 
 	rps_pkg_update
-	prs_pkg_install "$_pkg"
+	rps_pkg_install "$_pkg"
 }
 
 
