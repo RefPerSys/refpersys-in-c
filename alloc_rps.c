@@ -53,13 +53,13 @@ alloc0_at_rps (size_t sz, const char *file, int lineno)
 void *
 alloczone_at_rps (size_t bytsz, int8_t type, const char *file, int lineno)
 {
-  if (sz > RPS_MAX_ZONE_SIZE)
-    RPS_FATAL_AT (file, lineno, "too big memory zone %zd requested", bytsiz);
+  if (bytsz > RPS_MAX_ZONE_SIZE)
+    RPS_FATAL_AT (file, lineno, "too big memory zone %zd requested", bytsz);
   if (type == 0)
     RPS_FATAL_AT (file, lineno,
-		  "invalid zero type for memory zone of %zd bytes", bytsiz);
+		  "invalid zero type for memory zone of %zd bytes", bytsz);
   struct RpsZonedMemory_st *zm =
-    (struct RpsZonedMemory_st *) alloc0_at_rps (bytsiz, file, lineno);
+    (struct RpsZonedMemory_st *) alloc0_at_rps (bytsz, file, lineno);
   atomic_init (&zm->zm_gcmark, 0);
   zm->zm_type = type;
   return (void *) zm;
