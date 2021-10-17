@@ -16,3 +16,13 @@ rps_fail() {
 	exit
 }
 
+
+# checks if an operation succeeded
+mgx_check() {
+	if [ "$1" -eq 0 ] ; then
+		mgx_ok "$2"
+	else
+		mgx_fail "Operation failed: $2"
+	fi
+}
+
