@@ -28,6 +28,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
+#include <stdint.h>
+
+
 // A zero-terminated array of primes, gotten with something similar to :
 //  primesieve  2 32000000000 -p | awk '($1>p+p/10){print $1, ","; p=$1}' | indent | fmt
 static const int64_t rps_primes_tab[] = { 2, 3,
@@ -58,7 +61,83 @@ static const int64_t rps_primes_tab[] = { 2, 3,
   10465092017, 11511601237, 12662761381, 13929037523, 15321941293,
   16854135499, 18539549051, 20393503969, 22432854391, 24676139909,
   27143753929, 29858129341,
- 0
+  0
 };
 
-static const unigned rps_nb_primes_in_tab = sizeof(rps_primes_tab)/sizeof(rps_primes_tab[0]) - 1;
+const unsigned rps_nb_primes_in_tab =
+  sizeof (rps_primes_tab) / sizeof (rps_primes_tab[0]) - 1;
+
+int64_t
+rps_prime_of_index (int ix)
+{
+  if (ix >= 0 && ix <= rps_nb_primes_in_tab)
+    return rps_primes_tab[ix];
+  else
+    return 0;
+}				/* end rps_prime_of_index */
+
+int
+rps_index_of_prime (int64_t n)
+{
+  if (n <= 1)
+    return -1;
+  if (n == 2)
+    return 0;
+  int lo = 0, hi = rps_nb_primes_in_tab;
+  while (lo + 6 < hi)
+    {
+      int md = (lo + hi) / 2;
+      if (rps_primes_tab[md] > n)
+	hi = md;
+      else if (rps_primes_tab[md] == n)
+	return md;
+      else
+	lo = md;
+    };
+  for (int ix = lo; ix < hi; ix++)
+    if (rps_primes_tab[ix] == n)
+      return ix;
+  return -1;
+}				/* end rps_index_of_prime */
+
+int64_t
+rps_prime_above (int64_t n)
+{
+  int lo = 0, hi = rps_nb_primes_in_tab;
+  while (lo + 6 < hi)
+    {
+      int md = (lo + hi) / 2;
+      if (rps_primes_tab[md] > n)
+	hi = md;
+      else
+	lo = md;
+    };
+  for (int ix = lo; ix < hi; ix++)
+    if (rps_primes_tab[ix] > n)
+      return rps_primes_tab[ix];
+  return 0;
+}				/* end rps_prime_above */
+
+int64_t
+rps_prime_below (int64_t n)
+{
+  int lo = 0, hi = rps_nb_primes_in_tab;
+  if (n <= 2)
+    return 0;
+  while (lo + 6 < hi)
+    {
+      int md = (lo + hi) / 2;
+      if (rps_primes_tab[md] > n)
+	hi = md;
+      else
+	lo = md;
+    };
+  for (int ix = lo; ix < hi; ix++)
+    if (rps_primes_tab[ix] < n)
+      return rps_primes_tab[ix];
+  return 0;
+}				/* end rps_prime_below */
+
+
+
+/********************* end of file primes_rps.c ************/

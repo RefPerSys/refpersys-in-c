@@ -108,6 +108,14 @@ extern const char rps_shortgitid[];
 
 extern const char*rps_hostname(void);
 
+
+//// prime numbers and a table of primes:
+extern const unsigned rps_nb_primes_in_tab;
+extern int64_t rps_prime_of_index (int ix);
+extern int rps_index_of_prime (int64_t n);
+extern int64_t rps_prime_above (int64_t n);
+extern int64_t rps_prime_below (int64_t n);
+
 /// both backtrace_full and backtrace_simple callbacks are continuing with a 0 return code:
 enum { RPS_CONTINUE_BACKTRACE=0, RPS_STOP_BACKTRACE=1 };
 
