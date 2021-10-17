@@ -67,8 +67,8 @@ void
 rps_load_initial_heap (void)
 {
 #warning rps_load_initial_heap needs to be coded
-  RPS_FATAL("unimplemented rps_load_initial_heap load directory %s",
-	    rps_load_directory);
+  RPS_FATAL ("unimplemented rps_load_initial_heap load directory %s",
+	     rps_load_directory);
 }				/* end rps_load_initial_heap */
 
 

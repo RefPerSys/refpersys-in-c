@@ -49,22 +49,24 @@ rps_oid_is_valid (const RpsOid_t oid)
 }				/* end rps_oid_is_valid */
 
 void
-rps_oid_to_cbuf(const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
+rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
 {
   if (!cbuf)
     return;
-  if (rps_oid_is_null(oid)) {
-      strcpy(cbuf, "__");
+  if (rps_oid_is_null (oid))
+    {
+      strcpy (cbuf, "__");
       return;
-  };
-  if (!rps_oid_is_valid(oid))
+    };
+  if (!rps_oid_is_valid (oid))
     return;
   /// example cbuf = "_0abcdefghijABCDEFG"
   ///                  |0         |11    |19
-  assert(sizeof("_0abcdefghijABCDEFG")-1 == RPS_NBDIGITS_OID_HI + RPS_NBDIGITS_OID_LO);
-  memset(cbuf, 0, RPS_OIDBUFLEN);
-  char*last = cbuf+ RPS_NBDIGITS_OID_HI;
-  char* pc = last;
+  assert (sizeof ("_0abcdefghijABCDEFG") - 1 ==
+	  RPS_NBDIGITS_OID_HI + RPS_NBDIGITS_OID_LO);
+  memset (cbuf, 0, RPS_OIDBUFLEN);
+  char *last = cbuf + RPS_NBDIGITS_OID_HI;
+  char *pc = last;
   cbuf[0] = '_';
   uint64_t n = oid.id_hi;
   do
@@ -74,9 +76,9 @@ rps_oid_to_cbuf(const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
       *pc = rps_sb62digits[d];
       pc--;
     }
-  while (pc>cbuf);
-  char* start = cbuf+RPS_NBDIGITS_OID_HI;
-  last = start+RPS_NBDIGITS_OID_LO;
+  while (pc > cbuf);
+  char *start = cbuf + RPS_NBDIGITS_OID_HI;
+  last = start + RPS_NBDIGITS_OID_LO;
   pc = last;
   n = oid.id_lo;
   do
@@ -86,9 +88,9 @@ rps_oid_to_cbuf(const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
       *pc = rps_sb62digits[d];
       pc--;
     }
-  while (pc>start);
-} /* end rps_oid_to_cbuf */
-      
+  while (pc > start);
+}				/* end rps_oid_to_cbuf */
+
 
 
 /******************* end of file oid_rps.c *****************/
