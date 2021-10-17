@@ -144,7 +144,7 @@ typedef uint32_t RpsHash_t;
 typedef uintptr_t RpsValue_t;
 
 typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
-
+typedef struct RpsPayl_Loader_st RpsLoader_t; ///// forward declaration
 
 
 
@@ -183,6 +183,7 @@ extern bool rps_oid_is_valid(const RpsOid_t oid);
 /// payload types - prefix is RpsPyt
 enum {
   RpsPyt__NONE,
+  RpsPyt_Loader,		/* the initial loader */
   RpsPyt_AttrTable,		/* associate objects to values */
   RpsPyt_StringBuf,		/* mutable string buffer */
   RpsPyt__LAST
@@ -190,7 +191,7 @@ enum {
 
 /// the fields in every zoned memory -value or payload-; we use macros to mimic C field inheritance
 #define RPSFIELDS_ZONED_MEMORY						\
-  unsigned char zm_type; /* the type of that zone - value or payload */ \
+  int8_t zm_type; /* the type of that zone - value (>0) or payload (<0) */ \
   atomic_uchar zm_gcmark; /* the garbage collector mark */ 		\
   uint16_t zm_xtra;	  /* some short extra data */			\
   uint32_t zm_size	  /* the size of variable-sized data */
@@ -213,7 +214,10 @@ struct RpsZonedValue_st { RPSFIELDS_ZONED_VALUE; };
 
 struct RpsZoneDouble_st { RPSFIELDS_DOUBLE; };
 typedef struct RpsZoneDouble_st  RpsDouble_t; /*for RpsTy_Double, zv_size is unused */
-
+// allocate a boxed double which is not NAN, fatal if NAN
+const RpsDouble_t*rps_alloc_boxed_double(double x);
+// load a boxed double
+const RpsDouble_t*rps_load_boxed_double(json_t*js, RpsLoader_t*ld);
 
 ////////////// string values; their zm_xtra is an index of a prime allocated size
 #define RPSFIELDS_STRING \
