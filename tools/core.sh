@@ -33,3 +33,10 @@ rps_run() {
 	return $?
 }
 
+
+# runs a shell command suppressing stdout and stderr
+rps_run_quiet() {
+	$1 >/dev/null 2>&1
+	return $?
+}
+
