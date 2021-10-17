@@ -88,10 +88,12 @@
 
 /// global variables
 extern bool rps_running_in_batch; /* no user interface */
-
+extern bool rps_showing_version;
+extern bool rps_with_gui;
 extern struct backtrace_state* rps_backtrace_common_state;
 extern const char* rps_progname; /* argv[0] of main */
 extern void* rps_dlhandle;	/* global dlopen handle */
+extern const char*rps_load_directory;
 
 /// global variables declared in generated __timestamp.c file:
 extern const char rps_timestamp[]; /* some date string */

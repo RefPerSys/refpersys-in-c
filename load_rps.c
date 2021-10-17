@@ -57,9 +57,9 @@ rps_is_valid_loader (RpsLoader_t * ld)
   if (!ld)
     return false;
   if (ld->ld_magic == RPS_LOADER_MAGIC)
-    return ld->state == RPSLOADING_CREATE_OBJECTS_PASS
-      || ld->state == RPSLOADING_FILL_OBJECTS_PASS
-      || ld->state == RPSLOADING_EPILOGUE_PASS;
+    return ld->ld_state == RPSLOADING_CREATE_OBJECTS_PASS
+      || ld->ld_state == RPSLOADING_FILL_OBJECTS_PASS
+      || ld->ld_state == RPSLOADING_EPILOGUE_PASS;
   return false;
 }				/* end rps_is_valid_loader */
 
@@ -67,6 +67,8 @@ void
 rps_load_initial_heap (void)
 {
 #warning rps_load_initial_heap needs to be coded
+  RPS_FATAL("unimplemented rps_load_initial_heap load directory %s",
+	    rps_load_directory);
 }				/* end rps_load_initial_heap */
 
 
