@@ -32,6 +32,22 @@
 
 #include "Refpersys.h"
 
+#define RPS_LOADER_MAGIC 0x156e62d5	/*359555797 */
+
+struct RpsPayl_Loader_st
+{
+  RPSFIELDS_ZONED_VALUE;
+  unsigned ld_magic;		/* always RPS_LOADER_MAGIC */
+};
+
+bool
+rps_is_valid_loader (RpsLoader_t * ld)
+{
+  if (!ld)
+    return false;
+  return ld->ld_magic == RPS_LOADER_MAGIC;
+}				/* end rps_is_valid_loader */
+
 void
 rps_load_initial_heap (void)
 {

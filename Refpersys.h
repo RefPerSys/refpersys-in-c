@@ -143,9 +143,11 @@ typedef uint32_t RpsHash_t;
 /// a value is a word
 typedef uintptr_t RpsValue_t;
 
+
+/// the loader internals are in file load_rps.c
 typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
 typedef struct RpsPayl_Loader_st RpsLoader_t; ///// forward declaration
-
+bool rps_is_valid_loader(RpsLoader_t*ld);
 
 
 /*****************************************************************/
