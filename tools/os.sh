@@ -10,11 +10,11 @@ rps_os_kern() {
 		if [ -f /etc/os-release ] ; then
 			rv=$_kern
 		else
-			rps_msg_fail "Outdated Linux kernel: $_kern"
+			rps_fail "Outdated Linux kernel: $_kern"
 		fi
 
 	else
-		rps_mgs_fail "Unsupported kernel: $_kern"
+		rps_fail "Unsupported kernel: $_kern"
 	fi
 }
 
@@ -36,7 +36,7 @@ rps_os_distro() {
 	if [ "$rv" != "Arch" ]			\
 	    && [ "$rv" != "Debian" ]		\
 	    && [ "$rv" != "Ubuntu" ] ; then	\
-		rps_msg_fail "Unsupported distribution: $rv"
+		rps_fail "Unsupported distribution: $rv"
 	fi
 }
 
@@ -60,8 +60,8 @@ rps_os_ver() {
 		_ver=$(echo "$rv" | tr -d 'A-Z a-z ( ) .')
 
 		if [ "$_ver" -lt 10 ] ; then
-			rps_msg_warn "Debian version $rv detected"
-			rps_msg_fail "Debian version >= 10 required"
+			rps_warn "Debian version $rv detected"
+			rps_fail "Debian version >= 10 required"
 		fi
 
 	else
@@ -72,8 +72,8 @@ rps_os_ver() {
 		_ver=$(echo "$rv" | tr -d 'A-Z a-z ( ) .')
 
 		if [ "$_ver" -lt 2004 ] ; then
-			rps_msg_warn "Ubuntu version $rv detected"
-			rps_msg_fail "Ubuntu version >= 20.04 required"
+			rps_warn "Ubuntu version $rv detected"
+			rps_fail "Ubuntu version >= 20.04 required"
 		fi
 	fi
 }
