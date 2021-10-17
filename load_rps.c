@@ -38,8 +38,8 @@
 enum rps_loaderstate_en
 {
   RPSLOADING__NONE,
-  RPSLOADING_CREATE_PASS,
-  RPSLOADING_FILL_PASS,
+  RPSLOADING_CREATE_OBJECTS_PASS,
+  RPSLOADING_FILL_OBJECTS_PASS,
   RPSLOADING_EPILOGUE_PASS,
   RPSLOAD__LAST
 };
@@ -57,8 +57,8 @@ rps_is_valid_loader (RpsLoader_t * ld)
   if (!ld)
     return false;
   if (ld->ld_magic == RPS_LOADER_MAGIC)
-    return ld->state == RPSLOADING_CREATE_PASS
-      || ld->state == RPSLOADING_FILL_PASS
+    return ld->state == RPSLOADING_CREATE_OBJECTS_PASS
+      || ld->state == RPSLOADING_FILL_OBJECTS_PASS
       || ld->state == RPSLOADING_EPILOGUE_PASS;
   return false;
 }				/* end rps_is_valid_loader */
