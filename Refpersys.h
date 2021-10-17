@@ -58,6 +58,7 @@
 #include <dirent.h>
 #include <pthread.h>
 #include <sys/personality.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdatomic.h>
 #include <math.h>
@@ -188,10 +189,11 @@ enum {
 };
 
 /// the fields in every zoned memory -value or payload-; we use macros to mimic C field inheritance
-#define RPSFIELDS_ZONED_MEMORY \
-  unsigned char zm_type; \
-  atomic_uchar zm_gcmark; \
-  uint32_t zm_size
+#define RPSFIELDS_ZONED_MEMORY						\
+  unsigned char zm_type; /* the type of that zone - value or payload */ \
+  atomic_uchar zm_gcmark; /* the garbage collector mark */ 		\
+  uint16_t zm_xtra;	  /* some short extra data */			\
+  uint32_t zm_size	  /* the size of variable-sized data */
 
 
 struct RpsZonedMemory_st { RPSFIELDS_ZONED_MEMORY; };
@@ -213,10 +215,10 @@ struct RpsZoneDouble_st { RPSFIELDS_DOUBLE; };
 typedef struct RpsZoneDouble_st  RpsDouble_t; /*for RpsTy_Double, zv_size is unused */
 
 
-////////////// string values
+////////////// string values; their zm_xtra is an index of a prime allocated size
 #define RPSFIELDS_STRING \
   RPSFIELDS_ZONED_VALUE; \
-  char cstr[];			/* flexible array zone, zv_size is length in UTF8 characters, not in bytes */
+  char cstr[];			/* flexible array zone, zm_size is length in UTF8 characters, not in bytes */
 
 struct RpsZoneString_st { RPSFIELDS_STRING; };
 typedef struct RpsZoneString_st RpsString_t; /* for RpsTy_String */
@@ -248,6 +250,21 @@ typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
 
 extern void rps_load_initial_heap(void);
 extern void rps_abort(void) __attribute__((noreturn));
+
+extern void rps_fatal_stop_at (const char *fil, int lineno) __attribute__((noreturn));
+
+#define RPS_FATAL_AT_BIS(Fil,Lin,Fmt,...) do {			\
+    fprintf (stderr,						\
+	    "RefPerSys FATAL:%s:%d: <%s>\n " Fmt "\n\n",	\
+            Fil, Lin, __func__, ##__VA_ARGS__);			\
+    fflush (stderr);						\
+    rps_fatal_stop_at(Fil,Lin); } while(0)
+
+#define RPS_FATAL_AT(Fil,Lin,Fmt,...) RPS_FATAL_AT_BIS(Fil,Lin,Fmt,##__VA_ARGS__)
+#define RPS_FATAL(Fmt,...) RPS_FATAL_AT(__FILE__,__LINE__,Fmt,##__VA_ARGS__)
+
+extern void*alloc0_at_rps(size_t sz, const char*fil, int lineno);
+#define RPS_ALLOC_ZEROED(Sz) alloc0_at_rps((Sz),__FILE__,__LINE__)
 
 extern pid_t rps_gettid(void);
 extern double rps_clocktime(clockid_t);
