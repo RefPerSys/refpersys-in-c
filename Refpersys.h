@@ -128,20 +128,48 @@ enum {
   RpsTy__LAST
 };
 
+/// an hash has 32 bits and conventionally is never 0
+typedef uint32_t RpsHash_t;
+
 /// a value is a word
 typedef uintptr_t RpsValue_t;
 
 typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
 
+
+
+
+/*****************************************************************/
 /// object ids, also known as oid-s
 struct RpsOid_st {
   uint64_t id_hi, id_lo;
 };
 typedef struct RpsOid_st RpsOid_t;
 
-/// an hash has 32 bits and conventionally is never 0
-typedef uint32_t RpsHash_t;
+#define RPS_B62DIGITS \
+  "0123456789"				  \
+  "abcdefghijklmnopqrstuvwxyz"		  \
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+#define RPS_OIDBUFLEN 24
+#define RPS_OIDBASE (sizeof(RPS_B62DIGITS)-1)
+#define RPS_MIN_OID_HI (62*62*62)
+#define RPS_MAX_OID_HI /* 8392993658683402240, about 8.392994e+18 */ \
+  ((uint64_t)10 * 62 * (62 * 62 * 62) * (62 * 62 * 62) * (62 * 62 * 62))
+#define RPS_NBDIGITS_OID_HI 11
+#define RPS_DELTA_OID_HI (RPS_MAX_OID_HI - RPS_MIN_OID_HI)
+#define RPS_MIN_OID_LO (62*62*62)
+#define RPS_MAX_OID_LO /* about 3.52161e+12 */ \
+  ((uint64_t)62 * (62L * 62 * 62) * (62 * 62 * 62))
+#define RPS_DELTA_OID_LO (RPS_MAX_OID_LO - RPS_MIN_OID_LO)
+#define RPS_NBDIGITS_OID_LO 7
+#define RPS_OID_NBCHARS (RPS_NBDIGITS_OID_HI+RPS_NBDIGITS_OID_LO+1)
+#define RPS_OID_MAXBUCKETS (10*62)
+
+extern bool rps_oid_is_null(const RpsOid_t oid);
+extern bool rps_oid_is_valid(const RpsOid_t oid);
+
+/*****************************************************************/
 /// a payload is not a proper value, but garbaged collected as if it was one....
 /// payload types - prefix is RpsPyt
 enum {

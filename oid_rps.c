@@ -1,11 +1,11 @@
 /****************************************************************
- * file load_rps.c
+ * file oid_rps.c
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Description:
  *      This file is part of the Reflective Persistent System.
  *
- *      It contains the initial loading machinery.
+ *      It contains the support of object ids.
  *
  * Author(s):
  *      Basile Starynkevitch <basile@starynkevitch.net>
@@ -32,8 +32,15 @@
 
 #include "Refpersys.h"
 
-void
-rps_load_initial_heap(void)
+bool
+rps_oid_is_null(const RpsOid_t oid)
 {
-#warning rps_load_initial_heap needs to be coded
-} /* end rps_load_initial_heap */
+  return oid.id_hi == 0 && oid.id_lo == 0;
+} /* end rps_oid_is_null */
+
+bool
+rps_oid_is_valid(const RpsOid_t oid)
+{
+   return oid.id_hi >= RPS_MIN_OID_HI && oid.id_hi < RPS_MAX_OID_HI
+     && oid.id_lo >= RPS_MIN_OID_LO && oid.id_lo < RPS_MAX_OID_LO;
+} /* end rps_oid_is_valid */
