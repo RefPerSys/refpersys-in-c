@@ -18,11 +18,18 @@ rps_fail() {
 
 
 # checks if an operation succeeded
-mgx_check() {
+rps_check() {
 	if [ "$1" -eq 0 ] ; then
-		mgx_ok "$2"
+		rps_ok "$2"
 	else
-		mgx_fail "Operation failed: $2"
+		rps_fail "Operation failed: $2"
 	fi
+}
+
+
+# runs a shell command suppressing stdout
+rps_run() {
+	$1 >/dev/null
+	return $?
 }
 
