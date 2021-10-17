@@ -33,7 +33,7 @@
 #include "Refpersys.h"
 
 void
-rps_load_initial_heap(void)
+rps_load_initial_heap (void)
 {
 #warning rps_load_initial_heap needs to be coded
-} /* end rps_load_initial_heap */
+}				/* end rps_load_initial_heap */

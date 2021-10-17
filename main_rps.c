@@ -115,16 +115,16 @@ rps_fatal_stop_at (const char *fil, int lineno)
   memset (thnambuf, 0, sizeof (thnambuf));
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
   fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s)\n",
-           fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf);
+	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf);
   fflush (stderr);
   rps_abort ();
-}                               /* end rps_fatal_stop */
+}				/* end rps_fatal_stop */
 
 pid_t
 rps_gettid (void)
 {
   return syscall (SYS_gettid, 0L);
-}                               /* end rps_gettid */
+}				/* end rps_gettid */
 
 
 double
@@ -137,10 +137,10 @@ rps_clocktime (clockid_t clid)
 }
 
 void
-rps_abort(void)
+rps_abort (void)
 {
-  abort();
-} /* end rps_abort */
+  abort ();
+}				/* end rps_abort */
 
 int
 main (int argc, char **argv)
@@ -182,7 +182,7 @@ main (int argc, char **argv)
     };
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
-  rps_load_initial_heap();
+  rps_load_initial_heap ();
 }				/* end of main function */
 
 

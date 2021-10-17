@@ -33,14 +33,14 @@
 #include "Refpersys.h"
 
 bool
-rps_oid_is_null(const RpsOid_t oid)
+rps_oid_is_null (const RpsOid_t oid)
 {
   return oid.id_hi == 0 && oid.id_lo == 0;
-} /* end rps_oid_is_null */
+}				/* end rps_oid_is_null */
 
 bool
-rps_oid_is_valid(const RpsOid_t oid)
+rps_oid_is_valid (const RpsOid_t oid)
 {
-   return oid.id_hi >= RPS_MIN_OID_HI && oid.id_hi < RPS_MAX_OID_HI
-     && oid.id_lo >= RPS_MIN_OID_LO && oid.id_lo < RPS_MAX_OID_LO;
-} /* end rps_oid_is_valid */
+  return oid.id_hi >= RPS_MIN_OID_HI && oid.id_hi < RPS_MAX_OID_HI
+    && oid.id_lo >= RPS_MIN_OID_LO && oid.id_lo < RPS_MAX_OID_LO;
+}				/* end rps_oid_is_valid */
