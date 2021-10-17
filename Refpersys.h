@@ -194,7 +194,7 @@ enum {
   int8_t zm_type; /* the type of that zone - value (>0) or payload (<0) */ \
   atomic_uchar zm_gcmark; /* the garbage collector mark */ 		\
   uint16_t zm_xtra;	  /* some short extra data */			\
-  uint32_t zm_size	  /* the size of variable-sized data */
+  uint32_t zm_length	  /* the size of variable-sized data */
 
 
 struct RpsZonedMemory_st { RPSFIELDS_ZONED_MEMORY; };
@@ -270,6 +270,9 @@ extern void rps_fatal_stop_at (const char *fil, int lineno) __attribute__((noret
 extern void*alloc0_at_rps(size_t sz, const char*fil, int lineno);
 #define RPS_ALLOC_ZEROED(Sz) alloc0_at_rps((Sz),__FILE__,__LINE__)
 
+extern void*alloczone_at_rps(size_t sz, int8_t type, const char*fil, int lineno);
+#define RPS_ALLOC_ZONE(Sz,Ty) alloczone_at_rps((Sz),(Ty),__FILE__,__LINE__)
+#define RPS_MAX_ZONE_SIZE (size_t)(1L<<28)
 extern pid_t rps_gettid(void);
 extern double rps_clocktime(clockid_t);
 
