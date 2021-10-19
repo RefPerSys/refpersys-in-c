@@ -254,7 +254,7 @@ typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
   RpsObject_t* set_elem[]	/* zv_size is the number of elements, and they are ordered by oid */
 
 struct RpsZoneSetOb_st { RPSFIELDS_SETOB; };
-typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
+typedef struct RpsZoneSetOb_st RpsSetOb_t; /* for RpsTy_SetOb */
 
 
 extern void rps_load_initial_heap(void);
