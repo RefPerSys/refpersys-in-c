@@ -28,6 +28,21 @@
 
 #include "Refpersys.h"
 
+RpsHash_t
+rps_hash_double (double x)
+{
+  RpsHash_t h = 17;
+  double f = 0.0;
+  int e = 0;
+  if (isnan (x))
+    RPS_FATAL ("cannot hash NAN");
+  f = frexp (x, &e);
+  h = (unsigned long) (f * 1000001537) ^ (17 * e + 93);
+  if (h <= 4)
+    h += 10223;
+  return h;
+}				/* end rps_hash_double */
+
 const RpsDouble_t *
 rps_alloc_boxed_double (double x)
 {
@@ -36,5 +51,6 @@ rps_alloc_boxed_double (double x)
     RPS_FATAL ("cannot allocate boxed NAN");
   dblv = RPS_ALLOC_ZONE (sizeof (RpsDouble_t), RpsTy_Double);
   dblv->dbl_val = x;
+  dblv->zv_hash = rps_hash_double (x);
   return dblv;
 }				/* end rps_alloc_boxed_double */

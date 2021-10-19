@@ -151,6 +151,7 @@ typedef uintptr_t RpsValue_t;
 typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
 typedef struct RpsPayl_Loader_st RpsLoader_t; ///// forward declaration
 bool rps_is_valid_loader(RpsLoader_t*ld);
+bool rps_is_valid_filling_loader (RpsLoader_t *);
 
 
 /*****************************************************************/
@@ -219,6 +220,7 @@ struct RpsZonedValue_st { RPSFIELDS_ZONED_VALUE; };
 
 struct RpsZoneDouble_st { RPSFIELDS_DOUBLE; };
 typedef struct RpsZoneDouble_st  RpsDouble_t; /*for RpsTy_Double, zv_size is unused */
+RpsHash_t rps_hash_double (double x);
 // allocate a boxed double which is not NAN, fatal if NAN
 const RpsDouble_t*rps_alloc_boxed_double(double x);
 // load a boxed double
