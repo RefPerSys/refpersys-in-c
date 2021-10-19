@@ -231,6 +231,13 @@ const RpsDouble_t*rps_load_boxed_double(json_t*js, RpsLoader_t*ld);
 
 struct RpsZoneString_st { RPSFIELDS_STRING; };
 typedef struct RpsZoneString_st RpsString_t; /* for RpsTy_String */
+// allocate a string
+const RpsString_t*rps_alloc_string(const char*str);
+// sprintf a string value
+const RpsString_t*rps_sprintf_string(const char*fmt, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
+// load a boxed double
+const RpsString_t*rps_load_string(json_t*js, RpsLoader_t*ld);
 
 /////////////// boxed JSON values
 #define RPSFIELDS_JSON \
