@@ -86,7 +86,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
   if (!rps_is_valid_loader (ld))
     RPS_FATAL ("invalid loader %p to rps_load_parse_manifest", ld);
   snprintf (manifestpath, sizeof (manifestpath),
-	    "%d/rps_manifest.json", rps_load_directory);
+	    "%s/rps_manifest.json", rps_load_directory);
   ld->ld_manifest_file = fopen (manifestpath, "r");
   if (!ld->ld_manifest_file)
     RPS_FATAL ("missing loader manifest file %s - %m", manifestpath);
