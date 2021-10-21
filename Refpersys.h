@@ -184,6 +184,9 @@ typedef struct RpsOid_st RpsOid_t;
 
 extern bool rps_oid_is_null(const RpsOid_t oid);
 extern bool rps_oid_is_valid(const RpsOid_t oid);
+extern bool rps_oid_equal(const RpsOid_t oid1, const RpsOid_t oid2);
+extern bool rps_oid_less_than(const RpsOid_t oid1, const RpsOid_t oid2);
+extern bool rps_oid_less_equal(const RpsOid_t oid1, const RpsOid_t oid2);
 
 /*****************************************************************/
 /// a payload is not a proper value, but garbaged collected as if it was one....

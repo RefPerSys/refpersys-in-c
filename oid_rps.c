@@ -91,6 +91,30 @@ rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
   while (pc > start);
 }				/* end rps_oid_to_cbuf */
 
+bool
+rps_oid_equal (const RpsOid_t oid1, const RpsOid_t oid2)
+{
+  return oid1.id_hi == oid2.id_hi && oid1.id_lo == oid2.id_lo;
+}				/* end rps_oid_equal */
 
+bool
+rps_oid_less_than (const RpsOid_t oid1, const RpsOid_t oid2)
+{
+  if (oid1.id_hi < oid2.id_hi)
+    return true;
+  if (oid1.id_hi == oid2.id_hi)
+    return oid1.id_lo < oid2.id_lo;
+  return false;
+}				/* end rps_oid_less_than */
+
+bool
+rps_oid_less_equal (const RpsOid_t oid1, const RpsOid_t oid2)
+{
+  if (oid1.id_hi < oid2.id_hi)
+    return true;
+  if (oid1.id_hi == oid2.id_hi)
+    return oid1.id_lo <= oid2.id_lo;
+  return false;
+}				/* end rps_oid_less_equal */
 
 /******************* end of file oid_rps.c *****************/
