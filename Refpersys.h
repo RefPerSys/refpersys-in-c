@@ -144,7 +144,7 @@ enum {
 /// an hash has 32 bits and conventionally is never 0
 typedef uint32_t RpsHash_t;
 
-/// a value is a word
+/// a value is a word, sometimes a pointer, sometimes a tagged integer (odd word)
 typedef uintptr_t RpsValue_t;
 
 
@@ -294,5 +294,9 @@ extern void*alloczone_at_rps(size_t bytsz, int8_t type, const char*fil, int line
 extern pid_t rps_gettid(void);
 extern double rps_clocktime(clockid_t);
 
+//////////////// tagged integer values
+extern RpsValue_t rps_tagged_integer_value(intptr_t i);
+extern bool rps_is_tagged_integer(const RpsValue_t v);
+//// some functions are missing to convert a value to its tagged integer
 #endif /*REFPERSYS_INCLUDED*/
 //// end of file Refpersys.h

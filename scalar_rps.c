@@ -54,3 +54,15 @@ rps_alloc_boxed_double (double x)
   dblv->zv_hash = rps_hash_double (x);
   return dblv;
 }				/* end rps_alloc_boxed_double */
+
+RpsValue_t
+rps_tagged_integer_value (intptr_t i)
+{
+  return (RpsValue_t) ((i << 1) | 1);
+}				/* end rps_tagged_integer_value */
+
+bool
+rps_is_tagged_integer (const RpsValue_t v)
+{
+  return ((intptr_t) v % 2 != 0);
+}				/* end rps_is_tagged_integer */
