@@ -62,6 +62,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 #include <math.h>
 #include <limits.h>
 
