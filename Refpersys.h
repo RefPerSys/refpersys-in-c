@@ -62,6 +62,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 #include <math.h>
 #include <limits.h>
 
@@ -71,7 +72,7 @@
 
 // GNU libunistring www.gnu.org/software/libunistring/
 // we use UTF-8 strings
-#include "unistr.h"
+#include <unicode/unistr.h>
 
 
 /// Ian Taylor's libbacktrace github.com/ianlancetaylor/libbacktrace
