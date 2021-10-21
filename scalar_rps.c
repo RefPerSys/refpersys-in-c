@@ -66,3 +66,15 @@ rps_is_tagged_integer (const RpsValue_t v)
 {
   return ((intptr_t) v % 2 != 0);
 }				/* end rps_is_tagged_integer */
+
+intptr_t
+rps_value_to_integer (const RpsValue_t v)	/* gives 0 for a non-tagged integer */
+{
+  if ((intptr_t) v % 2 != 0)
+    return ((intptr_t) v) >> 1;
+  else
+    return 0;
+}				/* end rps_value_to_integer */
+
+
+/********************* end of file scalar_rps.c ***************/

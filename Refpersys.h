@@ -297,6 +297,7 @@ extern double rps_clocktime(clockid_t);
 //////////////// tagged integer values
 extern RpsValue_t rps_tagged_integer_value(intptr_t i);
 extern bool rps_is_tagged_integer(const RpsValue_t v);
-//// some functions are missing to convert a value to its tagged integer
+extern intptr_t rps_value_to_integer(const RpsValue_t v); /* gives 0 for a non-tagged integer */
+
 #endif /*REFPERSYS_INCLUDED*/
 //// end of file Refpersys.h
