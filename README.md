@@ -1,5 +1,7 @@
 # refpersys-in-c
-complete rewrite of refpersys in C
+complete rewrite of refpersys in C.
+
+See http://refpersys.org/ for more.
 
 
 ## packages required
