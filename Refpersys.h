@@ -151,9 +151,10 @@ typedef uintptr_t RpsValue_t;
 /// the loader internals are in file load_rps.c
 typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
 typedef struct RpsPayl_Loader_st RpsLoader_t; ///// forward declaration
-bool rps_is_valid_loader(RpsLoader_t*ld);
-bool rps_is_valid_filling_loader (RpsLoader_t *);
+extern bool rps_is_valid_loader(RpsLoader_t*ld);
+extern bool rps_is_valid_filling_loader (RpsLoader_t *);
 
+extern RpsHash_t rps_hash_cstr (const char *s);
 
 /*****************************************************************/
 /// object ids, also known as oid-s
@@ -252,6 +253,8 @@ const RpsString_t*rps_load_string(json_t*js, RpsLoader_t*ld);
 
 struct RpsZoneJson_st { RPSFIELDS_JSON; };
 typedef struct RpsZoneJson_st RpsJson_t; /* for RpsTy_Json */
+const RpsJson_t* rps_alloc_json(const json_t*js);
+const RpsJson_t* rps_load_json(const json_t*js, RpsLoader_t*ld);
 
 /////////////// tuple of objects value
 #define RPSFIELDS_TUPLEOB \
