@@ -273,7 +273,8 @@ const RpsGtkWidget_t* rps_alloc_gtk_widget(GtkWidget*);
 
 struct RpsZoneTupleOb_st { RPSFIELDS_TUPLEOB; };
 typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
-
+const RpsTupleOb_t* rps_alloc_vtuple(unsigned arity, ...);
+const RpsTupleOb_t* rps_alloc_tuple_sized(unsigned arity, const RpsObject_t**arr);
 /////////////// set of objects value
 #define RPSFIELDS_SETOB \
   RPSFIELDS_ZONED_VALUE; \
@@ -283,6 +284,25 @@ struct RpsZoneSetOb_st { RPSFIELDS_SETOB; };
 typedef struct RpsZoneSetOb_st RpsSetOb_t; /* for RpsTy_SetOb */
 
 
+////////////////////////// objects
+#define RPSFIELDS_OBJECT \
+  RPSFIELDS_ZONED_VALUE; \
+  RpsOid_t ob_id; \
+  double ob_mtime; \
+  pthread_mutex_t ob_mtx; \
+  RpsObject_t* ob_class; \
+  RpsObject_t* ob_zone; \
+  /* other fields missing */
+
+
+struct RpsZoneObject_st { RPSFIELDS_OBJECT; };
+
+
+extern bool rps_is_valid_object(const RpsObject_t* obj);
+
+
+
+////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap(void);
 extern void rps_abort(void) __attribute__((noreturn));
 

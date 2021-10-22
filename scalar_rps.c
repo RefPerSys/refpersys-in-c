@@ -1,5 +1,5 @@
 /****************************************************************
- * file main_rps.c
+ * file scalar_rps.c
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Description:
