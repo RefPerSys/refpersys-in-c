@@ -215,18 +215,69 @@ rps_compute_json_two_hash (int depth, json_t * js, long *pl1, long *pl2)
 	  }
       }
       return;
-#warning incomplete code in rps_compute_json_two_hash
     case JSON_INTEGER:
+      {
+	intptr_t i = json_integer_value (js);
+	*pl1 ^= i;
+	*pl2 += 11 * depth ^ i % 31;
+      }
+      return;
     case JSON_REAL:
+      {
+	double d = json_real_value (js);
+	if (isnan (d))
+	  {
+	    *pl1 += 37;
+	    *pl2 ^= depth + 11;
+	  }
+	else
+	  {
+	    *pl1 += rps_hash_double (d);
+	    *pl2 ^= depth % 13;
+	  }
+      }
+      return;
     case JSON_TRUE:
+      {
+	*pl1 = ~*pl1;
+	*pl2 ^= depth;
+      }
+      return;
     case JSON_FALSE:
+      {
+	*pl1 += 3;
+	*pl2 ^= depth;
+      }
+      return;
     case JSON_NULL:
+      {
+	*pl1 += (*pl2 % 65171);
+	*pl2 -= 11 * depth;
+      }
+      return;
+    default:
       RPS_FATAL ("unimplemented rps_compute_json_two_hash jsonty#%d",
 		 json_typeof (js));
-    default:
       return;
     }
 }				/* end rps_compute_json_two_hash */
+
+RpsHash_t
+rps_json_hash (const json_t * js)
+{
+  RpsHash_t h = 0;
+  long l1 = 15017, l2 = 65183;
+  if (!js)
+    return 0;
+  rps_compute_json_two_hash (0, js, &l1, &l2);
+  h = (l1 ^ l2) + ((l1 - l2) >> 31);
+  if (h == 0)
+    h = ((l1 & 0xfffffff) % 65167 + (l2 & 0xffffff) % 15187) + 10;
+  assert (h != 0);
+  return h;
+}				/* end rps_json_hash */
+
+
 
 const RpsJson_t *
 rps_alloc_json (const json_t * js)
@@ -235,6 +286,18 @@ rps_alloc_json (const json_t * js)
   if (!js)
     return NULL;
   vj = RPS_ALLOC_ZONE (sizeof (RpsJson_t), RpsTy_Json);
-}
+  vj->zv_hash = rps_json_hash (js);
+  vj->json = js;
+  return vj;
+}				/* end rps_alloc_json */
+
+const RpsJson_t *
+rps_load_json (const json_t * js, RpsLoader_t * ld)
+{
+  json_t *jv = json_object_get (js, "json");
+  assert (rps_is_valid_filling_loader (ld));
+  assert (jv);
+  return rps_alloc_json (jv);
+}				/* end rps_load_json */
 
 /********************* end of file scalar_rps.c ***************/
