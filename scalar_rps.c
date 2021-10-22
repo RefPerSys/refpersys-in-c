@@ -128,6 +128,16 @@ rps_value_to_integer (const RpsValue_t v)	/* gives 0 for a non-tagged integer */
     return 0;
 }				/* end rps_value_to_integer */
 
+/// internal compare function
+static int
+rps_compare_cstr_ptr (const void *p1, const void *p2)
+{
+  const char **s1 = p1;
+  const char **s2 = p2;
+  assert (*s1 != NULL);
+  assert (*s2 != NULL);
+  return strcmp (*s1, *s2);
+}				/* end rps_compare_cstr_ptr */
 
 /// internal recursive functon to compute two hashes
 static void
@@ -149,7 +159,7 @@ rps_compute_json_two_hash (int depth, json_t * js, long *pl1, long *pl2)
 	  json_t *valj = NULL;
 	  json_object_foreach (js, key, valj) arrkey[cnt++] = key;
 	}
-	qsort (arrkey, jsz, sizeof (const char *), strcmp);
+	qsort (arrkey, jsz, sizeof (const char *), rps_compare_cstr_ptr);
 	for (int ix = 0; ix < cnt; ix++)
 	  {
 	    const char *key = arrkey[ix];
@@ -299,5 +309,22 @@ rps_load_json (const json_t * js, RpsLoader_t * ld)
   assert (jv);
   return rps_alloc_json (jv);
 }				/* end rps_load_json */
+
+const RpsGtkWidget_t *
+rps_alloc_gtk_widget (GtkWidget * widg)
+{
+  RpsGtkWidget_t *vw = NULL;
+  RpsHash_t h = 0;
+  if (widg == NULL)
+    return NULL;
+  vw = RPS_ALLOC_ZONE (sizeof (RpsGtkWidget_t), RpsTy_GtkWiget);
+  h = 17 + (((uintptr_t) widg) % 45000931);
+  if (h == 0)
+    h = ((((uintptr_t) widg) & 0xffffff) + 540773);
+  assert (h != 0);
+  vw->zv_hash = h;
+  vw->gtk_widget = widg;
+  return vw;
+}				/* end rps_alloc_gtk_widget */
 
 /********************* end of file scalar_rps.c ***************/

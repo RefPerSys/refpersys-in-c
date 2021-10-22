@@ -133,10 +133,10 @@ enum {
   RpsTy_Double,
   RpsTy_String,
   RpsTy_Json,
+  RpsTy_GtkWiget,		/* some GtkWidget* pointer; of course GTK widgets are not persisted */
   RpsTy_TupleOb,
   RpsTy_SetOb,
   RpsTy_Object,
-  RpsTy_GtkWiget,		/* some GtkWidget* pointer; of course GTK widgets are not persisted */
   RpsTy_File,		/* some opened FILE* handle; of course they are not persisted */
   RpsTy__LAST
 };
@@ -255,6 +255,16 @@ struct RpsZoneJson_st { RPSFIELDS_JSON; };
 typedef struct RpsZoneJson_st RpsJson_t; /* for RpsTy_Json */
 const RpsJson_t* rps_alloc_json(const json_t*js);
 const RpsJson_t* rps_load_json(const json_t*js, RpsLoader_t*ld);
+
+/////////////// boxed GtkWidget*
+#define RPSFIELDS_GTKWIDGET \
+  RPSFIELDS_ZONED_VALUE; \
+  GtkWidget*gtk_widget
+
+struct RpsZoneGtkWidget_st { RPSFIELDS_GTKWIDGET; };
+typedef struct RpsZoneGtkWidget_st RpsGtkWidget_t; /* for RpsTy_GtkWiget */
+const RpsGtkWidget_t* rps_alloc_gtk_widget(GtkWidget*);
+// no load routine for GtkWidget
 
 /////////////// tuple of objects value
 #define RPSFIELDS_TUPLEOB \
