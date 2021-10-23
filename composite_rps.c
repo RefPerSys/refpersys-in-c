@@ -32,6 +32,8 @@ const RpsTupleOb_t *
 rps_alloc_tuple_sized (unsigned arity, const RpsObject_t ** arr)
 {
   RpsTupleOb_t *tup = NULL;
+  RpsHash_t htup = 0;
+  unsigned long h1 = 0, h2 = rps_prime_above (3 * arity + 5);
   if (arr == NULL && arity > 0)
     return NULL;
   tup =
@@ -39,9 +41,29 @@ rps_alloc_tuple_sized (unsigned arity, const RpsObject_t ** arr)
 		    RpsTy_TupleOb);
   for (int ix = 0; ix < (int) arity; ix++)
     {
-      if (arr[ix] && rps_is_valid_object (arr[ix]))
-	tup->tuple_comp[ix] = arr[ix];
+      const RpsObject_t *curob = arr[ix];
+      if (curob && rps_is_valid_object (curob))
+	{
+	  RpsHash_t curhash = curob->zv_hash;
+	  tup->tuple_comp[ix] = curob;
+	  if (ix % 2 == 0)
+	    {
+	      unsigned oldh1 = h1;
+	      h1 = ((32059 * h1) ^ (curhash * 32083)) + ix;
+	      h2 = ((oldh1 << 11) ^ curhash) + ((h2 >> 17) * 321073);
+	    }
+	  else
+	    {
+	      unsigned oldh2 = h2;
+	      h1 = (32009 * h1) ^ ((curhash * 52069) + oldh2 - ix);
+	      h2 = (oldh2 % 152063) ^ ((curhash << 5) + (541 * h2));
+	    }
+	}
     }
-#warning incomplete rps_alloc_tuple_sized
-  RPS_FATAL ("incomplete rps_alloc_tuple_sized arity %u", arity);
+  htup = h1 ^ h2;
+  if (!htup)
+    htup = rps_prime_above ((h1 & 0xfffff) + (h2 & 0xffffff));
+  tup->zv_hash = htup;
+  tup->zm_length = arity;
+  return tup;
 }				/* end of rps_alloc_tuple_sized */
