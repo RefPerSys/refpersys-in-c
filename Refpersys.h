@@ -276,7 +276,7 @@ const RpsGtkWidget_t* rps_alloc_gtk_widget(GtkWidget*);
 struct RpsZoneTupleOb_st { RPSFIELDS_TUPLEOB; };
 typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
 const RpsTupleOb_t* rps_alloc_vtuple(unsigned arity, ...);
-const RpsTupleOb_t* rps_alloc_tuple_sized(unsigned arity, const RpsObject_t**arr);
+const RpsTupleOb_t* rps_alloc_tuple_sized(unsigned arity, RpsObject_t**arr);
 /////////////// set of objects value
 #define RPSFIELDS_SETOB \
   RPSFIELDS_ZONED_VALUE; \
@@ -299,8 +299,8 @@ typedef struct RpsZoneSetOb_st RpsSetOb_t; /* for RpsTy_SetOb */
 
 
 struct RpsZoneObject_st { RPSFIELDS_OBJECT; };
-extern bool rps_is_valid_object(const RpsObject_t* obj);
-extern bool rps_object_less(const RpsObject_t* ob1, const RpsObject_t*ob2);
+extern bool rps_is_valid_object(RpsObject_t* obj);
+extern bool rps_object_less(RpsObject_t* ob1, RpsObject_t*ob2);
 
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes

@@ -29,7 +29,7 @@
 #include "Refpersys.h"
 
 bool
-rps_is_valid_object (const RpsObject_t * obj)
+rps_is_valid_object (RpsObject_t * obj)
 {
   if (!obj)
     return false;
@@ -44,7 +44,7 @@ rps_is_valid_object (const RpsObject_t * obj)
 
 
 bool
-rps_object_less (const RpsObject_t * ob1, const RpsObject_t * ob2)
+rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2)
 {
   if (ob1 == ob2)
     return false;
@@ -96,8 +96,8 @@ rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
   while (lo < hi + 4)
     {
       int mi = (lo + hi) / 2;
-      const RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
-      const RpsValue_t curval = tbl->attr_entries[mi].ent_val;
+      RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
+      RpsValue_t curval = tbl->attr_entries[mi].ent_val;
       if (curattr == obattr)
 	return curval;
       else if (rps_object_less (curattr, obattr))
@@ -107,8 +107,8 @@ rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
     };
   for (int mi = lo; mi <= hi; mi++)
     {
-      const RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
-      const RpsValue_t curval = tbl->attr_entries[mi].ent_val;
+      RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
+      RpsValue_t curval = tbl->attr_entries[mi].ent_val;
       if (curattr == obattr)
 	return curval;
     }
@@ -127,7 +127,7 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
   while (lo < hi + 4)
     {
       int mi = (lo + hi) / 2;
-      const RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
+      RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
       if (curattr == obattr)
 	{
 	  tbl->attr_entries[mi].ent_val = obval;
@@ -141,7 +141,7 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
   assert (tbllen < tblsiz);
   for (int ix = lo; ix <= hi; ix++)
     {
-      const RpsObject_t *curattr = tbl->attr_entries[ix].ent_attr;
+      RpsObject_t *curattr = tbl->attr_entries[ix].ent_attr;
       if (curattr == obattr)
 	{
 	  tbl->attr_entries[ix].ent_val = obval;

@@ -29,7 +29,7 @@
 #include "Refpersys.h"
 
 const RpsTupleOb_t *
-rps_alloc_tuple_sized (unsigned arity, const RpsObject_t ** arr)
+rps_alloc_tuple_sized (unsigned arity, RpsObject_t ** arr)
 {
   RpsTupleOb_t *tup = NULL;
   RpsHash_t htup = 0;
@@ -41,11 +41,11 @@ rps_alloc_tuple_sized (unsigned arity, const RpsObject_t ** arr)
 		    RpsTy_TupleOb);
   for (int ix = 0; ix < (int) arity; ix++)
     {
-      const RpsObject_t *curob = arr[ix];
+      RpsObject_t *curob = arr[ix];
       if (curob && rps_is_valid_object (curob))
 	{
 	  RpsHash_t curhash = curob->zv_hash;
-	  tup->tuple_comp[ix] = (RpsObject_t*)curob;
+	  tup->tuple_comp[ix] = (RpsObject_t *) curob;
 	  if (ix % 2 == 0)
 	    {
 	      unsigned oldh1 = h1;
@@ -74,7 +74,7 @@ rps_alloc_vtuple (unsigned arity, ...)
 {
   va_list arglist;
   const RpsTupleOb_t *tup = NULL;
-  const RpsObject_t **obarr = RPS_ALLOC_ZEROED (arity * sizeof (RpsObject_t *));
+  RpsObject_t **obarr = RPS_ALLOC_ZEROED (arity * sizeof (RpsObject_t *));
   va_start (arglist, arity);
   for (int ix = 0; ix < (int) arity; ix++)
     {
