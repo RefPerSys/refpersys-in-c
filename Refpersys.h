@@ -151,6 +151,7 @@ typedef uintptr_t RpsValue_t;
 /// the loader internals are in file load_rps.c
 typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
 typedef struct RpsPayl_Loader_st RpsLoader_t; ///// forward declaration
+typedef struct RpsPayl_AttrTable_st RpsAttrTable_t; //// forward declaration
 extern bool rps_is_valid_loader(RpsLoader_t*ld);
 extern bool rps_is_valid_filling_loader (RpsLoader_t *);
 
@@ -285,22 +286,41 @@ typedef struct RpsZoneSetOb_st RpsSetOb_t; /* for RpsTy_SetOb */
 
 
 ////////////////////////// objects
-#define RPSFIELDS_OBJECT \
-  RPSFIELDS_ZONED_VALUE; \
-  RpsOid_t ob_id; \
-  double ob_mtime; \
-  pthread_mutex_t ob_mtx; \
-  RpsObject_t* ob_class; \
-  RpsObject_t* ob_zone; \
+#define RPSFIELDS_OBJECT                        \
+  RPSFIELDS_ZONED_VALUE;                        \
+  RpsOid_t ob_id;                               \
+  double ob_mtime;                              \
+  pthread_mutex_t ob_mtx;                       \
+  RpsObject_t* ob_class;                        \
+  RpsObject_t* ob_zone;                         \
+  RpsAttrTable_t* ob_attrtable;                 \
   /* other fields missing */
 
 
 struct RpsZoneObject_st { RPSFIELDS_OBJECT; };
-
-
 extern bool rps_is_valid_object(const RpsObject_t* obj);
 
 
+/////////////// table of attributes (objects) with their values
+/////////////// entries are either empty or sorted by ascending attributes
+struct rps_attrentry_st {
+  RpsObject_t* ent_attr;
+  RpsValue_t ent_val;
+};
+
+#define RPS_MAX_NB_ATTRS (1U<<28)
+//// the zm_xtra is a prime index for the allocated size
+//// the zm_length is the actual number of non-empty entries
+#define RPSFIELDS_ATTRTABLE			\
+  RPSFIELDS_ZONED_MEMORY;			\
+  struct rps_attrentry_st attr_entries[]
+
+///// for RpsAttrTable_t
+struct RpsPayl_AttrTable_st { RPSFIELDS_ATTRTABLE; };
+extern RpsAttrTable_t*rps_alloc_empty_attr_table(unsigned size);
+extern RpsValue_t rps_attr_table_find(const RpsAttrTable_t*tbl, RpsObject_t*obattr);
+extern RpsAttrTable_t*rps_attr_table_put(RpsAttrTable_t*tbl, RpsObject_t*obattr, RpsValue_t val);
+extern RpsAttrTable_t*rps_attr_table_remove(RpsAttrTable_t*tbl, RpsObject_t*obattr, RpsValue_t val);
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap(void);

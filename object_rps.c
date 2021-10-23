@@ -41,3 +41,25 @@ rps_is_valid_object (const RpsObject_t * obj)
   pthread_mutex_unlock (&obj->ob_mtx);
   return true;
 }				/* end rps_is_valid_object */
+
+
+RpsAttrTable_t *
+rps_alloc_empty_attr_table (unsigned size)
+{
+  RpsAttrTable_t *tb = NULL;
+  intptr_t primsiz = 0;
+  int primix = 0;
+  if (size > RPS_MAX_NB_ATTRS)
+    RPS_FATAL ("too big attribute table %u", size);
+  primsiz = rps_prime_above (size);
+  assert (primsiz > 0);
+  primix = rps_index_of_prime (primsiz);
+  assert (primix >= 0 && primix < 256);
+  tb =
+    RPS_ALLOC_ZONE (sizeof (RpsAttrTable_t) +
+		    primsiz * sizeof (struct rps_attrentry_st),
+		    -RpsPyt_AttrTable);
+  tb->zm_xtra = primix;
+  tb->zm_length = 0;
+  return tb;
+}				/* end rps_alloc_empty_attr_table */

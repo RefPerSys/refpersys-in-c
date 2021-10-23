@@ -123,7 +123,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 void
 rps_load_initial_heap (void)
 {
-  RpsLoader_t *loader = RPS_ALLOC_ZONE (sizeof (RpsLoader_t), RpsPyt_Loader);
+  RpsLoader_t *loader = RPS_ALLOC_ZONE (sizeof (RpsLoader_t), -RpsPyt_Loader);
   loader->ld_magic = RPS_LOADER_MAGIC;
   loader->ld_state = RPSLOADING_PARSE_MANIFEST_PASS;
   rps_load_parse_manifest (loader);

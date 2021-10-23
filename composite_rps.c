@@ -78,7 +78,7 @@ rps_alloc_vtuple (unsigned arity, ...)
   va_start (arglist, arity);
   for (int ix = 0; ix < (int) arity; ix++)
     {
-      obarr[ix] = va_arg (arglist, RpsObject *);
+      obarr[ix] = va_arg (arglist, RpsObject_t *);
     }
   va_end (arglist);
   tup = rps_alloc_tuple_sized (arity, obarr);
