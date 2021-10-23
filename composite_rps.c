@@ -67,3 +67,21 @@ rps_alloc_tuple_sized (unsigned arity, const RpsObject_t ** arr)
   tup->zm_length = arity;
   return tup;
 }				/* end of rps_alloc_tuple_sized */
+
+
+const RpsTupleOb_t *
+rps_alloc_vtuple (unsigned arity, ...)
+{
+  va_list arglist;
+  RpsTupleOb_t *tup = NULL;
+  RpsObject_t **obarr = RPS_ALLOC_ZEROED (arity * sizeof (RpsObject_t *));
+  va_start (arglist, arity);
+  for (int ix = 0; ix < (int) arity; ix++)
+    {
+      obarr[ix] = va_arg (arglist, RpsObject *);
+    }
+  va_end (arglist);
+  tup = rps_alloc_tuple_sized (arity, obarr);
+  free (obarr);
+  return tup;
+}				/* end rps_alloc_vtuple */
