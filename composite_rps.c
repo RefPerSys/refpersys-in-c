@@ -45,7 +45,7 @@ rps_alloc_tuple_sized (unsigned arity, const RpsObject_t ** arr)
       if (curob && rps_is_valid_object (curob))
 	{
 	  RpsHash_t curhash = curob->zv_hash;
-	  tup->tuple_comp[ix] = curob;
+	  tup->tuple_comp[ix] = (RpsObject_t*)curob;
 	  if (ix % 2 == 0)
 	    {
 	      unsigned oldh1 = h1;
@@ -73,8 +73,8 @@ const RpsTupleOb_t *
 rps_alloc_vtuple (unsigned arity, ...)
 {
   va_list arglist;
-  RpsTupleOb_t *tup = NULL;
-  RpsObject_t **obarr = RPS_ALLOC_ZEROED (arity * sizeof (RpsObject_t *));
+  const RpsTupleOb_t *tup = NULL;
+  const RpsObject_t **obarr = RPS_ALLOC_ZEROED (arity * sizeof (RpsObject_t *));
   va_start (arglist, arity);
   for (int ix = 0; ix < (int) arity; ix++)
     {
