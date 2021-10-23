@@ -43,6 +43,22 @@ rps_is_valid_object (const RpsObject_t * obj)
 }				/* end rps_is_valid_object */
 
 
+bool
+rps_object_less (const RpsObject_t * ob1, const RpsObject_t * ob2)
+{
+  if (ob1 == ob2)
+    return false;
+  if (!ob1)
+    return true;
+  if (!ob2)
+    return false;
+  if (ob1->zm_type != RpsTy_Object)
+    RPS_FATAL ("non-object ob1 @%p", ob1);
+  if (ob2->zm_type != RpsTy_Object)
+    RPS_FATAL ("non-object ob2 @%p", ob1);
+  return rps_oid_less_than (ob1->ob_id, ob2->ob_id);
+}
+
 RpsAttrTable_t *
 rps_alloc_empty_attr_table (unsigned size)
 {
@@ -63,3 +79,42 @@ rps_alloc_empty_attr_table (unsigned size)
   tb->zm_length = 0;
   return tb;
 }				/* end rps_alloc_empty_attr_table */
+
+
+RpsValue_t
+rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
+{
+  if (!tbl || !obattr)
+    return NULL;
+  if (tbl->zm_type != -RpsPyt_AttrTable)
+    return NULL;
+  if (!rps_is_valid_object (obattr))
+    return NULL;
+  intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
+  unsigned tbllen = tbl->zm_length;
+  int lo = 0, hi = (int) tbllen - 1;
+  while (lo < hi + 4)
+    {
+      int mi = (lo + hi) / 2;
+      const RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
+      const RpsValue_t curval = tbl->attr_entries[mi].ent_val;
+      if (curattr == obattr)
+	return curval;
+      else if (rps_object_less (curattr, obattr))
+	lo = mi;
+      else
+	hi = mi;
+    };
+  for (int mi = lo; mi <= hi; mi++)
+    {
+      const RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
+      const RpsValue_t curval = tbl->attr_entries[mi].ent_val;
+      if (curattr == obattr)
+	return curval;
+    }
+  return RPS_NULL_VALUE;
+}				/* end rps_attr_table_find */
+
+
+
+/*************** end of file object_rps.c ****************/
