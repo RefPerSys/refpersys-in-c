@@ -85,11 +85,11 @@ RpsValue_t
 rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
 {
   if (!tbl || !obattr)
-    return NULL;
+    return RPS_NULL_VALUE;
   if (tbl->zm_type != -RpsPyt_AttrTable)
-    return NULL;
+    return RPS_NULL_VALUE;
   if (!rps_is_valid_object (obattr))
-    return NULL;
+    return RPS_NULL_VALUE;
   intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
   unsigned tbllen = tbl->zm_length;
   int lo = 0, hi = (int) tbllen - 1;
@@ -116,5 +116,73 @@ rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
 }				/* end rps_attr_table_find */
 
 
+/* internal routine to put or insert an entry ... Return true if successful */
+static bool
+rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
+			  RpsValue_t obval)
+{
+  intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
+  unsigned tbllen = tbl->zm_length;
+  int lo = 0, hi = (int) tbllen - 1;
+  while (lo < hi + 4)
+    {
+      int mi = (lo + hi) / 2;
+      const RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
+      if (curattr == obattr)
+	{
+	  tbl->attr_entries[mi].ent_val = obval;
+	  return true;
+	}
+      else if (rps_object_less (curattr, obattr))
+	lo = mi;
+      else
+	hi = mi;
+    };
+  assert (tbllen < tblsiz);
+  for (int ix = lo; ix <= hi; ix++)
+    {
+      const RpsObject_t *curattr = tbl->attr_entries[ix].ent_attr;
+      if (curattr == obattr)
+	{
+	  tbl->attr_entries[ix].ent_val = obval;
+	  return true;
+	}
+      else if (rps_object_less (curattr, obattr))
+	{
+	  memmove (tbl->attr_entries + ix, tbl->attr_entries + ix + 1,
+		   (tbllen - ix) * sizeof (struct rps_attrentry_st));
+	  tbl->attr_entries[ix].ent_attr = obattr;
+	  tbl->attr_entries[ix].ent_val = obval;
+	  tbl->zm_length = tbllen + 1;
+	  return true;
+	}
+    }
+  return false;
+}				/* end rps_attr_table_entry_put */
+
+RpsAttrTable_t *
+rps_attr_table_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
+		    RpsValue_t val)
+{
+  if (!obattr || !rps_is_valid_object (obattr))
+    return tbl;
+  if (!val)
+    return tbl;
+  if (rps_attr_table_entry_put (tbl, obattr, val))
+    return tbl;
+  RpsAttrTable_t *old_tbl = tbl;
+  intptr_t oldtblsiz = rps_prime_of_index (old_tbl->zm_xtra);
+  unsigned oldtbllen = old_tbl->zm_length;
+  RpsAttrTable_t *new_tbl =
+    rps_alloc_empty_attr_table (oldtbllen + 2 + oldtblsiz / 5);
+  memcpy (new_tbl->attr_entries, old_tbl->attr_entries,
+	  oldtbllen * sizeof (struct rps_attrentry_st));
+  new_tbl->zm_length = oldtbllen;
+  // the test below should always succeed!
+  if (!rps_attr_table_entry_put (new_tbl, obattr, val))
+    RPS_FATAL ("corruption in rps_attr_table_put for new_tbl @%p", new_tbl);
+  free (old_tbl);
+  return new_tbl;
+}				/* end rps_attr_table_put */
 
 /*************** end of file object_rps.c ****************/
