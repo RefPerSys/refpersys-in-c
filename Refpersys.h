@@ -147,6 +147,7 @@ typedef uint32_t RpsHash_t;
 /// a value is a word, sometimes a pointer, sometimes a tagged integer (odd word)
 typedef uintptr_t RpsValue_t;
 
+#define RPS_NULL_VALUE ((RpsValue_t)0)
 
 /// the loader internals are in file load_rps.c
 typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
@@ -299,7 +300,7 @@ typedef struct RpsZoneSetOb_st RpsSetOb_t; /* for RpsTy_SetOb */
 
 struct RpsZoneObject_st { RPSFIELDS_OBJECT; };
 extern bool rps_is_valid_object(const RpsObject_t* obj);
-
+extern bool rps_object_less(const RpsObject_t* ob1, const RpsObject_t*ob2);
 
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes
