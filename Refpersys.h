@@ -251,7 +251,7 @@ const RpsString_t*rps_load_string(json_t*js, RpsLoader_t*ld);
 /////////////// boxed JSON values
 #define RPSFIELDS_JSON \
   RPSFIELDS_ZONED_VALUE; \
-  json_t *json
+  const json_t *json
 
 struct RpsZoneJson_st { RPSFIELDS_JSON; };
 typedef struct RpsZoneJson_st RpsJson_t; /* for RpsTy_Json */
