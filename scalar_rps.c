@@ -132,8 +132,8 @@ rps_value_to_integer (const RpsValue_t v)	/* gives 0 for a non-tagged integer */
 static int
 rps_compare_cstr_ptr (const void *p1, const void *p2)
 {
-  const char **s1 = p1;
-  const char **s2 = p2;
+  const char **s1 = (const char **) p1;
+  const char **s2 = (const char **) p2;
   assert (*s1 != NULL);
   assert (*s2 != NULL);
   return strcmp (*s1, *s2);
@@ -141,7 +141,7 @@ rps_compare_cstr_ptr (const void *p1, const void *p2)
 
 /// internal recursive functon to compute two hashes
 static void
-rps_compute_json_two_hash (int depth, json_t * js, long *pl1, long *pl2)
+rps_compute_json_two_hash (int depth, const json_t * js, long *pl1, long *pl2)
 {
   if (!js)
     return;
@@ -157,7 +157,7 @@ rps_compute_json_two_hash (int depth, json_t * js, long *pl1, long *pl2)
 	{
 	  const char *key = NULL;
 	  json_t *valj = NULL;
-	  json_object_foreach (js, key, valj) arrkey[cnt++] = key;
+	  json_object_foreach ((json_t *) js, key, valj) arrkey[cnt++] = key;
 	}
 	qsort (arrkey, jsz, sizeof (const char *), rps_compare_cstr_ptr);
 	for (int ix = 0; ix < cnt; ix++)
