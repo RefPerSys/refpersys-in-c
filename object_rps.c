@@ -121,6 +121,7 @@ static bool
 rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
 			  RpsValue_t obval)
 {
+  assert (tbl != NULL);
   intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
   unsigned tbllen = tbl->zm_length;
   int lo = 0, hi = (int) tbllen - 1;
@@ -193,8 +194,71 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 {
   if (!obattr || !rps_is_valid_object (obattr))
     return tbl;
-#warning incomplete rps_attr_table_remove
-  RPS_FATAL ("incomplete rps_attr_table_remove");
+  if (!tbl)
+    return NULL;
+  RpsAttrTable_t *old_tbl = tbl;
+  int oldprimix = old_tbl->zm_xtra;
+  intptr_t oldtblsiz = rps_prime_of_index (oldprimix);
+  unsigned oldtbllen = old_tbl->zm_length;
+  int pos = -1;
+  int lo = 0, hi = (int) oldtbllen - 1;
+  while (lo < hi + 4)
+    {
+      int mi = (lo + hi) / 2;
+      RpsObject_t *curattr = old_tbl->attr_entries[mi].ent_attr;
+      if (curattr == obattr)
+	{
+	  pos = mi;
+	  break;
+	}
+      else if (rps_object_less (curattr, obattr))
+	lo = mi;
+      else
+	hi = mi;
+    };
+  if (pos < 0)
+    for (int ix = lo; ix <= hi; ix++)
+      {
+	RpsObject_t *curattr = old_tbl->attr_entries[ix].ent_attr;
+	if (curattr == obattr)
+	  {
+	    pos = ix;
+	    break;
+	  }
+      };
+  if (pos < 0)			/* not found */
+    return old_tbl;
+  if (oldtblsiz > 6 && oldtbllen < oldtblsiz / 2)
+    {
+      /* perhaps shrink the table */
+      int newprimsiz = rps_prime_above (oldtbllen - 1);
+      assert (newprimsiz > 0);
+      int newprimix = rps_index_of_prime (newprimsiz);
+      assert (newprimix >= 0 && newprimix < 256);
+      if (newprimix < oldprimix)
+	{
+	  RpsAttrTable_t *new_tbl =
+	    RPS_ALLOC_ZONE (sizeof (RpsAttrTable_t) +
+			    newprimsiz * sizeof (struct rps_attrentry_st),
+			    -RpsPyt_AttrTable);
+	  new_tbl->zm_xtra = newprimix;
+	  new_tbl->zm_length = 0;
+	  for (int ix = 0; ix < pos; ix++)
+	    new_tbl->attr_entries[ix] = old_tbl->attr_entries[ix];
+	  for (int ix = pos + 1; ix < oldtbllen; ix++)
+	    new_tbl->attr_entries[ix] = old_tbl->attr_entries[ix - 1];
+	  new_tbl->zm_length = oldtbllen - 1;
+	  free (old_tbl);
+	  return new_tbl;
+	}
+    };
+  /* don't shrink, but remove entry at pos and shift entries above it */
+  for (int ix = pos + 1; ix < oldtbllen; ix++)
+    old_tbl->attr_entries[ix] = old_tbl->attr_entries[ix - 1];
+  old_tbl->attr_entries[oldtbllen - 1].ent_attr = NULL;
+  old_tbl->attr_entries[oldtbllen - 1].ent_val = NULL;
+  old_tbl->zm_length = oldtbllen - 1;
+  return old_tbl;
 }				/* end rps_attr_table_remove */
 
 /*************** end of file object_rps.c ****************/
