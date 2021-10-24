@@ -334,7 +334,7 @@ extern RpsAttrTable_t*rps_alloc_empty_attr_table(unsigned size);
 extern RpsValue_t rps_attr_table_find(const RpsAttrTable_t*tbl, RpsObject_t*obattr);
 /// These functions could sometimes re-allocate a new table and free the old one ...
 extern RpsAttrTable_t*rps_attr_table_put(RpsAttrTable_t*tbl, RpsObject_t*obattr, RpsValue_t val);
-extern RpsAttrTable_t*rps_attr_table_remove(RpsAttrTable_t*tbl, RpsObject_t*obattr, RpsValue_t val);
+extern RpsAttrTable_t*rps_attr_table_remove(RpsAttrTable_t*tbl, RpsObject_t*obattr);
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap(void);
