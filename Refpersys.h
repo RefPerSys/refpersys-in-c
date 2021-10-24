@@ -199,7 +199,7 @@ extern bool rps_oid_is_valid(const RpsOid_t oid);
 extern bool rps_oid_equal(const RpsOid_t oid1, const RpsOid_t oid2);
 extern bool rps_oid_less_than(const RpsOid_t oid1, const RpsOid_t oid2);
 extern bool rps_oid_less_equal(const RpsOid_t oid1, const RpsOid_t oid2);
-
+extern int rps_oid_cmp(const RpsOid_t oid1, const RpsOid_t oid2);
 /*****************************************************************/
 /// a payload is not a proper value, but garbaged collected as if it was one....
 /// payload types - prefix is RpsPyt
@@ -313,7 +313,7 @@ typedef struct RpsZoneSetOb_st RpsSetOb_t; /* for RpsTy_SetOb */
 struct RpsZoneObject_st { RPSFIELDS_OBJECT; };
 extern bool rps_is_valid_object(RpsObject_t* obj);
 extern bool rps_object_less(RpsObject_t* ob1, RpsObject_t*ob2);
-
+extern int rps_object_cmp(const RpsObject_t* ob1, const RpsObject_t*ob2);
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes
 struct rps_attrentry_st {

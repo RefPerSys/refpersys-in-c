@@ -261,4 +261,25 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
   return old_tbl;
 }				/* end rps_attr_table_remove */
 
+// for qsort of objects
+static int
+rps_objptrqcmp (const void *p1, const void *p2)
+{
+  return rps_object_cmp (*(const RpsObject_t **) p1,
+			 *(const RpsObject_t **) p2);
+}				/* end objptrqcmp_BM */
+
+
+int
+rps_object_cmp (const RpsObject_t * ob1, const RpsObject_t * ob2)
+{
+  if (ob1 == ob2)
+    return 0;
+  if (ob1 == NULL)
+    return -1;
+  if (ob2 == NULL)
+    return +1;
+  return rps_oid_cmp (ob1->ob_id, ob2->ob_id);
+}				/* end rps_oid_cmp */
+
 /*************** end of file object_rps.c ****************/

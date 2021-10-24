@@ -117,4 +117,21 @@ rps_oid_less_equal (const RpsOid_t oid1, const RpsOid_t oid2)
   return false;
 }				/* end rps_oid_less_equal */
 
+
+int
+rps_oid_cmp (const RpsOid_t oid1, const RpsOid_t oid2)
+{
+  if (oid1.id_hi < oid2.id_hi)
+    return -1;
+  if (oid1.id_hi > oid2.id_hi)
+    return +1;
+  if (oid1.id_lo == oid2.id_lo)
+    return 0;
+  if (oid1.id_lo < oid2.id_lo)
+    return -1;
+  if (oid1.id_lo > oid2.id_lo)
+    return +1;
+  RPS_FATAL ("impossible case in rps_oid_cmp");
+}				/* end rps_oid_cmp */
+
 /******************* end of file oid_rps.c *****************/
