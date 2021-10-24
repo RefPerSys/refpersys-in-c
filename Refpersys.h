@@ -144,18 +144,27 @@ enum {
 /// an hash has 32 bits and conventionally is never 0
 typedef uint32_t RpsHash_t;
 
+
+typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
+typedef struct RpsPayl_AttrTable_st RpsAttrTable_t; //// forward declaration
+
 /// a value is a word, sometimes a pointer, sometimes a tagged integer (odd word)
 typedef uintptr_t RpsValue_t;
 
 #define RPS_NULL_VALUE ((RpsValue_t)0)
 
 /// the loader internals are in file load_rps.c
-typedef struct RpsZoneObject_st  RpsObject_t; ///// forward declaration
 typedef struct RpsPayl_Loader_st RpsLoader_t; ///// forward declaration
-typedef struct RpsPayl_AttrTable_st RpsAttrTable_t; //// forward declaration
+/// the loader internals are in file dump_rps.c
 extern bool rps_is_valid_loader(RpsLoader_t*ld);
 extern bool rps_is_valid_filling_loader (RpsLoader_t *);
 
+typedef struct RpsPayl_Dumper_st RpsDumper_t; ///// forward declaration
+extern bool rps_is_valid_dumper(RpsDumper_t*du);
+
+
+
+///// hash of strings
 extern RpsHash_t rps_hash_cstr (const char *s);
 
 /*****************************************************************/
@@ -277,6 +286,9 @@ struct RpsZoneTupleOb_st { RPSFIELDS_TUPLEOB; };
 typedef struct RpsZoneTupleOb_st RpsTupleOb_t; /* for RpsTy_TupleOb */
 const RpsTupleOb_t* rps_alloc_vtuple(unsigned arity, ...);
 const RpsTupleOb_t* rps_alloc_tuple_sized(unsigned arity, RpsObject_t**arr);
+const RpsTupleOb_t*rps_load_tuple(const json_t*js, RpsLoader_t*ld);
+
+
 /////////////// set of objects value
 #define RPSFIELDS_SETOB \
   RPSFIELDS_ZONED_VALUE; \
