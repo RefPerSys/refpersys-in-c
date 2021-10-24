@@ -168,6 +168,8 @@ rps_attr_table_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
     return tbl;
   if (!val)
     return tbl;
+  if (!tbl)
+    tbl = rps_alloc_empty_attr_table (2);
   if (rps_attr_table_entry_put (tbl, obattr, val))
     return tbl;
   RpsAttrTable_t *old_tbl = tbl;
@@ -184,5 +186,15 @@ rps_attr_table_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
   free (old_tbl);
   return new_tbl;
 }				/* end rps_attr_table_put */
+
+
+RpsAttrTable_t *
+rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
+{
+  if (!obattr || !rps_is_valid_object (obattr))
+    return tbl;
+#warning incomplete rps_attr_table_remove
+  RPS_FATAL ("incomplete rps_attr_table_remove");
+}				/* end rps_attr_table_remove */
 
 /*************** end of file object_rps.c ****************/
