@@ -59,12 +59,12 @@ rps_is_valid_loader (RpsLoader_t * ld)
 {
   if (!ld)
     return false;
-  if (ld->ld_magic == RPS_LOADER_MAGIC)
-    return ld->ld_state == RPSLOADING_PARSE_MANIFEST_PASS
-      || ld->ld_state == RPSLOADING_CREATE_OBJECTS_PASS
-      || ld->ld_state == RPSLOADING_FILL_OBJECTS_PASS
-      || ld->ld_state == RPSLOADING_EPILOGUE_PASS;
-  return false;
+  if (ld->ld_magic != RPS_LOADER_MAGIC)
+    return false;
+  return ld->ld_state == RPSLOADING_PARSE_MANIFEST_PASS
+    || ld->ld_state == RPSLOADING_CREATE_OBJECTS_PASS
+    || ld->ld_state == RPSLOADING_FILL_OBJECTS_PASS
+    || ld->ld_state == RPSLOADING_EPILOGUE_PASS;
 }				/* end rps_is_valid_loader */
 
 bool
