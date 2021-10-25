@@ -311,7 +311,7 @@ struct RpsZoneTupleOb_st
   RPSFIELDS_TUPLEOB;
 };
 typedef struct RpsZoneTupleOb_st RpsTupleOb_t;	/* for RpsTy_TupleOb */
-const RpsTupleOb_t *rps_alloc_vtuple (unsigned arity, ...);
+const RpsTupleOb_t *rps_alloc_vtuple (unsigned arity, /*objects */ ...);
 const RpsTupleOb_t *rps_alloc_tuple_sized (unsigned arity,
 					   RpsObject_t ** arr);
 const RpsTupleOb_t *rps_load_tuple (const json_t * js, RpsLoader_t * ld);
@@ -327,7 +327,9 @@ struct RpsZoneSetOb_st
   RPSFIELDS_SETOB;
 };
 typedef struct RpsZoneSetOb_st RpsSetOb_t;	/* for RpsTy_SetOb */
-
+const RpsSetOb_t *rps_alloc_vset (unsigned card, /*objects */ ...);
+const RpsSetOb_t *rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr);
+const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 
 ////////////////////////// objects
 #define RPSFIELDS_OBJECT                        \

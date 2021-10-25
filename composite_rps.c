@@ -74,7 +74,8 @@ rps_alloc_vtuple (unsigned arity, ...)
 {
   va_list arglist;
   const RpsTupleOb_t *tup = NULL;
-  RpsObject_t **obarr = RPS_ALLOC_ZEROED (arity * sizeof (RpsObject_t *));
+  RpsObject_t **obarr =
+    RPS_ALLOC_ZEROED ((arity + 1) * sizeof (RpsObject_t *));
   va_start (arglist, arity);
   for (int ix = 0; ix < (int) arity; ix++)
     {
@@ -85,3 +86,50 @@ rps_alloc_vtuple (unsigned arity, ...)
   free (obarr);
   return tup;
 }				/* end rps_alloc_vtuple */
+
+
+const RpsSetOb_t *
+rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr)
+{
+  RpsSetOb_t *set = NULL;
+  if (!arr && nbcomp > 0)
+    return NULL;
+  RpsObject_t **arrcpy =
+    RPS_ALLOC_ZEROED ((nbcomp + 1) * sizeof (RpsObject_t *));
+  memcpy (arrcpy, arr, nbcomp * sizeof (RpsObject_t *));
+  rps_object_array_qsort (arrcpy, (int) nbcomp);
+  int card = 0;
+  for (int ix = 0; ix < (int) nbcomp - 1; ix++)
+    if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
+      card++;
+  set =
+    RPS_ALLOC_ZONE (sizeof (RpsSetOb_t) + card * sizeof (RpsObject_t *),
+		    RpsTy_SetOb);
+  set->zm_length = card;
+  int nbel = 0;
+  for (int ix = 0; ix < (int) nbcomp - 1; ix++)
+    if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
+      set->set_elem[nbel++] = arrcpy[ix];
+  if (set->set_elem[nbel] != arrcpy[nbcomp - 1] && arrcpy[nbcomp - 1])
+    set->set_elem[nbel++] = arrcpy[nbcomp - 1];
+  free (arrcpy);
+  return set;
+}				/* end rps_alloc_set_sized */
+
+const RpsSetOb_t *
+rps_alloc_vset (unsigned card, /*objects */ ...)
+{
+  RpsSetOb_t *set = NULL;
+  va_list arglist;
+  va_start (arglist, card);
+  RpsObject_t **arrcpy =
+    RPS_ALLOC_ZEROED ((card + 1) * sizeof (RpsObject_t *));
+  for (int ix = 0; ix < (int) card; ix++)
+    {
+      arrcpy[ix] = va_arg (arglist, RpsObject_t *);
+    }
+  va_end (arglist);
+  set = rps_alloc_set_sized (card, arrcpy);
+  free (arrcpy);
+  return set;
+}				/* end rps_alloc_vset */
