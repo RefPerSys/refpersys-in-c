@@ -140,10 +140,10 @@ rps_random_valid_oid (void)
   RpsOid_t roid = { 0, 0 };
   do
     {
-      roid.oid_hi =
-	(((uint32_t) g_random_int ()) << 32) | ((uint32_t) g_random_int ());
-      roid.oid_lo =
-	(((uint32_t) g_random_int ()) << 32) | ((uint32_t) g_random_int ());
+      roid.id_hi =
+	(((uint64_t) g_random_int ()) << 32) | ((uint32_t) g_random_int ());
+      roid.id_lo =
+	(((uint64_t) g_random_int ()) << 32) | ((uint32_t) g_random_int ());
     }
   while (!rps_oid_is_valid (roid));
   return roid;
