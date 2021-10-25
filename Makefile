@@ -81,6 +81,7 @@ indent:
 	for f in $(RPS_C_SOURCES) ; do \
 	    $(INDENT) $$f ;  \
 	done
+	$(INDENT) Refpersys.h 
 
 objects: $(RPS_C_OBJECTS)
 
