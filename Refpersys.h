@@ -314,6 +314,8 @@ struct RpsZoneObject_st { RPSFIELDS_OBJECT; };
 extern bool rps_is_valid_object(RpsObject_t* obj);
 extern bool rps_object_less(RpsObject_t* ob1, RpsObject_t*ob2);
 extern int rps_object_cmp(const RpsObject_t* ob1, const RpsObject_t*ob2);
+extern void rps_object_array_qsort (const RpsObject_t ** arr, int size);
+
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes
 struct rps_attrentry_st {

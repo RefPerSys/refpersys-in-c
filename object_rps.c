@@ -267,7 +267,7 @@ rps_objptrqcmp (const void *p1, const void *p2)
 {
   return rps_object_cmp (*(const RpsObject_t **) p1,
 			 *(const RpsObject_t **) p2);
-}				/* end objptrqcmp_BM */
+}				/* end rps_objptrqcmp */
 
 
 int
@@ -280,6 +280,14 @@ rps_object_cmp (const RpsObject_t * ob1, const RpsObject_t * ob2)
   if (ob2 == NULL)
     return +1;
   return rps_oid_cmp (ob1->ob_id, ob2->ob_id);
-}				/* end rps_oid_cmp */
+}				/* end rps_object_cmp */
+
+
+void
+rps_object_array_qsort (const RpsObject_t ** arr, int size)
+{
+  if (arr != NULL && size > 0)
+    qsort (arr, (size_t) size, sizeof (RpsObject_t *), rps_objptrqcmp);
+}				/* end rps_object_array_qsort */
 
 /*************** end of file object_rps.c ****************/
