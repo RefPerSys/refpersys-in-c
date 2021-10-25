@@ -134,4 +134,19 @@ rps_oid_cmp (const RpsOid_t oid1, const RpsOid_t oid2)
   RPS_FATAL ("impossible case in rps_oid_cmp");
 }				/* end rps_oid_cmp */
 
+RpsOid_t
+rps_random_valid_oid (void)
+{
+  RpsOid_t roid = { 0, 0 };
+  do
+    {
+      roid.oid_hi =
+	(((uint32_t) g_random_int ()) << 32) | ((uint32_t) g_random_int ());
+      roid.oid_lo =
+	(((uint32_t) g_random_int ()) << 32) | ((uint32_t) g_random_int ());
+    }
+  while (!rps_oid_is_valid (roid));
+  return roid;
+}				/* end rps_random_valid_oid */
+
 /******************* end of file oid_rps.c *****************/
