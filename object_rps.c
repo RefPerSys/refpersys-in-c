@@ -375,20 +375,90 @@ end:
   return obres;
 }				/* end rps_find_object_by_oid */
 
+
+
+static void
+rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
+				 RpsObject_t * obj)
+{
+  assert (buck != NULL);
+  assert (obj != NULL);
+  unsigned cbucksiz = buck->obuck_size;
+  assert (cbucksiz > 3);
+  if (5 * buck->obuck_card > 4 * cbucksiz)
+    {
+      unsigned newsiz = rps_prime_above (4 * buck->obuck_card / 3 + 5);
+      RpsObject_t **oldarr = buck->obuck_arr;
+      buck->obuck_arr = RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * newsiz);
+      buck->obuck_size = newsiz;
+      buck->obuck_card = 0;
+      for (int ix = 0; ix < (int) cbucksiz; ix++)
+	{
+	  RpsObject_t *oldobj = oldarr[ix];
+	  if (oldobj)		/* this recursion happens once! */
+	    rps_add_object_to_locked_bucket (buck, oldobj);
+	};
+      free (oldarr);
+    };
+  unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
+  for (int ix = stix; ix < (int) cbucksiz; ix++)
+    {
+      RpsObject_t *curob = buck->obuck_arr[ix];
+      if (NULL == curob)
+	{
+	  buck->obuck_arr[ix] = obj;
+	  buck->obuck_card++;
+	  return;
+	}
+      if (curob == obj)
+	return;
+    };
+  for (int ix = 0; ix < (int) stix; ix++)
+    {
+      RpsObject_t *curob = buck->obuck_arr[ix];
+      if (NULL == curob)
+	{
+	  buck->obuck_arr[ix] = obj;
+	  buck->obuck_card++;
+	  return;
+	}
+      if (curob == obj)
+	return;
+    };
+}				/* end rps_add_object_to_locked_bucket */
+
+
 RpsObject_t *
 rps_get_loaded_object_by_oid (const RpsOid_t oid, RpsLoader_t * ld)
 {
+  struct rps_object_bucket_st *curbuck = NULL;
   assert (rps_is_valid_loader (ld));
   if (rps_is_valid_creating_loader (ld))
     {
-      /* we can allocate a new object */
+      /* we should allocate a new object, since it should not exist */
+      unsigned bix = rps_oid_bucket_num (oid);
+      RpsObject_t *obinfant =
+	RPS_ALLOC_ZONE (sizeof (RpsObject_t), RpsTy_Object);
+      pthread_mutex_init (&obinfant->ob_mtx, &rps_objmutexattr);
+      obinfant->ob_id = oid;
+      // the infant object has no class!
+      pthread_mutex_lock (&rps_object_bucket_array[bix].obuck_mtx);
+      curbuck = &rps_object_bucket_array[bix];
+      if (!curbuck->obuck_arr)
+	{
+	  unsigned inibucksiz = 7;
+	  curbuck->obuck_arr =
+	    RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * inibucksiz);
+	  curbuck->obuck_size = inibucksiz;
+	};
+      rps_add_object_to_locked_bucket (curbuck, obinfant);
+      pthread_mutex_unlock (&curbuck->obuck_mtx);
     }
   else if (rps_is_valid_filling_loader (ld))
     {
       /* we need to find an existing object */
+      return rps_find_object_by_oid (oid);
     }
-#warning rps_get_loaded_object_by_oid is incomplete
-  RPS_FATAL ("rps_get_loaded_object_by_oid unimplemented");
 }				/* end rps_get_loaded_object_by_oid */
 
 /*************** end of file object_rps.c ****************/
