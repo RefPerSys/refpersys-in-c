@@ -4,7 +4,7 @@
  *
  * Description:
  *      This file is part of the Reflective Persistent System.
- *      It is almost its only public C99 header file.
+ *      It is almost its only public C11 header file.
  *
  * Author(s):
  *      Basile Starynkevitch <basile@starynkevitch.net>
@@ -182,6 +182,7 @@ typedef struct RpsOid_st RpsOid_t;
   "abcdefghijklmnopqrstuvwxyz"		  \
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+#define RPS_NULL_OID ((RpsOid_t){id_hi:0, id_lo:0})
 #define RPS_OIDBUFLEN 24
 #define RPS_OIDBASE (sizeof(RPS_B62DIGITS)-1)
 #define RPS_MIN_OID_HI (62*62*62)
@@ -203,6 +204,8 @@ extern bool rps_oid_equal (const RpsOid_t oid1, const RpsOid_t oid2);
 extern bool rps_oid_less_than (const RpsOid_t oid1, const RpsOid_t oid2);
 extern bool rps_oid_less_equal (const RpsOid_t oid1, const RpsOid_t oid2);
 extern int rps_oid_cmp (const RpsOid_t oid1, const RpsOid_t oid2);
+extern void rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN]);
+extern RpsOid_t rps_cstr_to_oid (const char *cstr, const char **pend);
 // compute a random and valid oid
 extern RpsOid_t rps_random_valid_oid (void);
 /*****************************************************************/
