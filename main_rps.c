@@ -90,9 +90,13 @@ rps_show_version_info (int argc, char **argv)
 	    gtk_get_micro_version ());
   printf ("\t GNU libc version: %s (see www.gnu.org/software/libc)\n",
 	  gnu_get_libc_version ());
+#if JANSSON_VERSION_HEX > 0x020d00
+  printf ("\t Jansson library runtime version: %s (see digip.org/jansson/)\n",
+	  jansson_version_str ());
+#else
   printf ("\t Jansson library version: %s (see digip.org/jansson/)\n",
-	  /*jansson_version_str ());*/
-	 JANSSON_VERSION);
+	  JANSSON_VERSION);
+#endif
   printf ("\t libcurl version: %s (see curl.se/libcurl)\n", curl_version ());
   printf ("\t " __FILE__ " was compiled on " __DATE__ " at " __TIME__ "\n");
   printf ("\t Subdirectories:\n");
