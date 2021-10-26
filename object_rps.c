@@ -256,7 +256,7 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
   for (int ix = pos + 1; ix < oldtbllen; ix++)
     old_tbl->attr_entries[ix] = old_tbl->attr_entries[ix - 1];
   old_tbl->attr_entries[oldtbllen - 1].ent_attr = NULL;
-  old_tbl->attr_entries[oldtbllen - 1].ent_val = NULL;
+  old_tbl->attr_entries[oldtbllen - 1].ent_val = RPS_NULL_VALUE;
   old_tbl->zm_length = oldtbllen - 1;
   return old_tbl;
 }				/* end rps_attr_table_remove */
