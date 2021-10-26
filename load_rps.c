@@ -77,6 +77,16 @@ rps_is_valid_filling_loader (RpsLoader_t * ld)
   return false;
 }				/* end rps_is_valid_filling_loader */
 
+bool
+rps_is_valid_creating_loader (RpsLoader_t * ld)
+{
+  if (!ld)
+    return false;
+  if (ld->ld_magic == RPS_LOADER_MAGIC)
+    return ld->ld_state == RPSLOADING_CREATE_OBJECTS_PASS;
+  return false;
+}				/* end rps_is_valid_creating_loader */
+
 void
 rps_load_parse_manifest (RpsLoader_t * ld)
 {

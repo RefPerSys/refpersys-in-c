@@ -375,4 +375,20 @@ end:
   return obres;
 }				/* end rps_find_object_by_oid */
 
+RpsObject_t *
+rps_get_loaded_object_by_oid (const RpsObject_t oid, RpsLoader_t * ld)
+{
+  assert (rps_is_valid_loader (ld));
+  if (rps_is_valid_creating_loader (ld))
+    {
+      /* we can allocate a new object */
+    }
+  else if (rps_is_valid_filling_loader (ld))
+    {
+      /* we need to find an existing object */
+    }
+#warning rps_get_loaded_object_by_oid is incomplete
+  RPS_FATAL ("rps_get_loaded_object_by_oid unimplemented");
+}				/* end rps_get_loaded_object_by_oid */
+
 /*************** end of file object_rps.c ****************/
