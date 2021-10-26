@@ -178,6 +178,7 @@ main (int argc, char **argv)
       rps_show_version_info (argc, argv);
       exit (EXIT_SUCCESS);
     };
+  rps_initialize_objects_machinery ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
   rps_load_initial_heap ();

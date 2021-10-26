@@ -261,6 +261,46 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
   return old_tbl;
 }				/* end rps_attr_table_remove */
 
+
+
+
+
+
+/*****************************************************************
+ * Objects
+ *****************************************************************/
+struct rps_object_bucket_st
+{
+  pthread_mutex_t obuck_mtx;
+  unsigned obuck_card;		/* number of objects in the bucket */
+  unsigned obuck_size;		/* allocated size of obuck_arr */
+  RpsObject_t **obuck_arr;
+};
+
+struct rps_object_bucket_st rps_object_bucket_array[RPS_OID_MAXBUCKETS];
+static pthread_mutexattr_t rps_objmutexattr;
+void
+rps_initialize_objects_machinery (void)
+{
+  static bool initialized;
+  if (initialized)
+    RPS_FATAL ("rps_initialize_objects_machinery called twice");
+  if (pthread_mutexattr_init (&rps_objmutexattr))
+    RPS_FATAL ("failed to init rps_objmutexattr");
+  if (pthread_mutexattr_settype (&rps_objmutexattr, PTHREAD_MUTEX_RECURSIVE))
+    RPS_FATAL ("failed to settype rps_objmutexattr");
+  for (int bix = 0; bix < RPS_OID_MAXBUCKETS; bix++)
+    {
+      pthread_mutex_init (&rps_object_bucket_array[bix].obuck_mtx,
+			  &rps_objmutexattr);
+      rps_object_bucket_array[bix].obuck_card = 0;
+      rps_object_bucket_array[bix].obuck_size = 0;
+      rps_object_bucket_array[bix].obuck_arr = NULL;
+    }
+  initialized = true;
+}				/* end rps_initialize_objects_machinery */
+
+
 // for qsort of objects
 static int
 rps_objptrqcmp (const void *p1, const void *p2)
