@@ -357,6 +357,7 @@ extern bool rps_is_valid_object (RpsObject_t * obj);
 extern bool rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2);
 extern int rps_object_cmp (const RpsObject_t * ob1, const RpsObject_t * ob2);
 extern void rps_object_array_qsort (const RpsObject_t ** arr, int size);
+extern RpsObject_t *rps_find_object_by_oid (const RpsOid_t oid);
 
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes

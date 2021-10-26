@@ -273,7 +273,7 @@ struct rps_object_bucket_st
 {
   pthread_mutex_t obuck_mtx;
   unsigned obuck_card;		/* number of objects in the bucket */
-  unsigned obuck_size;		/* allocated size of obuck_arr */
+  unsigned obuck_size;		/* allocated size of obuck_arr, some prime */
   RpsObject_t **obuck_arr;
 };
 
@@ -329,5 +329,50 @@ rps_object_array_qsort (const RpsObject_t ** arr, int size)
   if (arr != NULL && size > 0)
     qsort (arr, (size_t) size, sizeof (RpsObject_t *), rps_objptrqcmp);
 }				/* end rps_object_array_qsort */
+
+
+RpsObject_t *
+rps_find_object_by_oid (const RpsOid_t oid)
+{
+  struct rps_object_bucket_st *curbuck = NULL;
+  if (oid.id_hi == 0 || !rps_oid_is_valid (oid))
+    return NULL;
+  RpsObject_t *obres = NULL;
+  unsigned bix = rps_oid_bucket_num (oid);
+  pthread_mutex_lock (&rps_object_bucket_array[bix].obuck_mtx);
+  curbuck = &rps_object_bucket_array[bix];
+  if (curbuck->obuck_arr == NULL)
+    goto end;
+  unsigned cbucksiz = curbuck->obuck_size;
+  assert (cbucksiz > 3);
+  assert (5 * curbuck->obuck_card < 4 * cbucksiz);
+  unsigned stix = (oid.id_hi ^ oid.id_lo) % cbucksiz;
+  for (int ix = stix; ix < (int) cbucksiz; ix++)
+    {
+      RpsObject_t *curob = curbuck->obuck_arr[ix];
+      if (NULL == curob)
+	goto end;
+      if (rps_oid_equal (curob->ob_id, oid))
+	{
+	  obres = curob;
+	  goto end;
+	}
+    };
+  for (int ix = 0; ix < (int) stix; ix++)
+    {
+      RpsObject_t *curob = curbuck->obuck_arr[ix];
+      if (NULL == curob)
+	goto end;
+      if (rps_oid_equal (curob->ob_id, oid))
+	{
+	  obres = curob;
+	  goto end;
+	}
+    };
+end:
+  if (curbuck)
+    pthread_mutex_unlock (&curbuck->obuck_mtx);
+  return obres;
+}				/* end rps_find_object_by_oid */
 
 /*************** end of file object_rps.c ****************/
