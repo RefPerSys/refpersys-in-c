@@ -376,7 +376,7 @@ end:
 }				/* end rps_find_object_by_oid */
 
 RpsObject_t *
-rps_get_loaded_object_by_oid (const RpsObject_t oid, RpsLoader_t * ld)
+rps_get_loaded_object_by_oid (const RpsOid_t oid, RpsLoader_t * ld)
 {
   assert (rps_is_valid_loader (ld));
   if (rps_is_valid_creating_loader (ld))
