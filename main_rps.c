@@ -91,7 +91,8 @@ rps_show_version_info (int argc, char **argv)
   printf ("\t GNU libc version: %s (see www.gnu.org/software/libc)\n",
 	  gnu_get_libc_version ());
   printf ("\t Jansson library version: %s (see digip.org/jansson/)\n",
-	  jansson_version_str ());
+	  /*jansson_version_str ());*/
+	 JANSSON_VERSION);
   printf ("\t libcurl version: %s (see curl.se/libcurl)\n", curl_version ());
   printf ("\t " __FILE__ " was compiled on " __DATE__ " at " __TIME__ "\n");
   printf ("\t Subdirectories:\n");
