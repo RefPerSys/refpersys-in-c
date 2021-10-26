@@ -175,6 +175,14 @@ rps_oid_cmp (const RpsOid_t oid1, const RpsOid_t oid2)
   RPS_FATAL ("impossible case in rps_oid_cmp");
 }				/* end rps_oid_cmp */
 
+unsigned
+rps_oid_bucket_num (const RpsOid_t oid)
+{
+  unsigned b = oid.id_hi / (RPS_MAX_OID_HI / RPS_OID_MAXBUCKETS);
+  assert (b <= RPS_OID_MAXBUCKETS);
+  return b;
+}				/* end rps_oid_bucket_num */
+
 RpsOid_t
 rps_random_valid_oid (void)
 {

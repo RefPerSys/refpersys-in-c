@@ -206,6 +206,7 @@ extern bool rps_oid_less_equal (const RpsOid_t oid1, const RpsOid_t oid2);
 extern int rps_oid_cmp (const RpsOid_t oid1, const RpsOid_t oid2);
 extern void rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN]);
 extern RpsOid_t rps_cstr_to_oid (const char *cstr, const char **pend);
+extern unsigned rps_oid_bucket_num (const RpsOid_t oid);
 // compute a random and valid oid
 extern RpsOid_t rps_random_valid_oid (void);
 /*****************************************************************/
