@@ -48,6 +48,20 @@ rps_oid_is_valid (const RpsOid_t oid)
     && oid.id_lo >= RPS_MIN_OID_LO && oid.id_lo < RPS_MAX_OID_LO;
 }				/* end rps_oid_is_valid */
 
+RpsHash_t
+rps_oid_hash (const RpsOid_t oid)
+{
+  RpsHash_t h = 0;
+  if (rps_oid_is_null (oid))
+    return 0;
+  assert (rps_oid_is_valid (oid));
+  h = (oid.id_hi % 1107133711) ^ (oid.id_lo % 1346419843);
+  if (!h)
+    h = (oid.id_hi & 0xffffff) + (oid.id_lo & 0xffffff) + 17;
+  assert (h != 0);
+  return h;
+}				/* end rps_oid_hash */
+
 void
 rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
 {
