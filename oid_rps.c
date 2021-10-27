@@ -108,7 +108,6 @@ rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
 RpsOid_t
 rps_cstr_to_oid (const char *cstr, const char **pend)
 {
-  assert (pend != NULL);
   assert (cstr != NULL);
   if (cstr[0] != '_')
     goto fail;
