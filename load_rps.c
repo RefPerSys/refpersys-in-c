@@ -155,6 +155,9 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	      = rps_load_create_object_from_json_id (ld, curjs);
 	}
     }
+  json_t *jsconstset = json_object_get (ld->ld_json_manifest, "constset");
+  printf("Created %u global roots from directory %s\n",
+	 ld->ld_nbglobroot, rps_load_directory);
 #warning missing code using the JSON manifest in rps_load_parse_manifest
   fclose (ld->ld_manifest_file), ld->ld_manifest_file = NULL;
 }				/* end rps_load_parse_manifest */
