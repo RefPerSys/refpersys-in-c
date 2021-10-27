@@ -52,6 +52,8 @@ struct RpsPayl_Loader_st
   enum rps_loaderstate_en ld_state;
   FILE *ld_manifest_file;
   json_t *ld_json_manifest;
+  unsigned ld_nbglobroot;
+  RpsObject_t **ld_globrootarr;
 };
 
 bool
@@ -140,8 +142,18 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	 jerr.column);
   }
   json_t *jsglobroot = json_object_get (ld->ld_json_manifest, "globalroots");
+  ld->ld_state = RPSLOADING_CREATE_OBJECTS_PASS;
   if (json_is_array (jsglobroot))
     {
+      unsigned nbgr = ld->ld_nbglobroot = json_array_size (jsglobroot);
+      ld->ld_globrootarr = RPS_ALLOC_ZEROED (nbgr * sizeof (RpsObject_t *));
+      for (int gix = 0; gix < (int) nbgr; gix++)
+	{
+	  json_t *curjs = json_array_get (jsglobroot, gix);
+	  if (json_is_string (curjs))
+	    ld->ld_globrootarr[ld->ld_nbglobroot++]
+	      = rps_load_create_object_from_json_id (ld, curjs);
+	}
     }
 #warning missing code using the JSON manifest in rps_load_parse_manifest
   fclose (ld->ld_manifest_file), ld->ld_manifest_file = NULL;
