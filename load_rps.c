@@ -87,6 +87,19 @@ rps_is_valid_creating_loader (RpsLoader_t * ld)
   return false;
 }				/* end rps_is_valid_creating_loader */
 
+RpsObject_t *
+rps_load_create_object_from_json_id (RpsLoader_t * ld, json_t * js)
+{
+  assert (rps_is_valid_creating_loader (ld));
+  assert (js != NULL);
+  if (!json_is_string (js))
+    return NULL;
+  RpsOid_t oid = rps_cstr_to_oid (json_string_value (js), NULL);
+  if (!rps_oid_is_valid (oid))
+    return NULL;
+  return rps_get_loaded_object_by_oid (ld, oid);
+}				/* end rps_load_create_object_from_json_id */
+
 void
 rps_load_parse_manifest (RpsLoader_t * ld)
 {
@@ -126,6 +139,10 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	 manifestpath, linenum, jerr.text, jerr.source, jerr.line,
 	 jerr.column);
   }
+  json_t *jsglobroot = json_object_get (ld->ld_json_manifest, "globalroots");
+  if (json_is_array (jsglobroot))
+    {
+    }
 #warning missing code using the JSON manifest in rps_load_parse_manifest
   fclose (ld->ld_manifest_file), ld->ld_manifest_file = NULL;
 }				/* end rps_load_parse_manifest */

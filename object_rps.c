@@ -429,7 +429,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 
 
 RpsObject_t *
-rps_get_loaded_object_by_oid (const RpsOid_t oid, RpsLoader_t * ld)
+rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid_t oid)
 {
   struct rps_object_bucket_st *curbuck = NULL;
   assert (rps_is_valid_loader (ld));
