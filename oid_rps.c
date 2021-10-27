@@ -140,7 +140,8 @@ rps_cstr_to_oid (const char *cstr, const char **pend)
   RpsOid_t oid = {.id_hi = hi,.id_lo = lo };
   return oid;
 fail:
-  *pend = cstr;
+  if (pend)
+    *pend = cstr;
   return RPS_NULL_OID;
 }				/* end rps_cstr_to_oid */
 
