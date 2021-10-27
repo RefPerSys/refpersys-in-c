@@ -111,6 +111,85 @@ rps_show_version_info (int argc, char **argv)
 	    uts.sysname, uts.release, uts.version);
 }				/* end rps_show_version_info */
 
+/// nearly copied from Ian Lance Taylor's libbacktrace/print.c
+/// see https://github.com/ianlancetaylor/libbacktrace
+struct rps_print_backtrace_data_st
+{
+  struct backtrace_state *state;
+  FILE *f;
+};
+/* Print one level of a backtrace.  */
+
+static int
+rps_printbt_callback (void *data, uintptr_t pc, const char *filename,
+		      int lineno, const char *function)
+{
+  struct rps_print_backtrace_data_st *pdata = (struct print_data_BM *) data;
+
+  const char *funame = function;
+  char nambuf[80];
+  memset (nambuf, 0, sizeof (nambuf));
+  if (funame)
+    {
+      fprintf (pdata->f, "0x%lx %s\n", (unsigned long) pc, funame);
+    }
+  else				/* no funame */
+    {
+      Dl_info di;
+      memset (&di, 0, sizeof (di));
+      if (dladdr ((void *) pc, &di))
+	{
+	  if (di.dli_sname)
+	    {
+	      fprintf (pdata->f, "0x%lx @%s+%#lx\n",
+		       (unsigned long) pc, di.dli_sname,
+		       (char *) pc - (char *) di.dli_saddr);
+	    }
+	  else if (di.dli_fname)
+	    {
+	      fprintf (pdata->f, "0x%lx @@%s+%#lx\n",
+		       (unsigned long) pc, basename (di.dli_fname),
+		       (char *) pc - (char *) di.dli_fbase);
+	    }
+	  else
+	    fprintf (pdata->f, "0x%lx ?-?\n", (unsigned long) pc);
+	}
+      else
+	fprintf (pdata->f, "0x%lx ???\n", (unsigned long) pc);
+    }
+  if (filename)
+    fprintf (pdata->f, "\t%s:%d\n", basename (filename), lineno);
+  return 0;
+}				/* end rps_printbt_callback */
+
+/* Print errors to stderr.  */
+
+static void
+rps_errorbt_callback (void *data_
+		      __attribute__((unused)), const char *msg, int errnum)
+{
+  //  struct print_data_BM *pdata = (struct print_data_BM *) data;
+
+  //if (pdata->state->filename != NULL)
+  //  fprintf (stderr, "%s: ", pdata->state->filename);
+  if (errnum > 0)
+    fprintf (stderr, "libbacktrace:: %s (%s)", msg, strerror (errnum));
+  else
+    fprintf (stderr, "libbacktrace: %s", msg);
+  fflush (stderr);
+}				/* end rps_errorbt_callback   */
+
+void
+rps_backtrace_print (struct backtrace_state *state, int skip, FILE * f)
+{
+  struct rps_print_backtrace_data_st data;
+
+  data.state = state;
+  data.f = f;
+  backtrace_full (state, skip + 1, rps_printbt_callback, rps_errorbt_callback,
+		  (void *) &data);
+}				/* end backtrace_print_BM */
+
 void
 rps_fatal_stop_at (const char *fil, int lineno)
 {
@@ -119,6 +198,11 @@ rps_fatal_stop_at (const char *fil, int lineno)
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
   fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s)\n",
 	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf);
+  fflush (stderr);
+  if (rps_backtrace_common_state)
+    {
+      rps_backtrace_print (rps_backtrace_common_state, 1, stderr);
+    }
   fflush (stderr);
   rps_abort ();
 }				/* end rps_fatal_stop */

@@ -396,6 +396,8 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_abort (void) __attribute__((noreturn));
+extern void rps_backtrace_print (struct backtrace_state *state, int skip,
+				 FILE * f);
 
 extern void rps_fatal_stop_at (const char *fil, int lineno)
   __attribute__((noreturn));
