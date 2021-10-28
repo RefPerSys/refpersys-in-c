@@ -126,6 +126,7 @@ rps_show_version_info (int argc, char **argv)
 void
 rps_show_types_info (void)
 {
+  printf ("\n *** types information %s:%d *** \n", __FILE__, __LINE__);
 #define TYPEFMT_rps "%-58s:"
   printf (TYPEFMT_rps "   size  align   (bytes)\n", "**TYPE**");
 #define EXPLAIN_TYPE(Ty) printf(TYPEFMT_rps " %5d %5d\n", #Ty,		\
@@ -166,11 +167,27 @@ rps_show_types_info (void)
   putchar ('\n');
   fflush (NULL);
   {
+    RpsOid_t oidr = rps_random_valid_oid ();
+    char idrbuf[32];
+    memset (idrbuf, 0, sizeof (idrbuf));
+    rps_oid_to_cbuf (oidr, idrbuf);
+    printf ("random id {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+	    oidr.id_hi, oidr.id_lo, idrbuf, __FILE__, __LINE__);
+    const char *end = NULL;
+    RpsOid_t oidrbis = rps_cstr_to_oid (idrbuf, &end);
+    char idbisbuf[32];
+    memset (idbisbuf, 0, sizeof (idbisbuf));
+    rps_oid_to_cbuf (oidrbis, idbisbuf);
+    printf ("oidrbis  {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+	    oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
+  }
+  {
     const char idstr1[] = "_0J1C39JoZiv03qA2H9";
     const char *end = NULL;
-    printf("\"%s\" : strlen=%d, size=%d, RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
-	   idstr1, strlen(idstr1), sizeof(idstr1), RPS_OIDBUFLEN,
-	   RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
+    printf
+      ("\"%s\" : strlen=%d, size=%d, RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
+       idstr1, strlen (idstr1), sizeof (idstr1), RPS_OIDBUFLEN,
+       RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
     RpsOid_t id1 = rps_cstr_to_oid (idstr1, &end);
     assert (end && *end == 0);
     char idbuf1[32];
