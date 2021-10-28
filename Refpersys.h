@@ -195,7 +195,7 @@ typedef struct RpsOid_st RpsOid_t;
 #define RPS_MAX_OID_LO /* about 3.52161e+12 */ \
   ((uint64_t)62 * (62L * 62 * 62) * (62 * 62 * 62))
 #define RPS_DELTA_OID_LO (RPS_MAX_OID_LO - RPS_MIN_OID_LO)
-#define RPS_NBDIGITS_OID_LO 7
+#define RPS_NBDIGITS_OID_LO 8
 #define RPS_OID_NBCHARS (RPS_NBDIGITS_OID_HI+RPS_NBDIGITS_OID_LO+1)
 #define RPS_OID_MAXBUCKETS (10*62)
 
