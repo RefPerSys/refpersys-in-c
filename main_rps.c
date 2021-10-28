@@ -128,6 +128,12 @@ rps_show_types_info (void)
 {
   printf ("\n *** types information %s:%d gitid %s *** \n",
 	  __FILE__, __LINE__, rps_shortgitid);
+  printf
+    (" RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
+     RPS_OIDBUFLEN, RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
+  printf ("sizeof \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS", sizeof("_0cSUtWqTYdZ00mjeNS"));
+  printf ("strlen \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS", strlen("_0cSUtWqTYdZ00mjeNS"));
+  printf ("sizeof \"_0abcdefghijABCDEFG\" = %zd\n", sizeof("_0abcdefghijABCDEFG"));
 #define TYPEFMT_rps "%-58s:"
   printf (TYPEFMT_rps "   size  align   (bytes)\n", "**TYPE**");
 #define EXPLAIN_TYPE(Ty) printf(TYPEFMT_rps " %5d %5d\n", #Ty,		\
@@ -179,14 +185,14 @@ rps_show_types_info (void)
     char idbisbuf[32];
     memset (idbisbuf, 0, sizeof (idbisbuf));
     rps_oid_to_cbuf (oidrbis, idbisbuf);
-    printf ("oidrbis  {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+    printf ("oidrbis   {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
 	    oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
   }
   {
     const char idstr1[] = "_0J1C39JoZiv03qA2H9";
     const char *end = NULL;
     printf
-      ("\"%s\" : strlen=%d, size=%d, RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
+      ("\"%s\" : strlen=%ld, size=%zd, RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
        idstr1, strlen (idstr1), sizeof (idstr1), RPS_OIDBUFLEN,
        RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
     RpsOid_t id1 = rps_cstr_to_oid (idstr1, &end);
@@ -215,7 +221,8 @@ static int
 rps_printbt_callback (void *data, uintptr_t pc, const char *filename,
 		      int lineno, const char *function)
 {
-  struct rps_print_backtrace_data_st *pdata = (struct print_data_BM *) data;
+  struct rps_print_backtrace_data_st *pdata
+    = (struct rps_print_backtrace_data_st *) data;
 
   const char *funame = function;
   char nambuf[80];
