@@ -145,7 +145,8 @@ rps_load_parse_manifest (RpsLoader_t * ld)
   ld->ld_state = RPSLOADING_CREATE_OBJECTS_PASS;
   if (json_is_array (jsglobroot))
     {
-      unsigned nbgr = ld->ld_nbglobroot = json_array_size (jsglobroot);
+      unsigned nbgr = json_array_size (jsglobroot);
+      ld->ld_nbglobroot = 0;
       ld->ld_globrootarr = RPS_ALLOC_ZEROED (nbgr * sizeof (RpsObject_t *));
       for (int gix = 0; gix < (int) nbgr; gix++)
 	{
@@ -156,6 +157,8 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	}
     }
   json_t *jsconstset = json_object_get (ld->ld_json_manifest, "constset");
+  if (json_is_array(jsconstset)) {
+  }
   printf("Created %u global roots from directory %s\n",
 	 ld->ld_nbglobroot, rps_load_directory);
 #warning missing code using the JSON manifest in rps_load_parse_manifest
