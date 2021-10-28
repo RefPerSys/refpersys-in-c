@@ -168,6 +168,9 @@ rps_show_types_info (void)
   {
     const char idstr1[] = "_0J1C39JoZiv03qA2H9";
     const char *end = NULL;
+    printf("\"%s\" : strlen=%d, size=%d, RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
+	   idstr1, strlen(idstr1), sizeof(idstr1), RPS_OIDBUFLEN,
+	   RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
     RpsOid_t id1 = rps_cstr_to_oid (idstr1, &end);
     assert (end && *end == 0);
     char idbuf1[32];
