@@ -453,6 +453,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid_t oid)
 	};
       rps_add_object_to_locked_bucket (curbuck, obinfant);
       pthread_mutex_unlock (&curbuck->obuck_mtx);
+      return obinfant;
     }
   else if (rps_is_valid_filling_loader (ld))
     {
