@@ -152,14 +152,37 @@ rps_load_parse_manifest (RpsLoader_t * ld)
       ld->ld_globrootarr = RPS_ALLOC_ZEROED (nbgr * sizeof (RpsObject_t *));
       for (int gix = 0; gix < (int) nbgr; gix++)
 	{
+	  RpsObject_t *curoot = NULL;
 	  json_t *curjs = json_array_get (jsglobroot, gix);
 	  if (json_is_string (curjs))
-	    ld->ld_globrootarr[ld->ld_nbglobroot++]
-	      = rps_load_create_object_from_json_id (ld, curjs);
+	    {
+	      curoot = rps_load_create_object_from_json_id (ld, curjs);
+	      ld->ld_globrootarr[ld->ld_nbglobroot++] = curoot;
+	    }
+	  else
+	    RPS_FATAL ("bad JSON for global #%d", gix);
+	  assert (curoot);
+	  RpsOid_t rootoid = curoot->ob_id;
+	  char stroid[32];
+	  char rootnamebuf[64];
+	  memset (stroid, 0, sizeof (stroid));
+	  memset (rootnamebuf, 0, sizeof (rootnamebuf));
+	  // build the dlsym-able name of the root object and
+	  // initialize it to the infant root object
+	  rps_oid_to_cbuf (rootoid, stroid);
+	  snprintf (rootnamebuf, sizeof (rootnamebuf), "rps_rootob%s",
+		    stroid);
+	  RpsObject_t **rootptr =
+	    (RpsObject_t **) dlsym (rps_dlhandle, rootnamebuf);
+	  if (!rootptr)
+	    RPS_FATAL ("missing root object variable %s - %s", rootnamebuf,
+		       dlerror ());
+	  *rootptr = curoot;
 	}
     }
   json_t *jsconstset = json_object_get (ld->ld_json_manifest, "constset");
-  if (json_is_array(jsconstset)) {
+  if (json_is_array (jsconstset))
+    {
       unsigned nbcon = json_array_size (jsconstset);
       ld->ld_nbconstob = 0;
       ld->ld_constobarr = RPS_ALLOC_ZEROED (nbcon * sizeof (RpsObject_t *));
@@ -170,9 +193,9 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	    ld->ld_globrootarr[ld->ld_nbconstob++]
 	      = rps_load_create_object_from_json_id (ld, curjs);
 	}
-  }
-  printf("Created %u global roots and %u constants from directory %s\n",
-	 ld->ld_nbglobroot, ld->ld_nbconstob, rps_load_directory);
+    }
+  printf ("Created %u global roots and %u constants from directory %s\n",
+	  ld->ld_nbglobroot, ld->ld_nbconstob, rps_load_directory);
 #warning missing code using the JSON manifest in rps_load_parse_manifest
   fclose (ld->ld_manifest_file), ld->ld_manifest_file = NULL;
 }				/* end rps_load_parse_manifest */
