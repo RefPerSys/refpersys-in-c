@@ -126,7 +126,8 @@ rps_show_version_info (int argc, char **argv)
 void
 rps_show_types_info (void)
 {
-  printf ("\n *** types information %s:%d *** \n", __FILE__, __LINE__);
+  printf ("\n *** types information %s:%d gitid %s *** \n",
+	  __FILE__, __LINE__, rps_shortgitid);
 #define TYPEFMT_rps "%-58s:"
   printf (TYPEFMT_rps "   size  align   (bytes)\n", "**TYPE**");
 #define EXPLAIN_TYPE(Ty) printf(TYPEFMT_rps " %5d %5d\n", #Ty,		\
