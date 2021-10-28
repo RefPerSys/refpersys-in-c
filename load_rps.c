@@ -37,7 +37,7 @@
 
 enum rps_loaderstate_en
 {
-  RPSLOADING__NONE,
+  RPSLOAD__NONE,
   RPSLOADING_PARSE_MANIFEST_PASS,
   RPSLOADING_CREATE_OBJECTS_PASS,
   RPSLOADING_FILL_OBJECTS_PASS,
@@ -54,6 +54,8 @@ struct RpsPayl_Loader_st
   json_t *ld_json_manifest;
   unsigned ld_nbglobroot;
   RpsObject_t **ld_globrootarr;
+  unsigned ld_nbconstob;
+  RpsObject_t **ld_constobarr;
 };
 
 bool
@@ -158,9 +160,19 @@ rps_load_parse_manifest (RpsLoader_t * ld)
     }
   json_t *jsconstset = json_object_get (ld->ld_json_manifest, "constset");
   if (json_is_array(jsconstset)) {
+      unsigned nbcon = json_array_size (jsconstset);
+      ld->ld_nbconstob = 0;
+      ld->ld_constobarr = RPS_ALLOC_ZEROED (nbcon * sizeof (RpsObject_t *));
+      for (int cix = 0; cix < (int) nbcon; cix++)
+	{
+	  json_t *curjs = json_array_get (jsconstset, cix);
+	  if (json_is_string (curjs))
+	    ld->ld_globrootarr[ld->ld_nbconstob++]
+	      = rps_load_create_object_from_json_id (ld, curjs);
+	}
   }
-  printf("Created %u global roots from directory %s\n",
-	 ld->ld_nbglobroot, rps_load_directory);
+  printf("Created %u global roots and %u constants from directory %s\n",
+	 ld->ld_nbglobroot, ld->ld_nbconstob, rps_load_directory);
 #warning missing code using the JSON manifest in rps_load_parse_manifest
   fclose (ld->ld_manifest_file), ld->ld_manifest_file = NULL;
 }				/* end rps_load_parse_manifest */
