@@ -50,7 +50,7 @@ GOptionEntry rps_gopt_entries[] = {
   {NULL}
 };
 
-extern void rps_show_types_info(void);
+extern void rps_show_types_info (void);
 
 //////////////////////////////////////////////////////////////////
 /// C code can refer to root objects
@@ -124,10 +124,10 @@ rps_show_version_info (int argc, char **argv)
 
 
 void
-rps_show_types_info(void)
+rps_show_types_info (void)
 {
 #define TYPEFMT_rps "%-58s:"
-  printf(TYPEFMT_rps "   size  align   (bytes)\n", "**TYPE**");
+  printf (TYPEFMT_rps "   size  align   (bytes)\n", "**TYPE**");
 #define EXPLAIN_TYPE(Ty) printf(TYPEFMT_rps " %5d %5d\n", #Ty,		\
 				(int)sizeof(Ty), (int)__alignof__(Ty))
 
@@ -144,27 +144,39 @@ rps_show_types_info(void)
 					      #Ty1 "," #Ty2 "," #Ty3 "," #Ty4, \
 					      (int)sizeof(Ty1,Ty2,Ty3,Ty4), \
 					      (int)__alignof__(Ty1,Ty2,Ty3,Ty4))
-  EXPLAIN_TYPE(int);
-  EXPLAIN_TYPE(intptr_t);
-  EXPLAIN_TYPE(short);
-  EXPLAIN_TYPE(long);
-  EXPLAIN_TYPE(float);
-  EXPLAIN_TYPE(double);
-  EXPLAIN_TYPE(long double);
-  EXPLAIN_TYPE(char);
-  EXPLAIN_TYPE(bool);
-  EXPLAIN_TYPE(void*);
-  EXPLAIN_TYPE(pthread_mutex_t);
-  EXPLAIN_TYPE(pthread_cond_t);
-  EXPLAIN_TYPE(RpsObject_t);
-  EXPLAIN_TYPE(RpsOid_t);
+  EXPLAIN_TYPE (int);
+  EXPLAIN_TYPE (intptr_t);
+  EXPLAIN_TYPE (short);
+  EXPLAIN_TYPE (long);
+  EXPLAIN_TYPE (float);
+  EXPLAIN_TYPE (double);
+  EXPLAIN_TYPE (long double);
+  EXPLAIN_TYPE (char);
+  EXPLAIN_TYPE (bool);
+  EXPLAIN_TYPE (void *);
+  EXPLAIN_TYPE (pthread_mutex_t);
+  EXPLAIN_TYPE (pthread_cond_t);
+  EXPLAIN_TYPE (RpsObject_t);
+  EXPLAIN_TYPE (RpsOid_t);
+  EXPLAIN_TYPE (RpsAttrTable_t);
 #undef EXPLAIN_TYPE4
 #undef EXPLAIN_TYPE3
 #undef EXPLAIN_TYPE
 #undef TYPEFMT_rps
-  putchar('\n');
-  fflush(NULL);
-} /* end rps_show_types_info */
+  putchar ('\n');
+  fflush (NULL);
+  {
+    const char idstr1[] = "_0J1C39JoZiv03qA2H9";
+    const char *end = NULL;
+    RpsOid_t id1 = rps_cstr_to_oid (idstr1, &end);
+    assert (end && *end == 0);
+    char idbuf1[32];
+    memset (idbuf1, 0, sizeof (idbuf1));
+    rps_oid_to_cbuf (id1, idbuf1);
+    printf ("idstr1=%s id1:{id_hi=%ld,id_lo=%ld} hash %u idbuf1=%s\n",
+	    idstr1, id1.id_hi, id1.id_lo, rps_oid_hash (id1), idbuf1);
+  }
+}				/* end rps_show_types_info */
 
 
 
@@ -255,7 +267,8 @@ rps_fatal_stop_at (const char *fil, int lineno)
   memset (thnambuf, 0, sizeof (thnambuf));
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
   fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s\n",
-	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf, rps_shortgitid);
+	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf,
+	   rps_shortgitid);
   fflush (stderr);
   if (rps_backtrace_common_state)
     {
@@ -326,7 +339,7 @@ main (int argc, char **argv)
       exit (EXIT_SUCCESS);
     };
   if (rps_showing_types)
-    rps_show_types_info();
+    rps_show_types_info ();
   rps_initialize_objects_machinery ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
