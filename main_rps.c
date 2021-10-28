@@ -201,8 +201,8 @@ rps_fatal_stop_at (const char *fil, int lineno)
   char thnambuf[16];
   memset (thnambuf, 0, sizeof (thnambuf));
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
-  fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s)\n",
-	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf);
+  fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s\n",
+	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf, rps_shortgitid);
   fflush (stderr);
   if (rps_backtrace_common_state)
     {
