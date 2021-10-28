@@ -32,6 +32,7 @@
 /********* global variables ********/
 bool rps_running_in_batch;
 bool rps_showing_version;
+bool rps_showing_types;
 bool rps_with_gui;
 struct backtrace_state *rps_backtrace_common_state;
 const char *rps_progname;
@@ -44,8 +45,12 @@ GOptionEntry rps_gopt_entries[] = {
    "run in batch mode, without user interface", NULL},
   {"version", 0, 0, G_OPTION_ARG_NONE, &rps_showing_version,
    "show version information and default options", NULL},
+  {"show-types", 0, 0, G_OPTION_ARG_NONE, &rps_showing_types,
+   "show type information", NULL},
   {NULL}
 };
+
+extern void rps_show_types_info(void);
 
 //////////////////////////////////////////////////////////////////
 /// C code can refer to root objects
@@ -115,6 +120,54 @@ rps_show_version_info (int argc, char **argv)
     printf ("\t This OS: %s, release %s, version %s\n",
 	    uts.sysname, uts.release, uts.version);
 }				/* end rps_show_version_info */
+
+
+
+void
+rps_show_types_info(void)
+{
+#define TYPEFMT_rps "%-58s:"
+  printf(TYPEFMT_rps "   size  align   (bytes)\n", "**TYPE**");
+#define EXPLAIN_TYPE(Ty) printf(TYPEFMT_rps " %5d %5d\n", #Ty,		\
+				(int)sizeof(Ty), (int)__alignof__(Ty))
+
+#define EXPLAIN_TYPE2(Ty1,Ty2) printf(TYPEFMT_rps " %5d %5d\n",	\
+				      #Ty1 "," #Ty2,		\
+				      (int)sizeof(Ty1,Ty2),	\
+				      (int)__alignof__(Ty1,Ty2))
+
+#define EXPLAIN_TYPE3(Ty1,Ty2,Ty3) printf(TYPEFMT_rps " %5d %5d\n",	\
+					  #Ty1 "," #Ty2 "," #Ty3,	\
+					  (int)sizeof(Ty1,Ty2,Ty3),	\
+					  (int)__alignof__(Ty1,Ty2,Ty3))
+#define EXPLAIN_TYPE4(Ty1,Ty2,Ty3,Ty4) printf(TYPEFMT_rps " %5d %5d\n",	\
+					      #Ty1 "," #Ty2 "," #Ty3 "," #Ty4, \
+					      (int)sizeof(Ty1,Ty2,Ty3,Ty4), \
+					      (int)__alignof__(Ty1,Ty2,Ty3,Ty4))
+  EXPLAIN_TYPE(int);
+  EXPLAIN_TYPE(intptr_t);
+  EXPLAIN_TYPE(short);
+  EXPLAIN_TYPE(long);
+  EXPLAIN_TYPE(float);
+  EXPLAIN_TYPE(double);
+  EXPLAIN_TYPE(long double);
+  EXPLAIN_TYPE(char);
+  EXPLAIN_TYPE(bool);
+  EXPLAIN_TYPE(void*);
+  EXPLAIN_TYPE(pthread_mutex_t);
+  EXPLAIN_TYPE(pthread_cond_t);
+  EXPLAIN_TYPE(RpsObject_t);
+  EXPLAIN_TYPE(RpsOid_t);
+#undef EXPLAIN_TYPE4
+#undef EXPLAIN_TYPE3
+#undef EXPLAIN_TYPE
+#undef TYPEFMT_rps
+  putchar('\n');
+  fflush(NULL);
+} /* end rps_show_types_info */
+
+
+
 
 /// nearly copied from Ian Lance Taylor's libbacktrace/print.c
 /// see https://github.com/ianlancetaylor/libbacktrace
@@ -272,6 +325,8 @@ main (int argc, char **argv)
       rps_show_version_info (argc, argv);
       exit (EXIT_SUCCESS);
     };
+  if (rps_showing_types)
+    rps_show_types_info();
   rps_initialize_objects_machinery ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
