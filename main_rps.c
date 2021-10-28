@@ -47,6 +47,11 @@ GOptionEntry rps_gopt_entries[] = {
   {NULL}
 };
 
+//////////////////////////////////////////////////////////////////
+/// C code can refer to root objects
+#define RPS_INSTALL_ROOT_OB(Oid) RpsObject_t* RPS_ROOT_OB(Oid);
+#include "generated/rps-roots.h"
+
 pthread_t rps_main_thread_handle;
 
 void

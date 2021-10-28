@@ -427,5 +427,13 @@ extern RpsValue_t rps_tagged_integer_value (intptr_t i);
 extern bool rps_is_tagged_integer (const RpsValue_t v);
 extern intptr_t rps_value_to_integer (const RpsValue_t v);	/* gives 0 for a non-tagged integer */
 
+
+
+//////////////////////////////////////////////////////////////////
+/// C code can refer to root objects
+#define RPS_ROOT_OB(Oid) rps_rootob##Oid
+#define RPS_INSTALL_ROOT_OB(Oid) extern RpsObject_t* RPS_ROOT_OB(Oid);
+#include "generated/rps-roots.h"
+
 #endif /*REFPERSYS_INCLUDED */
 //// end of file Refpersys.h
