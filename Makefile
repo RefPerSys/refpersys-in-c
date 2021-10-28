@@ -58,7 +58,8 @@ INDENT= indent
 
 # the GCC compiler (at least GCC 9, preferably GCC 11, see gcc.gnu.org ....)
 CC := gcc
-CFLAGS := -Og -g3
+## should be changed later to -Og, once loading succeeds
+CFLAGS := -O0 -g3
 
 ## preprocessor flags for gcc
 CPPFLAGS += $(RPS_PKG_CFLAGS) \
