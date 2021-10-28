@@ -76,8 +76,6 @@ rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
     return;
   /// example cbuf = "_0abcdefghijABCDEFG"
   ///                  |0         |11    |19
-  assert (sizeof ("_0abcdefghijABCDEFG") - 1 ==
-	  RPS_NBDIGITS_OID_HI + RPS_NBDIGITS_OID_LO);
   memset (cbuf, 0, RPS_OIDBUFLEN);
   char *last = cbuf + RPS_NBDIGITS_OID_HI;
   char *pc = last;
