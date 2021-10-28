@@ -441,7 +441,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid_t oid)
 	RPS_ALLOC_ZONE (sizeof (RpsObject_t), RpsTy_Object);
       pthread_mutex_init (&obinfant->ob_mtx, &rps_objmutexattr);
       obinfant->ob_id = oid;
-      // the infant object has no class!
+      // the infant object has no class yet!
       pthread_mutex_lock (&rps_object_bucket_array[bix].obuck_mtx);
       curbuck = &rps_object_bucket_array[bix];
       if (!curbuck->obuck_arr)
