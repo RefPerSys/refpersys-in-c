@@ -162,23 +162,20 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	  else
 	    RPS_FATAL ("bad JSON for global #%d", gix);
 	  assert (curoot);
-	  RpsOid_t rootoid = curoot->ob_id;
-	  char stroid[32];
-	  char rootnamebuf[64];
-	  memset (stroid, 0, sizeof (stroid));
-	  memset (rootnamebuf, 0, sizeof (rootnamebuf));
-	  // build the dlsym-able name of the root object and
-	  // initialize it to the infant root object
-	  rps_oid_to_cbuf (rootoid, stroid);
-	  snprintf (rootnamebuf, sizeof (rootnamebuf), "rps_rootob%s",
-		    stroid);
-	  RpsObject_t **rootptr =
-	    (RpsObject_t **) dlsym (rps_dlhandle, rootnamebuf);
-	  if (!rootptr)
-	    RPS_FATAL ("missing root object variable %s - %s", rootnamebuf,
-		       dlerror ());
-	  *rootptr = curoot;
-	}
+	};
+      /// now that the infant root objects are created, we can assign
+      /// them to global C variables:
+#define RPS_INSTALL_ROOT_OB(Oid) do {                           \
+        const char oidstr##Oid[] = #Oid;                        \
+        RpsOid_t curoid##Oid =                                  \
+          rps_cstr_to_oid(oidstr##Oid, NULL);                   \
+        RPS_ROOT_OB(Oid) =                                      \
+          rps_find_object_by_oid(curoid##Oid);                  \
+        if (!RPS_ROOT_OB(Oid))                                  \
+            RPS_FATAL("failed to install root object %s",       \
+                      #Oid);                                    \
+            } while (0);
+#include "generated/rps-roots.h"
     }
   json_t *jsconstset = json_object_get (ld->ld_json_manifest, "constset");
   if (json_is_array (jsconstset))
