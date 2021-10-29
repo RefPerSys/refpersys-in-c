@@ -38,7 +38,7 @@ rps_alloc_tuple_sized (unsigned arity, RpsObject_t ** arr)
     return NULL;
   tup =
     RPS_ALLOC_ZONE (sizeof (RpsTupleOb_t) + arity * sizeof (RpsObject_t *),
-		    RpsTy_TupleOb);
+		    RPS_TYPE_TUPLE);
   for (int ix = 0; ix < (int) arity; ix++)
     {
       RpsObject_t *curob = arr[ix];
@@ -104,7 +104,7 @@ rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr)
       card++;
   set =
     RPS_ALLOC_ZONE (sizeof (RpsSetOb_t) + card * sizeof (RpsObject_t *),
-		    RpsTy_SetOb);
+		    RPS_TYPE_SET);
   set->zm_length = card;
   int nbel = 0;
   for (int ix = 0; ix < (int) nbcomp - 1; ix++)

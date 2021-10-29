@@ -33,7 +33,7 @@ rps_is_valid_object (RpsObject_t * obj)
 {
   if (!obj)
     return false;
-  if (obj->zm_type != RpsTy_Object)
+  if (obj->zm_type != RPS_TYPE_OBJECT)
     return false;
   pthread_mutex_lock (&obj->ob_mtx);
   if (obj->ob_class == NULL)
@@ -52,9 +52,9 @@ rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2)
     return true;
   if (!ob2)
     return false;
-  if (ob1->zm_type != RpsTy_Object)
+  if (ob1->zm_type != RPS_TYPE_OBJECT)
     RPS_FATAL ("non-object ob1 @%p", ob1);
-  if (ob2->zm_type != RpsTy_Object)
+  if (ob2->zm_type != RPS_TYPE_OBJECT)
     RPS_FATAL ("non-object ob2 @%p", ob1);
   return rps_oid_less_than (ob1->ob_id, ob2->ob_id);
 }
@@ -438,7 +438,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid_t oid)
       /* we should allocate a new object, since it should not exist */
       unsigned bix = rps_oid_bucket_num (oid);
       RpsObject_t *obinfant =
-	RPS_ALLOC_ZONE (sizeof (RpsObject_t), RpsTy_Object);
+	RPS_ALLOC_ZONE (sizeof (RpsObject_t), RPS_TYPE_OBJECT);
       pthread_mutex_init (&obinfant->ob_mtx, &rps_objmutexattr);
       obinfant->ob_id = oid;
       // the infant object has no class yet!

@@ -101,7 +101,7 @@ rps_alloc_boxed_double (double x)
   RpsDouble_t *dblv = NULL;
   if (isnan (x))
     RPS_FATAL ("cannot allocate boxed NAN");
-  dblv = RPS_ALLOC_ZONE (sizeof (RpsDouble_t), RpsTy_Double);
+  dblv = RPS_ALLOC_ZONE (sizeof (RpsDouble_t), RPS_TYPE_DOUBLE);
   dblv->dbl_val = x;
   dblv->zv_hash = rps_hash_double (x);
   return dblv;
@@ -295,7 +295,7 @@ rps_alloc_json (const json_t * js)
   RpsJson_t *vj = NULL;
   if (!js)
     return NULL;
-  vj = RPS_ALLOC_ZONE (sizeof (RpsJson_t), RpsTy_Json);
+  vj = RPS_ALLOC_ZONE (sizeof (RpsJson_t), RPS_TYPE_JSON);
   vj->zv_hash = rps_json_hash (js);
   vj->json = js;
   return vj;
@@ -317,7 +317,7 @@ rps_alloc_gtk_widget (GtkWidget * widg)
   RpsHash_t h = 0;
   if (widg == NULL)
     return NULL;
-  vw = RPS_ALLOC_ZONE (sizeof (RpsGtkWidget_t), RpsTy_GtkWiget);
+  vw = RPS_ALLOC_ZONE (sizeof (RpsGtkWidget_t), RPS_TYPE_GTKWIDGET);
   h = 17 + (((uintptr_t) widg) % 45000931);
   if (h == 0)
     h = ((((uintptr_t) widg) & 0xffffff) + 540773);
