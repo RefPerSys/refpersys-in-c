@@ -54,11 +54,11 @@ rps_oid_hash (const RpsOid_t oid)
   RpsHash_t h = 0;
   if (rps_oid_is_null (oid))
     return 0;
-  assert (rps_oid_is_valid (oid));
+  RPS_ASSERT (rps_oid_is_valid (oid));
   h = (oid.id_hi % 1107133711) ^ (oid.id_lo % 1346419843);
   if (!h)
     h = (oid.id_hi & 0xffffff) + (oid.id_lo & 0xffffff) + 17;
-  assert (h != 0);
+  RPS_ASSERT (h != 0);
   return h;
 }				/* end rps_oid_hash */
 
@@ -106,7 +106,7 @@ rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
 RpsOid_t
 rps_cstr_to_oid (const char *cstr, const char **pend)
 {
-  assert (cstr != NULL);
+  RPS_ASSERT (cstr != NULL);
   if (cstr[0] != '_')
     goto fail;
   if (!isdigit (cstr[1]))
@@ -191,7 +191,7 @@ unsigned
 rps_oid_bucket_num (const RpsOid_t oid)
 {
   unsigned b = oid.id_hi / (RPS_MAX_OID_HI / RPS_OID_MAXBUCKETS);
-  assert (b <= RPS_OID_MAXBUCKETS);
+  RPS_ASSERT (b <= RPS_OID_MAXBUCKETS);
   return b;
 }				/* end rps_oid_bucket_num */
 

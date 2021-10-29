@@ -134,8 +134,8 @@ rps_compare_cstr_ptr (const void *p1, const void *p2)
 {
   const char **s1 = (const char **) p1;
   const char **s2 = (const char **) p2;
-  assert (*s1 != NULL);
-  assert (*s2 != NULL);
+  RPS_ASSERT (*s1 != NULL);
+  RPS_ASSERT (*s2 != NULL);
   return strcmp (*s1, *s2);
 }				/* end rps_compare_cstr_ptr */
 
@@ -145,8 +145,8 @@ rps_compute_json_two_hash (int depth, const json_t * js, long *pl1, long *pl2)
 {
   if (!js)
     return;
-  assert (pl1 != NULL);
-  assert (pl2 != NULL);
+  RPS_ASSERT (pl1 != NULL);
+  RPS_ASSERT (pl2 != NULL);
   switch (json_typeof (js))
     {
     case JSON_OBJECT:
@@ -283,7 +283,7 @@ rps_json_hash (const json_t * js)
   h = (l1 ^ l2) + ((l1 - l2) >> 31);
   if (h == 0)
     h = ((l1 & 0xfffffff) % 65167 + (l2 & 0xffffff) % 15187) + 10;
-  assert (h != 0);
+  RPS_ASSERT (h != 0);
   return h;
 }				/* end rps_json_hash */
 
@@ -305,8 +305,8 @@ const RpsJson_t *
 rps_load_json (const json_t * js, RpsLoader_t * ld)
 {
   json_t *jv = json_object_get (js, "json");
-  assert (rps_is_valid_filling_loader (ld));
-  assert (jv);
+  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  RPS_ASSERT (jv);
   return rps_alloc_json (jv);
 }				/* end rps_load_json */
 
@@ -321,7 +321,7 @@ rps_alloc_gtk_widget (GtkWidget * widg)
   h = 17 + (((uintptr_t) widg) % 45000931);
   if (h == 0)
     h = ((((uintptr_t) widg) & 0xffffff) + 540773);
-  assert (h != 0);
+  RPS_ASSERT (h != 0);
   vw->zv_hash = h;
   vw->gtk_widget = widg;
   return vw;

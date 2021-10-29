@@ -96,8 +96,8 @@ rps_is_valid_creating_loader (RpsLoader_t * ld)
 RpsObject_t *
 rps_load_create_object_from_json_id (RpsLoader_t * ld, json_t * js)
 {
-  assert (rps_is_valid_creating_loader (ld));
-  assert (js != NULL);
+  RPS_ASSERT (rps_is_valid_creating_loader (ld));
+  RPS_ASSERT (js != NULL);
   if (!json_is_string (js))
     return NULL;
   RpsOid_t oid = rps_cstr_to_oid (json_string_value (js), NULL);
@@ -163,7 +163,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	    }
 	  else
 	    RPS_FATAL ("bad JSON for global #%d", gix);
-	  assert (curoot);
+	  RPS_ASSERT (curoot);
 	};
       /// now that the infant root objects are created, we can assign
       /// them to global C variables:
@@ -232,6 +232,8 @@ rps_load_initial_heap (void)
 void
 rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 {
+  char spacebuf[32];
+  memset (spacebuf, 0, sizeof(spacebuf));
 #warning rps_load_first_pass has to be coded
   RPS_FATAL ("unimplemented rps_load_first_pass spix#%d load directory %s",
 	     spix, rps_load_directory);

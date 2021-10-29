@@ -68,9 +68,9 @@ rps_alloc_empty_attr_table (unsigned size)
   if (size > RPS_MAX_NB_ATTRS)
     RPS_FATAL ("too big attribute table %u", size);
   primsiz = rps_prime_above (size);
-  assert (primsiz > 0);
+  RPS_ASSERT (primsiz > 0);
   primix = rps_index_of_prime (primsiz);
-  assert (primix >= 0 && primix < 256);
+  RPS_ASSERT (primix >= 0 && primix < 256);
   tb =
     RPS_ALLOC_ZONE (sizeof (RpsAttrTable_t) +
 		    primsiz * sizeof (struct rps_attrentry_st),
@@ -121,7 +121,7 @@ static bool
 rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
 			  RpsValue_t obval)
 {
-  assert (tbl != NULL);
+  RPS_ASSERT (tbl != NULL);
   intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
   unsigned tbllen = tbl->zm_length;
   int lo = 0, hi = (int) tbllen - 1;
@@ -139,7 +139,7 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
       else
 	hi = mi;
     };
-  assert (tbllen < tblsiz);
+  RPS_ASSERT (tbllen < tblsiz);
   for (int ix = lo; ix <= hi; ix++)
     {
       RpsObject_t *curattr = tbl->attr_entries[ix].ent_attr;
@@ -232,9 +232,9 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
     {
       /* perhaps shrink the table */
       int newprimsiz = rps_prime_above (oldtbllen - 1);
-      assert (newprimsiz > 0);
+      RPS_ASSERT (newprimsiz > 0);
       int newprimix = rps_index_of_prime (newprimsiz);
-      assert (newprimix >= 0 && newprimix < 256);
+      RPS_ASSERT (newprimix >= 0 && newprimix < 256);
       if (newprimix < oldprimix)
 	{
 	  RpsAttrTable_t *new_tbl =
@@ -344,8 +344,8 @@ rps_find_object_by_oid (const RpsOid_t oid)
   if (curbuck->obuck_arr == NULL)
     goto end;
   unsigned cbucksiz = curbuck->obuck_size;
-  assert (cbucksiz > 3);
-  assert (5 * curbuck->obuck_card < 4 * cbucksiz);
+  RPS_ASSERT (cbucksiz > 3);
+  RPS_ASSERT (5 * curbuck->obuck_card < 4 * cbucksiz);
   unsigned stix = (oid.id_hi ^ oid.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
@@ -381,10 +381,10 @@ static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 				 RpsObject_t * obj)
 {
-  assert (buck != NULL);
-  assert (obj != NULL);
+  RPS_ASSERT (buck != NULL);
+  RPS_ASSERT (obj != NULL);
   unsigned cbucksiz = buck->obuck_size;
-  assert (cbucksiz > 3);
+  RPS_ASSERT (cbucksiz > 3);
   if (5 * buck->obuck_card > 4 * cbucksiz)
     {
       unsigned newsiz = rps_prime_above (4 * buck->obuck_card / 3 + 5);
@@ -432,7 +432,7 @@ RpsObject_t *
 rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid_t oid)
 {
   struct rps_object_bucket_st *curbuck = NULL;
-  assert (rps_is_valid_loader (ld));
+  RPS_ASSERT (rps_is_valid_loader (ld));
   if (rps_is_valid_creating_loader (ld))
     {
       /* we should allocate a new object, since it should not exist */

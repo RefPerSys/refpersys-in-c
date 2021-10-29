@@ -79,7 +79,7 @@ all:
 	sync
 
 clean:
-	$(RM) *.o *.orig *~ *% refpersys
+	$(RM) *.o */*.o *.orig *~ *% refpersys
 
 indent:
 	for f in $(RPS_C_SOURCES) ; do \

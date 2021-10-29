@@ -416,11 +416,31 @@ extern void rps_fatal_stop_at (const char *fil, int lineno)
 #define RPS_FATAL(Fmt,...) RPS_FATAL_AT(__FILE__,__LINE__,Fmt,##__VA_ARGS__)
 
 
+// see https://en.wikipedia.org/wiki/ANSI_escape_code
+extern bool rps_without_terminal_escape;
+extern bool rps_stderr_istty;
+extern bool rps_stdout_istty;
+
+// adapted from https://github.com/bstarynk
+#define RPS_TERMINAL_NORMAL_ESCAPE \
+  (rps_without_terminal_escape?"":"\033[0m")
+#define RPS_TERMINAL_BOLD_ESCAPE \
+  (rps_without_terminal_escape?"":"\033[1m")
+#define RPS_TERMINAL_FAINT_ESCAPE \
+  (rps_without_terminal_escape?"":"\033[2m")
+#define RPS_TERMINAL_ITALICS_ESCAPE \
+  (rps_without_terminal_escape?"":"\033[3m")
+#define RPS_TERMINAL_UNDERLINE_ESCAPE \
+  (rps_without_terminal_escape?"":"\033[4m")
+#define RPS_TERMINAL_BLINK_ESCAPE \
+  (rps_without_terminal_escape?"":"\033[5m")
+
+
 //////////////// assert
 #ifndef NDEBUG
 ///
 #define RPS_ASSERT_AT_BIS(Fil,Lin,Func,Cond) do {		\
-  if (RPS_UNLIKELY(!(Cond))) {					\
+  if (!(Cond)) {						\
   fprintf(stderr, "\n\n"					\
 	  "%s*** RefPerSys ASSERT failed: %s%s\n"		\
 	  "%s:%d: {%s}\n\n",					\
@@ -434,7 +454,7 @@ extern void rps_fatal_stop_at (const char *fil, int lineno)
 #define RPS_ASSERT(Cond) RPS_ASSERT_AT(__FILE__,__LINE__,__PRETTY_FUNCTION__,(Cond))
 
 #define RPS_ASSERTPRINTF_AT_BIS(Fil,Lin,Func,Cond,Fmt,...) do {	\
-    if (RPS_UNLIKELY(!(Cond))) {				\
+    if (!(Cond)) {						\
       fprintf(stderr, "\n\n"					\
 	      "%s*** RefPerSys ASSERTPRINTF failed:%s %s\n"	\
 	      "%s:%d: {%s}\n",					\
