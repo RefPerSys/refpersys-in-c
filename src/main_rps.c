@@ -131,9 +131,12 @@ rps_show_types_info (void)
   printf
     (" RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
      RPS_OIDBUFLEN, RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
-  printf ("sizeof \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS", sizeof("_0cSUtWqTYdZ00mjeNS"));
-  printf ("strlen \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS", strlen("_0cSUtWqTYdZ00mjeNS"));
-  printf ("sizeof \"_0abcdefghijABCDEFG\" = %zd\n", sizeof("_0abcdefghijABCDEFG"));
+  printf ("sizeof \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS",
+	  sizeof ("_0cSUtWqTYdZ00mjeNS"));
+  printf ("strlen \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS",
+	  strlen ("_0cSUtWqTYdZ00mjeNS"));
+  printf ("sizeof \"_0abcdefghijABCDEFG\" = %zd\n",
+	  sizeof ("_0abcdefghijABCDEFG"));
 #define TYPEFMT_rps "%-58s:"
   printf (TYPEFMT_rps "   size  align   (bytes)\n", "**TYPE**");
 #define EXPLAIN_TYPE(Ty) printf(TYPEFMT_rps " %5d %5d\n", #Ty,		\

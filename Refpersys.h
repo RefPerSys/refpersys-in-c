@@ -123,9 +123,9 @@ extern int64_t rps_prime_below (int64_t n);
 
 /// both backtrace_full and backtrace_simple callbacks are continuing with a 0 return code:
 enum rps_backtrace
-{ 
-  RPS_BACKTRACE_CONTINUE = 0, 
-  RPS_BACKTRACE_STOP = 1 
+{
+  RPS_BACKTRACE_CONTINUE = 0,
+  RPS_BACKTRACE_STOP = 1
 };
 
 
@@ -142,7 +142,7 @@ enum rps_type
   RPS_TYPE_TUPLE,
   RPS_TYPE_SET,
   RPS_TYPE_OBJECT,
-  RPS_TYPE_FILE,			/* some opened FILE* handle; of course they are not persisted */
+  RPS_TYPE_FILE,		/* some opened FILE* handle; of course they are not persisted */
   RPS_TYPE__LAST
 };
 

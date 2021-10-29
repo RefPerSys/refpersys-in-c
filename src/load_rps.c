@@ -166,9 +166,8 @@ rps_load_parse_manifest (RpsLoader_t * ld)
       /// now that the infant root objects are created, we can assign
       /// them to global C variables:
 #define RPS_INSTALL_ROOT_OB(Oid) do {                           \
-        const char oidstr##Oid[] = #Oid;                        \
         RpsOid_t curoid##Oid =                                  \
-          rps_cstr_to_oid(oidstr##Oid, NULL);                   \
+          rps_cstr_to_oid(#Oid, NULL);				\
         RPS_ROOT_OB(Oid) =                                      \
           rps_find_object_by_oid(curoid##Oid);                  \
         if (!RPS_ROOT_OB(Oid))                                  \
