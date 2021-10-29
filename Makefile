@@ -53,8 +53,11 @@ MV= mv
 ## the GNU indent program from www.gnu.org/software/indent/
 INDENT= indent 
 
+# Generated timestamp file prefix
+RPS_TSTAMP:=generated/__timestamp
+
 .PHONY: all clean objects indent redump load
-.SECONDARY:  __timestamp.c 
+.SECONDARY: $(RPS_TSTAMP).c
 
 # the GCC compiler (at least GCC 9, preferably GCC 11, see gcc.gnu.org ....)
 CC := gcc
@@ -69,7 +72,8 @@ LDFLAGS += -rdynamic  -pie -Bdynamic -pthread -L /usr/local/lib -L /usr/lib
 
 all:
 	if [ -f refpersys ] ; then  $(MV) -f --backup refpersys refpersys~ ; fi
-	$(RM) __timestamp.o __timestamp.c
+	#$(RM) __timestamp.o __timestamp.c
+	$(RM) $(RPS_TSTAMP).c $(RPS_TSTAMP).o
 	@echo "RPS_C_OBJECTS= " $(RPS_C_OBJECTS)
 	sync
 	$(MAKE) -$(MAKEFLAGS) refpersys
@@ -86,11 +90,12 @@ indent:
 
 objects: $(RPS_C_OBJECTS)
 
-__timestamp.c: | Makefile do-generate-timestamp.sh
+# Target to generate timestamp source file
+$(RPS_TSTAMP).c: | Makefile do-generate-timestamp.sh
 	./do-generate-timestamp.sh $@  > $@-tmp
 	printf 'const char rps_c_compiler_version[]="%s";\n' "$$($(CC) --version | head -1)" >> $@-tmp
 	printf 'const char rps_shortgitid[] = "%s";\n' "$(RPS_SHORTGIT_ID)" >> $@-tmp
 	$(MV) --backup $@-tmp $@
 
-refpersys: objects __timestamp.o
-	$(LINK.c) $(LDFLAGS) $(RPS_C_OBJECTS) __timestamp.o $(LDLIBES) -o $@
+refpersys: objects $(RPS_TSTAMP).o
+	$(LINK.c) $(LDFLAGS) $(RPS_C_OBJECTS) $(RPS_TSTAMP).o $(LDLIBES) -o $@
