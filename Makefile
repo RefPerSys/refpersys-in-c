@@ -91,8 +91,8 @@ indent:
 objects: $(RPS_C_OBJECTS)
 
 # Target to generate timestamp source file
-$(RPS_TSTAMP).c: | Makefile do-generate-timestamp.sh
-	./do-generate-timestamp.sh $@  > $@-tmp
+$(RPS_TSTAMP).c: | Makefile tools/generate-timestamp.sh
+	tools/generate-timestamp.sh $@  > $@-tmp
 	printf 'const char rps_c_compiler_version[]="%s";\n' "$$($(CC) --version | head -1)" >> $@-tmp
 	printf 'const char rps_shortgitid[] = "%s";\n' "$(RPS_SHORTGIT_ID)" >> $@-tmp
 	$(MV) --backup $@-tmp $@
