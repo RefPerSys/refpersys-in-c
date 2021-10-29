@@ -29,8 +29,8 @@
 ## tell GNU make to export all variables by default
 export
 
-RPS_GIT_ID:= $(shell ./do-generate-gitid.sh)
-RPS_SHORTGIT_ID:= $(shell ./do-generate-gitid.sh -s)
+RPS_GIT_ID:= $(shell tools/generate-gitid.sh)
+RPS_SHORTGIT_ID:= $(shell tools/generate-gitid.sh -s)
 
 RPS_PKG_CONFIG=  pkg-config
 ## libcurl is on curl.se/libcurl/ - a good HTTP client library
@@ -72,7 +72,6 @@ LDFLAGS += -rdynamic  -pie -Bdynamic -pthread -L /usr/local/lib -L /usr/lib
 
 all:
 	if [ -f refpersys ] ; then  $(MV) -f --backup refpersys refpersys~ ; fi
-	#$(RM) __timestamp.o __timestamp.c
 	$(RM) $(RPS_TSTAMP).c $(RPS_TSTAMP).o
 	@echo "RPS_C_OBJECTS= " $(RPS_C_OBJECTS)
 	sync
