@@ -37,11 +37,11 @@ RPS_PKG_CONFIG=  pkg-config
 ## jansson is on digip.org/jansson/ - a C library for JSON
 ## GTK3 is from gtk.org/ - a graphical interface library
 RPS_PKG_NAMES= libcurl jansson gtk+-3.0
-RPS_PKG_CFLAGS:= $(shell $(RPS_PKG_CONFIG) --cflags $(RPS_PKG_NAMES))
+RPS_PKG_CFLAGS:= $(shell $(RPS_PKG_CONFIG) --cflags $(RPS_PKG_NAMES)) -I $(shell pwd)
 RPS_PKG_LIBS:= $(shell $(RPS_PKG_CONFIG) --libs $(RPS_PKG_NAMES))
 
 ## handwritten C source files
-RPS_C_SOURCES := $(sort $(wildcard [a-z]*_rps.c))
+RPS_C_SOURCES := $(sort $(wildcard src/[a-z]*_rps.c))
 RPS_C_OBJECTS := $(patsubst %.c, %.o, $(RPS_C_SOURCES))
 ## unistring for UTF8 and Unicode: www.gnu.org/software/libunistring/
 ## libbacktrace for symbolic backtracing: github.com/ianlancetaylor/libbacktrace
