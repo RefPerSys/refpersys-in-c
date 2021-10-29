@@ -58,6 +58,8 @@ struct RpsPayl_Loader_st
   RpsObject_t **ld_constobarr;
 };
 
+void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid);
+
 bool
 rps_is_valid_loader (RpsLoader_t * ld)
 {
@@ -203,11 +205,36 @@ rps_load_initial_heap (void)
   loader->ld_magic = RPS_LOADER_MAGIC;
   loader->ld_state = RPSLOADING_PARSE_MANIFEST_PASS;
   rps_load_parse_manifest (loader);
-#warning rps_load_initial_heap needs to be coded
-  RPS_FATAL ("unimplemented rps_load_initial_heap load directory %s",
+  json_t *jsspaceset = json_object_get (loader->ld_json_manifest, "spaceset");
+  if (json_is_array (jsspaceset))
+    {
+      unsigned nbspace = json_array_size (jsspaceset);
+      for (int spix = 0; spix < (int) nbspace; spix++)
+	{
+	  json_t *jscurspace = json_array_get (jsspaceset, spix);
+	  if (!jscurspace || !json_is_string (jscurspace))
+	    RPS_FATAL ("invalid space #%d in directory %s\n",
+		       spix, rps_load_directory);
+	  const char *spacestr = json_string_value (jscurspace);
+	  RpsOid_t spaceid = rps_cstr_to_oid (spacestr, NULL);
+	  if (!rps_oid_is_valid (spaceid))
+	    RPS_FATAL ("invalid space #%d id %s in directory %s\n",
+		       spix, spacestr, rps_load_directory);
+	  rps_load_first_pass (loader, spix, spaceid);
+	}
+    }
+#warning rps_load_initial_heap needs to be completed
+  RPS_FATAL ("incomplete rps_load_initial_heap load directory %s",
 	     rps_load_directory);
 }				/* end rps_load_initial_heap */
 
 
+void
+rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
+{
+#warning rps_load_first_pass has to be coded
+  RPS_FATAL ("unimplemented rps_load_first_pass spix#%d load directory %s",
+	     spix, rps_load_directory);
+}				/* end rps_load_first_pass */
 
 /************************ end of file load_rps.c *****************/
