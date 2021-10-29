@@ -15,7 +15,7 @@ fi
  git log --format=oneline -q -1 | cut '-d '  -f1 | tr -d '\n';
      echo $endgitid)  
 
-(echo -n 'const char rps_lastgittag[]="'; (git describe --abbrev=0 --all || echo '*notag*') | tr -d '\n\r\f\"\\\\'; echo '";')
+(echo -n 'const char RPS_GIT_LASTTAG[]="'; (git describe --abbrev=0 --all || echo '*notag*') | tr -d '\n\r\f\"\\\\'; echo '";')
 
 (echo -n 'const char rps_lastgitcommit[]="' ; \
  git log --format=oneline --abbrev=12 --abbrev-commit -q  \

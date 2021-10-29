@@ -88,7 +88,7 @@ rps_show_version_info (int argc, char **argv)
   printf ("\t top directory: %s\n", rps_topdirectory);
   printf ("\t short git id: %s\n", rps_shortgitid);
   printf ("\t full git id: %s\n", RPS_GIT_ID);
-  printf ("\t last git tag: %s\n", rps_lastgittag);
+  printf ("\t last git tag: %s\n", RPS_GIT_LASTTAG);
   printf ("\t last git commit: %s\n", rps_lastgitcommit);
   printf ("\t git remote origin URL: %s\n", rps_gitremoteoriginurl);
   printf ("\t md5sum of files: %s\n", rps_md5sum);
