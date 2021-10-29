@@ -233,10 +233,19 @@ void
 rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 {
   char spacebuf[32];
-  memset (spacebuf, 0, sizeof(spacebuf));
+  char filepath[256];
+  memset (spacebuf, 0, sizeof (spacebuf));
+  memset (filepath, 0, sizeof (filepath));
+  rps_oid_to_cbuf (spaceid, spacebuf);
+  snprintf (filepath, sizeof (filepath),
+	    "%s/persistore/sp%s-rps.json", rps_load_directory, spacebuf);
+  FILE *spfil = fopen (filepath, "r");
+  if (!spfil)
+    RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
 #warning rps_load_first_pass has to be coded
-  RPS_FATAL ("unimplemented rps_load_first_pass spix#%d load directory %s",
-	     spix, rps_load_directory);
+  RPS_FATAL
+    ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
+     spix, spacebuf, rps_load_directory);
 }				/* end rps_load_first_pass */
 
 /************************ end of file load_rps.c *****************/
