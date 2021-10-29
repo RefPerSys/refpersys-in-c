@@ -379,10 +379,11 @@ main (int argc, char **argv)
   rps_initialize_objects_machinery ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
-  if (!rps_without_terminal_escape) {
-    rps_stderr_istty = isatty(STDERR_FILENO);
-    rps_stdout_istty = isatty(STDOUT_FILENO);
-  }
+  if (!rps_without_terminal_escape)
+    {
+      rps_stderr_istty = isatty (STDERR_FILENO);
+      rps_stdout_istty = isatty (STDOUT_FILENO);
+    }
   rps_load_initial_heap ();
 }				/* end of main function */
 
