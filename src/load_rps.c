@@ -216,6 +216,8 @@ rps_load_initial_heap (void)
 	    RPS_FATAL ("invalid space #%d in directory %s\n",
 		       spix, rps_load_directory);
 	  const char *spacestr = json_string_value (jscurspace);
+	  printf("spix=%d spacestr:%s load-dir %s (%s:%d)\n",
+		 spix, spacestr, rps_load_directory, __FILE__, __LINE__);
 	  RpsOid_t spaceid = rps_cstr_to_oid (spacestr, NULL);
 	  if (!rps_oid_is_valid (spaceid))
 	    RPS_FATAL ("invalid space #%d id %s in directory %s\n",
