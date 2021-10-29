@@ -11,7 +11,7 @@ if git status|grep -q 'nothing to commit' ; then
 else
     endgitid='+";'
 fi
-(echo -n 'const char rps_gitid[]="'; 
+(echo -n 'const char RPS_GIT_ID[]="'; 
  git log --format=oneline -q -1 | cut '-d '  -f1 | tr -d '\n';
      echo $endgitid)  
 

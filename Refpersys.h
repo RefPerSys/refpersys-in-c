@@ -100,7 +100,7 @@ extern const char *rps_load_directory;
 extern const char rps_timestamp[];	/* some date string */
 extern const unsigned long rps_timelong;	/* some (time_t) */
 extern const char rps_topdirectory[];	/* the source topdirectory */
-extern const char rps_gitid[];
+extern const char RPS_GIT_ID[];
 extern const char rps_lastgittag[];
 extern const char rps_lastgitcommit[];
 extern const char rps_gitremoteoriginurl[];
