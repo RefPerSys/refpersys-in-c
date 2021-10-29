@@ -129,21 +129,21 @@ enum rps_backtrace
 };
 
 
-/// value types - prefix is RpsTy
+/// value types - prefix is RPS_TYPE
 enum rps_type
 {
-  RpsTy__NONE,
-  RpsTy_Int,			/* tagged int, 63 bits, without memory zone */
+  RPS_TYPE__NONE,
+  RPS_TYPE_INT,			/* tagged int, 63 bits, without memory zone */
   // the following are in garbage collected memory, our zoned values
-  RpsTy_Double,
-  RpsTy_String,
-  RpsTy_Json,
-  RpsTy_GtkWiget,		/* some GtkWidget* pointer; of course GTK widgets are not persisted */
-  RpsTy_TupleOb,
-  RpsTy_SetOb,
-  RpsTy_Object,
-  RpsTy_File,			/* some opened FILE* handle; of course they are not persisted */
-  RpsTy__LAST
+  RPS_TYPE_DOUBLE,
+  RPS_TYPE_STRING,
+  RPS_TYPE_JSON,
+  RPS_TYPE_GTKWIDGET,		/* some GtkWidget* pointer; of course GTK widgets are not persisted */
+  RPS_TYPE_TUPLE,
+  RPS_TYPE_SET,
+  RPS_TYPE_OBJECT,
+  RPS_TYPE_FILE,			/* some opened FILE* handle; of course they are not persisted */
+  RPS_TYPE__LAST
 };
 
 /// an hash has 32 bits and conventionally is never 0
@@ -260,7 +260,7 @@ struct RpsZoneDouble_st
 {
   RPSFIELDS_DOUBLE;
 };
-typedef struct RpsZoneDouble_st RpsDouble_t;	/*for RpsTy_Double, zv_size is unused */
+typedef struct RpsZoneDouble_st RpsDouble_t;	/*for RPS_TYPE_DOUBLE, zv_size is unused */
 RpsHash_t rps_hash_double (double x);
 // allocate a boxed double which is not NAN, fatal if NAN
 const RpsDouble_t *rps_alloc_boxed_double (double x);
@@ -276,7 +276,7 @@ struct RpsZoneString_st
 {
   RPSFIELDS_STRING;
 };
-typedef struct RpsZoneString_st RpsString_t;	/* for RpsTy_String */
+typedef struct RpsZoneString_st RpsString_t;	/* for RPS_TYPE_STRING */
 // allocate a string
 const RpsString_t *rps_alloc_string (const char *str);
 // sprintf a string value
@@ -294,7 +294,7 @@ struct RpsZoneJson_st
 {
   RPSFIELDS_JSON;
 };
-typedef struct RpsZoneJson_st RpsJson_t;	/* for RpsTy_Json */
+typedef struct RpsZoneJson_st RpsJson_t;	/* for RPS_TYPE_JSON */
 const RpsJson_t *rps_alloc_json (const json_t * js);
 const RpsJson_t *rps_load_json (const json_t * js, RpsLoader_t * ld);
 
@@ -307,7 +307,7 @@ struct RpsZoneGtkWidget_st
 {
   RPSFIELDS_GTKWIDGET;
 };
-typedef struct RpsZoneGtkWidget_st RpsGtkWidget_t;	/* for RpsTy_GtkWiget */
+typedef struct RpsZoneGtkWidget_st RpsGtkWidget_t;	/* for RPS_GTKWIDGET */
 const RpsGtkWidget_t *rps_alloc_gtk_widget (GtkWidget *);
 // no load routine for GtkWidget
 
@@ -320,7 +320,7 @@ struct RpsZoneTupleOb_st
 {
   RPSFIELDS_TUPLEOB;
 };
-typedef struct RpsZoneTupleOb_st RpsTupleOb_t;	/* for RpsTy_TupleOb */
+typedef struct RpsZoneTupleOb_st RpsTupleOb_t;	/* for RPS_TYPE_TUPLE */
 const RpsTupleOb_t *rps_alloc_vtuple (unsigned arity, /*objects */ ...);
 const RpsTupleOb_t *rps_alloc_tuple_sized (unsigned arity,
 					   RpsObject_t ** arr);
@@ -336,7 +336,7 @@ struct RpsZoneSetOb_st
 {
   RPSFIELDS_SETOB;
 };
-typedef struct RpsZoneSetOb_st RpsSetOb_t;	/* for RpsTy_SetOb */
+typedef struct RpsZoneSetOb_st RpsSetOb_t;	/* for RPS_TYPE_SET */
 const RpsSetOb_t *rps_alloc_vset (unsigned card, /*objects */ ...);
 const RpsSetOb_t *rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr);
 const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
