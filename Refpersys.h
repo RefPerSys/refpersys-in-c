@@ -122,12 +122,15 @@ extern int64_t rps_prime_above (int64_t n);
 extern int64_t rps_prime_below (int64_t n);
 
 /// both backtrace_full and backtrace_simple callbacks are continuing with a 0 return code:
-enum
-{ RPS_CONTINUE_BACKTRACE = 0, RPS_STOP_BACKTRACE = 1 };
+enum rps_backtrace
+{ 
+  RPS_BACKTRACE_CONTINUE = 0, 
+  RPS_BACKTRACE_STOP = 1 
+};
 
 
 /// value types - prefix is RpsTy
-enum
+enum rps_type
 {
   RpsTy__NONE,
   RpsTy_Int,			/* tagged int, 63 bits, without memory zone */
