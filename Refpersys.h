@@ -102,7 +102,7 @@ extern const unsigned long rps_timelong;	/* some (time_t) */
 extern const char rps_topdirectory[];	/* the source topdirectory */
 extern const char RPS_GIT_ID[];
 extern const char RPS_GIT_LASTTAG[];
-extern const char rps_lastgitcommit[];
+extern const char RPS_GIT_LASTCOMMIT[];
 extern const char rps_gitremoteoriginurl[];
 extern const char rps_md5sum[];
 extern const char *const rps_files[];

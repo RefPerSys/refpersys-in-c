@@ -17,7 +17,7 @@ fi
 
 (echo -n 'const char RPS_GIT_LASTTAG[]="'; (git describe --abbrev=0 --all || echo '*notag*') | tr -d '\n\r\f\"\\\\'; echo '";')
 
-(echo -n 'const char rps_lastgitcommit[]="' ; \
+(echo -n 'const char RPS_GIT_LASTCOMMIT[]="' ; \
  git log --format=oneline --abbrev=12 --abbrev-commit -q  \
      | head -1 | tr -d '\n\r\f\"\\\\' ; \
  echo '";') 
