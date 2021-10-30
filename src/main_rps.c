@@ -187,14 +187,14 @@ rps_show_types_info (void)
     char idrbuf[32];
     memset (idrbuf, 0, sizeof (idrbuf));
     rps_oid_to_cbuf (oidr, idrbuf);
-    printf ("random id#%d {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+    printf ("random id#%d {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
 	    cnt, oidr.id_hi, oidr.id_lo, idrbuf, __FILE__, __LINE__);
     const char *end = NULL;
     RpsOid_t oidrbis = rps_cstr_to_oid (idrbuf, &end);
     char idbisbuf[32];
     memset (idbisbuf, 0, sizeof (idbisbuf));
     rps_oid_to_cbuf (oidrbis, idbisbuf);
-    printf ("oidrbis#%d   {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+    printf ("oidrbis#%d   {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
 	    cnt, oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
   }
   {

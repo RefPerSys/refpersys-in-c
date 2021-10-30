@@ -239,7 +239,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
   memset (spacebuf, 0, sizeof (spacebuf));
   memset (filepath, 0, sizeof (filepath));
   rps_oid_to_cbuf (spaceid, spacebuf);
-  printf("rps_load_first_pass spaceid {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+  printf("rps_load_first_pass spaceid {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
 	 spaceid.id_hi, spaceid.id_lo, spacebuf, __FILE__, __LINE__);
   snprintf (filepath, sizeof (filepath),
 	    "%s/persistore/sp%s-rps.json", rps_load_directory, spacebuf);
