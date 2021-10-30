@@ -11,18 +11,18 @@ if git status|grep -q 'nothing to commit' ; then
 else
     endgitid='+";'
 fi
-(echo -n 'const char RPS_GIT_ID[]="'; 
+(echo -n 'const char _rps_git_id[]="'; 
  git log --format=oneline -q -1 | cut '-d '  -f1 | tr -d '\n';
      echo $endgitid)  
 
-(echo -n 'const char RPS_GIT_LASTTAG[]="'; (git describe --abbrev=0 --all || echo '*notag*') | tr -d '\n\r\f\"\\\\'; echo '";')
+(echo -n 'const char _rps_git_last_tag[]="'; (git describe --abbrev=0 --all || echo '*notag*') | tr -d '\n\r\f\"\\\\'; echo '";')
 
-(echo -n 'const char RPS_GIT_LASTCOMMIT[]="' ; \
+(echo -n 'const char _rps_git_last_commit[]="' ; \
  git log --format=oneline --abbrev=12 --abbrev-commit -q  \
      | head -1 | tr -d '\n\r\f\"\\\\' ; \
  echo '";') 
 
-printf "const char rps_gitremoteoriginurl[]=\"%s\";\n" $(git config --get remote.origin.url)
+printf "const char _rps_git_remote_origin_url[]=\"%s\";\n" $(git config --get remote.origin.url)
 
 git archive -o /tmp/refpersys-$$.tar.gz HEAD 
 trap "/bin/rm /tmp/refpersys-$$.tar.gz" EXIT INT 

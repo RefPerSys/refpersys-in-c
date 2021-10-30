@@ -91,11 +91,11 @@ rps_show_version_info (int argc, char **argv)
   printf ("\t email contact: <team@refpersys.org>\n");
   printf ("\t build timestamp: %s (%ld)\n", rps_timestamp, rps_timelong);
   printf ("\t top directory: %s\n", rps_topdirectory);
-  printf ("\t short git id: %s\n", rps_shortgitid);
-  printf ("\t full git id: %s\n", RPS_GIT_ID);
-  printf ("\t last git tag: %s\n", RPS_GIT_LASTTAG);
-  printf ("\t last git commit: %s\n", RPS_GIT_LASTCOMMIT);
-  printf ("\t git remote origin URL: %s\n", rps_gitremoteoriginurl);
+  printf ("\t short git id: %s\n", _rps_git_short_id);
+  printf ("\t full git id: %s\n", _rps_git_id);
+  printf ("\t last git tag: %s\n", _rps_git_last_tag);
+  printf ("\t last git commit: %s\n", _rps_git_last_commit);
+  printf ("\t git remote origin URL: %s\n", _rps_git_remote_origin_url);
   printf ("\t md5sum of files: %s\n", rps_md5sum);
   printf ("\t build makefile: %s\n", rps_makefile);
   printf ("\t built with compiler: %s\n", rps_c_compiler_version);
@@ -132,7 +132,7 @@ void
 rps_show_types_info (void)
 {
   printf ("\n *** types information %s:%d gitid %s *** \n",
-	  __FILE__, __LINE__, rps_shortgitid);
+	  __FILE__, __LINE__, _rps_git_short_id);
   printf
     (" RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
      RPS_OIDBUFLEN, RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
@@ -304,7 +304,7 @@ rps_fatal_stop_at (const char *fil, int lineno)
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
   fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s\n",
 	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf,
-	   rps_shortgitid);
+	   _rps_git_short_id);
   fflush (stderr);
   if (rps_backtrace_common_state)
     {

@@ -97,19 +97,19 @@ extern void *rps_dlhandle;	/* global dlopen handle */
 extern const char *rps_load_directory;
 
 /// global variables declared in generated __timestamp.c file:
+extern const char _rps_git_id[];
+extern const char _rps_git_last_tag[];
+extern const char _rps_git_last_commit[];
+extern const char _rps_git_short_id[];
+extern const char _rps_git_remote_origin_url[];
 extern const char rps_timestamp[];	/* some date string */
 extern const unsigned long rps_timelong;	/* some (time_t) */
 extern const char rps_topdirectory[];	/* the source topdirectory */
-extern const char RPS_GIT_ID[];
-extern const char RPS_GIT_LASTTAG[];
-extern const char RPS_GIT_LASTCOMMIT[];
-extern const char rps_gitremoteoriginurl[];
 extern const char rps_md5sum[];
 extern const char *const rps_files[];
 extern const char rps_makefile[];
 extern const char *rps_subdirectories[];
 extern const char rps_c_compiler_version[];
-extern const char rps_shortgitid[];
 
 extern const char *rps_hostname (void);
 

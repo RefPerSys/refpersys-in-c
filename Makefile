@@ -93,7 +93,7 @@ objects: $(RPS_C_OBJECTS)
 $(RPS_TSTAMP).c: | Makefile tools/generate-timestamp.sh
 	tools/generate-timestamp.sh $@  > $@-tmp
 	printf 'const char rps_c_compiler_version[]="%s";\n' "$$($(CC) --version | head -1)" >> $@-tmp
-	printf 'const char rps_shortgitid[] = "%s";\n' "$(RPS_SHORTGIT_ID)" >> $@-tmp
+	printf 'const char _rps_git_short_id[] = "%s";\n' "$(RPS_SHORTGIT_ID)" >> $@-tmp
 	$(MV) --backup $@-tmp $@
 
 refpersys: objects $(RPS_TSTAMP).o
