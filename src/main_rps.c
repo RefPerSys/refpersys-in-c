@@ -181,20 +181,21 @@ rps_show_types_info (void)
 #undef TYPEFMT_rps
   putchar ('\n');
   fflush (NULL);
-  {
+  /// four random oid for testing....
+  for (int cnt=0; cnt<4; cnt++) {
     RpsOid_t oidr = rps_random_valid_oid ();
     char idrbuf[32];
     memset (idrbuf, 0, sizeof (idrbuf));
     rps_oid_to_cbuf (oidr, idrbuf);
-    printf ("random id {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
-	    oidr.id_hi, oidr.id_lo, idrbuf, __FILE__, __LINE__);
+    printf ("random id#%d {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+	    cnt, oidr.id_hi, oidr.id_lo, idrbuf, __FILE__, __LINE__);
     const char *end = NULL;
     RpsOid_t oidrbis = rps_cstr_to_oid (idrbuf, &end);
     char idbisbuf[32];
     memset (idbisbuf, 0, sizeof (idbisbuf));
     rps_oid_to_cbuf (oidrbis, idbisbuf);
-    printf ("oidrbis   {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
-	    oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
+    printf ("oidrbis#%d   {id_hi=%ld,id_lo=%ld} %s (%s:%d)\n",
+	    cnt, oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
   }
   {
     const char idstr1[] = "_0J1C39JoZiv03qA2H9";
