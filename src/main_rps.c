@@ -198,6 +198,7 @@ rps_show_types_info (void)
       rps_oid_to_cbuf (oidrbis, idbisbuf);
       printf ("oidrbis#%d   {id_hi=%018ld,id_lo=%018ld} %s (%s:%d)\n",
 	      cnt, oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
+      fflush (NULL);
     }
   /// oidstrs for testing
   const char *rootarridstr[] = {
@@ -223,6 +224,7 @@ rps_show_types_info (void)
 	  RPS_ASSERT (!strcmp (rootarridstr[rix], curbuf));
 	}
     };
+  fflush (NULL);
   {
     const char idstr1[] = "_0J1C39JoZiv03qA2H9";
     const char *end = NULL;
@@ -238,6 +240,7 @@ rps_show_types_info (void)
     printf ("idstr1=%s id1:{id_hi=%ld,id_lo=%ld} hash %u idbuf1=%s\n",
 	    idstr1, id1.id_hi, id1.id_lo, rps_oid_hash (id1), idbuf1);
   }
+  fflush (NULL);
 }				/* end rps_show_types_info */
 
 
