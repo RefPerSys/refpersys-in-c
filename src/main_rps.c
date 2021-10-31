@@ -225,9 +225,9 @@ rps_show_types_info (void)
 	  rps_oid_to_cbuf (curidroot, curbuf);
 	  printf
 	    ("rix#%d %s hash%#08x {id_hi=%018ld,id_lo=%018ld} %s (%s:%d)\n",
-	     rix, rootarridstr[rix], rps_oid_hash (curidroot),
+	     rix, curidstr, rps_oid_hash (curidroot),
 	     curidroot.id_hi, curidroot.id_lo, curbuf, __FILE__, __LINE__);
-	  RPS_ASSERT (!strcmp (rootarridstr[rix], curbuf));
+	  RPS_ASSERT (!strcmp (curidstr, curbuf));
 	}
     };
   fflush (NULL);
