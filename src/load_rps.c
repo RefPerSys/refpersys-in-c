@@ -296,24 +296,59 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
        spix, filepath, lincnt, nbobjects);
   printf ("rps_load_first_pass should load %ld objects from %s\n",
 	  nbobjects, filepath);
-  json_decref(jsprologue), jsprologue=NULL, jsnbobjects=NULL, jsspaceid=NULL;
+  json_decref (jsprologue), jsprologue = NULL, jsnbobjects = NULL, jsspaceid =
+    NULL;
   /*****************
    * TODO:
    *  loop and search for start of objects JSON....
    *****************/
   long objcount = 0;
-  while (objcount < nbobjects) {
-    if (feof(spfil))
-      RPS_FATAL("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
-		spix, filepath, lincnt, objcount, nbobjects);
+  while (objcount < nbobjects)
+    {
+      if (feof (spfil))
+	RPS_FATAL
+	  ("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
+	   spix, filepath, lincnt, objcount, nbobjects);
       memset (linbuf, 0, sizeof (linbuf));
       linoff = ftell (spfil);
       if (!fgets (linbuf, sizeof (linbuf), spfil))
 	break;
       lincnt++;
-      /// should test for lines starting objects, i.e. //+ob.... then
-      /// fetch all the lines in some buffer, etc...
-  }
+      RpsOid_t curobid = RPS_NULL_OID;
+      {
+	int endcol = -1;
+	char obidbuf[32];
+	memset (obidbuf, 0, sizeof (obidbuf));
+	/// should test for lines starting objects, i.e. //+ob.... then
+	/// fetch all the lines in some buffer, etc...
+	if (sscanf (linbuf, "//+ob_%.25[0-9A-Za-z]%n", obidbuf, &endcol) >= 1)
+	  curobid = rps_cstr_to_oid (obidbuf, NULL);
+	if (rps_oid_is_valid (curobid))
+	  {
+	    char endlin[48];
+	    memset (endlin, 0, sizeof (endlin));
+	    snprintf (endlin, sizeof (endlin), "//-ob_%s\n", obidbuf);
+	    size_t bufsz = 256;
+	    char *bufjs = RPS_ALLOC_ZEROED (bufsz);
+	    char *linbuf = NULL;
+	    size_t linsz = 0;
+	    FILE *obstream = open_memstream (&bufjs, &linbuf);
+	    RPS_ASSERT (obstream);
+	    while (getline (&linbuf, &linsz, spfil) > 0)
+	      {
+		lincnt++;
+		if (!strcmp (linbuf, endlin))
+		  break;
+		if (linbuf[0] != '/')
+		  fputs (linbuf, obstream);
+	      }
+	    fputc ('\n', obstream);
+	    fflush (obstream);
+#warning should parse the JSON in bufjs of size bufsz
+	  }
+      }
+
+    }
 #warning rps_load_first_pass has to be coded
   RPS_FATAL
     ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
