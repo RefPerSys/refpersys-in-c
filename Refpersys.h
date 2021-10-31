@@ -435,6 +435,7 @@ extern bool rps_stdout_istty;
 #define RPS_TERMINAL_BLINK_ESCAPE \
   (rps_without_terminal_escape?"":"\033[5m")
 
+#define RPS_MANIFEST_FORMAT "RefPerSysFormat2019A"
 
 #include "include/assert_rps.h"
 
