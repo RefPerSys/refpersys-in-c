@@ -228,8 +228,8 @@ rps_load_initial_heap (void)
 	}
     }
   else
-    RPS_FATAL ("bad spaceset in load directory %s\n%s", rps_load_directory);
-  ld->ld_state = RPSLOADING_FILL_OBJECTS_PASS;
+    RPS_FATAL ("bad spaceset in load directory %s", rps_load_directory);
+  loader->ld_state = RPSLOADING_FILL_OBJECTS_PASS;
   for (int spix = 0; spix < (int) nbspace; spix++)
     {
       json_t *jscurspace = json_array_get (jsspaceset, spix);
