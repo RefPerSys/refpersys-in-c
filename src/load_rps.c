@@ -334,7 +334,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	  {
 	    char endlin[48];
 	    memset (endlin, 0, sizeof (endlin));
-	    snprintf (endlin, sizeof (endlin), "//-ob_%s\n", obidbuf);
+	    snprintf (endlin, sizeof (endlin), "//-ob%s\n", obidbuf);
 	    size_t bufsz = 256;
 	    char *bufjs = RPS_ALLOC_ZEROED (bufsz);
 	    long startlin = lincnt;
@@ -369,19 +369,26 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 		(" JSON#%ld in spix#%d  at %s:%ld with bad oid JSON attribute %s - expecting %s",
 		 objcount, spix, filepath, startlin,
 		 json_string_value (jsoid), obidbuf);
-#warning should parse the JSON in bufjs of size bufsz
-	    /// should create the object, set its class, ...
+	    json_t *jsclass = json_object_get (jsobject, "class");
+	    RpsObject_t *obclass = NULL;
+	    if (json_is_string (jsclass))
+	      obclass = rps_load_create_object_from_json_id (ld, jsclass);
+	    RpsObject_t *curob =
+	      rps_load_create_object_from_json_id (ld, jsoid);
+	    if (curob && obclass)
+	      curob->ob_class = obclass;
+	    /// the other fields of curob are set later... in the second pass
 	    objcount++;
-	    /// should json_decref(jsobject) after handling it
+	    json_decref (jsobject);
+	    fclose (obstream);
+	    free (bufjs), bufjs = NULL;
+	    bufsz = 0;
 	  }
       }
     }
-  printf ("rps_load_first_pass parsed %ld objects at %s:%d\n", objcount,
+  printf ("rps_load_first_pass created %ld objects at %s:%d\n", objcount,
 	  filepath, lincnt);
-#warning rps_load_first_pass has to be coded
-  RPS_FATAL
-    ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
-     spix, spacebuf, rps_load_directory);
+  fclose (spfil);
 }				/* end rps_load_first_pass */
 
 /************************ end of file load_rps.c *****************/
