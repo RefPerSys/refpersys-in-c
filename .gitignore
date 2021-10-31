@@ -42,3 +42,5 @@ refpersys
 
 ## timestamp stuff
 __timestamp.*
+
+gmon.out
