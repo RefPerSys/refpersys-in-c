@@ -211,7 +211,10 @@ rps_show_types_info (void)
       RPS_ASSERT (rootarridstr[rix] != NULL);
       const char *end = NULL;
       RpsOid_t curidroot = rps_cstr_to_oid (rootarridstr[rix], &end);
-      assert (end && *end == 0);
+      RPS_ASSERTPRINTF (rps_oid_is_valid (curidroot), "rix#%d rootstr %s",
+			rix, rootarridstr[rix]);
+      RPS_ASSERTPRINTF (end && *end == 0, "rix#%d rootstr %s bad end", rix,
+			rootarridstr[rix]);
       if (rix % 7 == 0)
 	{
 	  char curbuf[32];
