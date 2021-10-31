@@ -321,7 +321,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	memset (obidbuf, 0, sizeof (obidbuf));
 	/// should test for lines starting objects, i.e. //+ob.... then
 	/// fetch all the lines in some buffer, etc...
-	if (sscanf (linbuf, "//+ob_%.25[0-9A-Za-z]%n", obidbuf, &endcol) >= 1)
+	if (sscanf (linbuf, "//+ob_%18[0-9A-Za-z]", obidbuf) >= 1)
 	  curobid = rps_cstr_to_oid (obidbuf, NULL);
 	if (rps_oid_is_valid (curobid))
 	  {
@@ -332,7 +332,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	    char *bufjs = RPS_ALLOC_ZEROED (bufsz);
 	    char *linbuf = NULL;
 	    size_t linsz = 0;
-	    FILE *obstream = open_memstream (&bufjs, &linbuf);
+	    long startlin = lincnt;
+	    FILE *obstream = open_memstream (&bufjs, &bufsz);
 	    RPS_ASSERT (obstream);
 	    while (getline (&linbuf, &linsz, spfil) > 0)
 	      {
@@ -344,11 +345,33 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	      }
 	    fputc ('\n', obstream);
 	    fflush (obstream);
+	    long obsiz = ftell (obstream);
+	    json_error_t jerror = { };
+	    json_t *jsobject =
+	      json_loadb (bufjs, obsiz, JSON_DISABLE_EOF_CHECK, &jerror);
+	    if (!jsobject)
+	      RPS_FATAL
+		("failed to parse JSON#%ld in spix#%d  at %s:%ld - %s",
+		 objcount, spix, filepath, startlin, jerror.text);
+	    json_t *jsoid = json_object_get (jsobject, "oid");
+	    if (!json_is_string (jsoid))
+	      RPS_FATAL
+		(" JSON#%ld in spix#%d  at %s:%ld without oid JSON attribute",
+		 objcount, spix, filepath, startlin);
+	    if (strcmp (json_string_value (jsoid), obidbuf))
+	      RPS_FATAL
+		(" JSON#%ld in spix#%d  at %s:%ld with bad oid JSON attribute %s - expecting %s",
+		 objcount, spix, filepath, startlin,
+		 json_string_value (jsoid), obidbuf);
 #warning should parse the JSON in bufjs of size bufsz
+	    /// should create the object, set its class, ...
+	    objcount++;
+	    /// should json_decref(jsobject) after handling it
 	  }
       }
-
     }
+  printf ("rps_load_first_pass parsed %ld objects at %s:%d\n", objcount,
+	  filepath, lincnt);
 #warning rps_load_first_pass has to be coded
   RPS_FATAL
     ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
