@@ -301,6 +301,19 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
    * TODO:
    *  loop and search for start of objects JSON....
    *****************/
+  long objcount = 0;
+  while (objcount < nbobjects) {
+    if (feof(spfil))
+      RPS_FATAL("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
+		spix, filepath, lincnt, objcount, nbobjects);
+      memset (linbuf, 0, sizeof (linbuf));
+      linoff = ftell (spfil);
+      if (!fgets (linbuf, sizeof (linbuf), spfil))
+	break;
+      lincnt++;
+      /// should test for lines starting objects, i.e. //+ob.... then
+      /// fetch all the lines in some buffer, etc...
+  }
 #warning rps_load_first_pass has to be coded
   RPS_FATAL
     ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
