@@ -90,7 +90,7 @@ rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
     }
   while (pc > cbuf);
   char *start = cbuf + RPS_NBDIGITS_OID_HI;
-  last = start + RPS_NBDIGITS_OID_LO;
+  last = start + RPS_NBDIGITS_OID_LO - 1;
   pc = last;
   n = oid.id_lo;
   do
@@ -101,6 +101,7 @@ rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
       pc--;
     }
   while (pc > start);
+  cbuf[0] = '_';
 }				/* end rps_oid_to_cbuf */
 
 RpsOid_t
@@ -113,7 +114,7 @@ rps_cstr_to_oid (const char *cstr, const char **pend)
     goto fail;
   uint64_t hi = 0, lo = 0;
   const char *lasthi = cstr + RPS_NBDIGITS_OID_HI + 1;
-  const char *lastlo = lasthi + RPS_NBDIGITS_OID_LO;
+  const char *lastlo = lasthi + RPS_NBDIGITS_OID_LO - 1;
   for (const char *pcb = cstr + 1; *pcb && pcb < lasthi; pcb++)
     {
       const char *pcs = strchr (rps_sb62digits, *pcb);
