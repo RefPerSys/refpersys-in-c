@@ -249,12 +249,13 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
   long linoff = 0;
   int lincnt = 0;
-  char linbuf[256];
+  size_t linsz = 256;
+  char *linbuf = RPS_ALLOC_ZEROED (linsz);
   do
     {
       memset (linbuf, 0, sizeof (linbuf));
       linoff = ftell (spfil);
-      if (!fgets (linbuf, sizeof (linbuf), spfil))
+      if (!fgets (linbuf, linsz, spfil))
 	break;
       lincnt++;
       if (linbuf[0] == '/' || isspace (linbuf[0]))
@@ -296,7 +297,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
        spix, filepath, lincnt, nbobjects);
   printf ("rps_load_first_pass should load %ld objects from %s\n",
 	  nbobjects, filepath);
-  lincnt += 2 + json_object_size(jsprologue);
+  lincnt += json_object_size (jsprologue);
   json_decref (jsprologue), jsprologue = NULL,
     jsnbobjects = NULL, jsspaceid = NULL;
   /*****************
@@ -310,9 +311,9 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	RPS_FATAL
 	  ("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
 	   spix, filepath, lincnt, objcount, nbobjects);
-      memset (linbuf, 0, sizeof (linbuf));
+      memset (linbuf, 0, linsz);
       linoff = ftell (spfil);
-      if (!fgets (linbuf, sizeof (linbuf), spfil))
+      if (!fgets (linbuf, linsz, spfil))
 	break;
       lincnt++;
       if (isspace (linbuf[0]))
@@ -336,8 +337,6 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	    snprintf (endlin, sizeof (endlin), "//-ob_%s\n", obidbuf);
 	    size_t bufsz = 256;
 	    char *bufjs = RPS_ALLOC_ZEROED (bufsz);
-	    size_t linsz = 64;
-	    char *linbuf = RPS_ALLOC_ZEROED (linsz);
 	    long startlin = lincnt;
 	    FILE *obstream = open_memstream (&bufjs, &bufsz);
 	    RPS_ASSERT (obstream);
