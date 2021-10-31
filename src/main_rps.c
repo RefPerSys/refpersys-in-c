@@ -182,21 +182,45 @@ rps_show_types_info (void)
   putchar ('\n');
   fflush (NULL);
   /// four random oid for testing....
-  for (int cnt=0; cnt<4; cnt++) {
-    RpsOid_t oidr = rps_random_valid_oid ();
-    char idrbuf[32];
-    memset (idrbuf, 0, sizeof (idrbuf));
-    rps_oid_to_cbuf (oidr, idrbuf);
-    printf ("random id#%d {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
-	    cnt, oidr.id_hi, oidr.id_lo, idrbuf, __FILE__, __LINE__);
-    const char *end = NULL;
-    RpsOid_t oidrbis = rps_cstr_to_oid (idrbuf, &end);
-    char idbisbuf[32];
-    memset (idbisbuf, 0, sizeof (idbisbuf));
-    rps_oid_to_cbuf (oidrbis, idbisbuf);
-    printf ("oidrbis#%d   {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
-	    cnt, oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
-  }
+  for (int cnt = 0; cnt < 4; cnt++)
+    {
+      RpsOid_t oidr = rps_random_valid_oid ();
+      char idrbuf[32];
+      memset (idrbuf, 0, sizeof (idrbuf));
+      rps_oid_to_cbuf (oidr, idrbuf);
+      printf ("random id#%d {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
+	      cnt, oidr.id_hi, oidr.id_lo, idrbuf, __FILE__, __LINE__);
+      const char *end = NULL;
+      RpsOid_t oidrbis = rps_cstr_to_oid (idrbuf, &end);
+      char idbisbuf[32];
+      memset (idbisbuf, 0, sizeof (idbisbuf));
+      rps_oid_to_cbuf (oidrbis, idbisbuf);
+      printf ("oidrbis#%d   {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
+	      cnt, oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
+    }
+  /// oidstrs for testing
+  const char *rootarridstr[] = {
+#define RPS_INSTALL_ROOT_OB(Oid) #Oid,
+#include "generated/rps-roots.h"
+    NULL
+  };
+  for (int rix = 0; rix < RPS_NB_ROOT_OB; rix++)
+    {
+      RPS_ASSERT (rootarridstr[rix] != NULL);
+      const char *end = NULL;
+      RpsOid_t curidroot = rps_cstr_to_oid (rootarridstr[rix], &end);
+      assert (end && *end == 0);
+      if (rix % 7 == 0)
+	{
+	  char curbuf[32];
+	  memset (curbuf, 0, sizeof (curbuf));
+	  rps_oid_to_cbuf (curidroot, curbuf);
+	  printf ("rix#%d %s {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
+		  rix, rootarridstr[rix], curidroot.id_hi, curidroot.id_lo,
+		  curbuf, __FILE__, __LINE__);
+	  RPS_ASSERT (!strcmp (rootarridstr[rix], curbuf));
+	}
+    };
   {
     const char idstr1[] = "_0J1C39JoZiv03qA2H9";
     const char *end = NULL;
