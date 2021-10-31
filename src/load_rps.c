@@ -314,6 +314,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
       if (!fgets (linbuf, sizeof (linbuf), spfil))
 	break;
       lincnt++;
+      if (isspace(linbuf[0]))
+	continue;
       RpsOid_t curobid = RPS_NULL_OID;
       {
 	int endcol = -1;
@@ -321,8 +323,10 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	memset (obidbuf, 0, sizeof (obidbuf));
 	/// should test for lines starting objects, i.e. //+ob.... then
 	/// fetch all the lines in some buffer, etc...
-	if (sscanf (linbuf, "//+ob_%18[0-9A-Za-z]", obidbuf) >= 1)
+	if (sscanf (linbuf, "//+ob_%18[0-9A-Za-z]", obidbuf+1) >= 1) {
+	  obidbuf[0] = '_';
 	  curobid = rps_cstr_to_oid (obidbuf, NULL);
+	}
 	if (rps_oid_is_valid (curobid))
 	  {
 	    char endlin[48];
