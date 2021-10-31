@@ -188,14 +188,15 @@ rps_show_types_info (void)
       char idrbuf[32];
       memset (idrbuf, 0, sizeof (idrbuf));
       rps_oid_to_cbuf (oidr, idrbuf);
-      printf ("random id#%d {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
-	      cnt, oidr.id_hi, oidr.id_lo, idrbuf, __FILE__, __LINE__);
+      printf ("random id#%d {id_hi=%018ld,id_lo=%018ld} %s h%#08x (%s:%d)\n",
+	      cnt, oidr.id_hi, oidr.id_lo, idrbuf,
+	      rps_oid_hash (oidr), __FILE__, __LINE__);
       const char *end = NULL;
       RpsOid_t oidrbis = rps_cstr_to_oid (idrbuf, &end);
       char idbisbuf[32];
       memset (idbisbuf, 0, sizeof (idbisbuf));
       rps_oid_to_cbuf (oidrbis, idbisbuf);
-      printf ("oidrbis#%d   {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
+      printf ("oidrbis#%d   {id_hi=%018ld,id_lo=%018ld} %s (%s:%d)\n",
 	      cnt, oidr.id_hi, oidr.id_lo, idbisbuf, __FILE__, __LINE__);
     }
   /// oidstrs for testing
@@ -215,9 +216,10 @@ rps_show_types_info (void)
 	  char curbuf[32];
 	  memset (curbuf, 0, sizeof (curbuf));
 	  rps_oid_to_cbuf (curidroot, curbuf);
-	  printf ("rix#%d %s {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
-		  rix, rootarridstr[rix], curidroot.id_hi, curidroot.id_lo,
-		  curbuf, __FILE__, __LINE__);
+	  printf
+	    ("rix#%d %s hash%#08x {id_hi=%018ld,id_lo=%018ld} %s (%s:%d)\n",
+	     rix, rootarridstr[rix], rps_oid_hash (curidroot),
+	     curidroot.id_hi, curidroot.id_lo, curbuf, __FILE__, __LINE__);
 	  RPS_ASSERT (!strcmp (rootarridstr[rix], curbuf));
 	}
     };
