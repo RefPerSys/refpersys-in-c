@@ -216,8 +216,8 @@ rps_load_initial_heap (void)
 	    RPS_FATAL ("invalid space #%d in directory %s\n",
 		       spix, rps_load_directory);
 	  const char *spacestr = json_string_value (jscurspace);
-	  printf("spix=%d spacestr:%s load-dir %s (%s:%d)\n",
-		 spix, spacestr, rps_load_directory, __FILE__, __LINE__);
+	  printf ("spix=%d spacestr:%s load-dir %s (%s:%d)\n",
+		  spix, spacestr, rps_load_directory, __FILE__, __LINE__);
 	  RpsOid_t spaceid = rps_cstr_to_oid (spacestr, NULL);
 	  if (!rps_oid_is_valid (spaceid))
 	    RPS_FATAL ("invalid space #%d id %s in directory %s\n",
@@ -239,10 +239,11 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
   memset (spacebuf, 0, sizeof (spacebuf));
   memset (filepath, 0, sizeof (filepath));
   rps_oid_to_cbuf (spaceid, spacebuf);
-  printf("rps_load_first_pass spaceid {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
-	 spaceid.id_hi, spaceid.id_lo, spacebuf, __FILE__, __LINE__);
-  snprintf (filepath, sizeof (filepath),
-	    "%s/persistore/sp%s-rps.json", rps_load_directory, spacebuf);
+  printf
+    ("rps_load_first_pass spaceid {id_hi=%015ld,id_lo=%015ld} %s (%s:%d)\n",
+     spaceid.id_hi, spaceid.id_lo, spacebuf, __FILE__, __LINE__);
+  snprintf (filepath, sizeof (filepath), "%s/persistore/sp%s-rps.json",
+	    rps_load_directory, spacebuf);
   FILE *spfil = fopen (filepath, "r");
   if (!spfil)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
