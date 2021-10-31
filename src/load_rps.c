@@ -263,12 +263,39 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	break;
     }
   while (!feof (spfil));
+  //// parse the JSON prologue
   fseek (spfil, linoff, SEEK_SET);
   json_error_t jerror = { };
-  json_t *jsprologue = json_loadf (spfil, 0, &jerr);
+  json_t *jsprologue = json_loadf (spfil, JSON_DISABLE_EOF_CHECK, &jerror);
+  json_t *jsformat = NULL, *jsnbobjects = NULL, *jsspaceid = NULL;
+  long nbobjects = -1;
   if (!jsprologue)
     RPS_FATAL ("failed to read prologue for space #%d in %s:%d - %s",
-	       spix, filepath, linecnt, jerror.text);
+	       spix, filepath, lincnt, jerror.text);
+  if (!json_is_object (jsprologue)
+      || !(jsformat = json_object_get (jsprologue, "format"))
+      || !(jsnbobjects = json_object_get (jsprologue, "nbobjects"))
+      || !(jsspaceid = json_object_get (jsprologue, "spaceid")))
+    RPS_FATAL ("invalid prologue JSON for space #%d in %s:%d", spix, filepath,
+	       lincnt);
+  if (!json_is_string (jsformat)
+      || strcmp (json_string_value (jsformat), RPS_MANIFEST_FORMAT))
+    RPS_FATAL
+      ("invalid prologue JSON for space #%d in %s:%d format, expecting %s",
+       spix, filepath, lincnt, RPS_MANIFEST_FORMAT);
+  if (!json_is_string (jsspaceid)
+      || strcmp (json_string_value (jsspaceid), spacebuf))
+    RPS_FATAL
+      ("invalid prologue JSON for space #%d  in %s:%d bad spaceid - expecting %s",
+       spix, filepath, lincnt, spacebuf);
+  if (json_is_integer (jsnbobjects))
+    nbobjects = json_integer_value (jsnbobjects);
+  if (nbobjects < 0)
+    RPS_FATAL
+      ("invalid prologue JSON for space #%d in %s:%d - bad nbobjects %ld",
+       spix, filepath, lincnt, nbobjects);
+  printf ("rps_load_first_pass should load %ld objects from %s\n",
+	  nbobjects, filepath);
 #warning rps_load_first_pass has to be coded
   RPS_FATAL
     ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
