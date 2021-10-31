@@ -247,6 +247,28 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
   FILE *spfil = fopen (filepath, "r");
   if (!spfil)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
+  long linoff = 0;
+  int lincnt = 0;
+  char linbuf[256];
+  do
+    {
+      memset (linbuf, 0, sizeof (linbuf));
+      linoff = ftell (spfil);
+      if (!fgets (linbuf, sizeof (linbuf), spfil))
+	break;
+      if (linbuf[0] == '/' || isspace (linbuf[0]))
+	continue;
+      lincnt++;
+      if (linbuf[0] == '{')
+	break;
+    }
+  while (!feof (spfil));
+  fseek (spfil, linoff, SEEK_SET);
+  json_error_t jerror = { };
+  json_t *jsprologue = json_loadf (spfil, 0, &jerr);
+  if (!jsprologue)
+    RPS_FATAL ("failed to read prologue for space #%d in %s:%d - %s",
+	       spix, filepath, linecnt, jerror.text);
 #warning rps_load_first_pass has to be coded
   RPS_FATAL
     ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
