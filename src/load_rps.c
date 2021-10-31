@@ -59,6 +59,7 @@ struct RpsPayl_Loader_st
 };
 
 void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid);
+void rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid);
 
 bool
 rps_is_valid_loader (RpsLoader_t * ld)
@@ -201,6 +202,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 void
 rps_load_initial_heap (void)
 {
+  unsigned nbspace = 0;
   RpsLoader_t *loader = RPS_ALLOC_ZONE (sizeof (RpsLoader_t), -RpsPyt_Loader);
   loader->ld_magic = RPS_LOADER_MAGIC;
   loader->ld_state = RPSLOADING_PARSE_MANIFEST_PASS;
@@ -208,7 +210,7 @@ rps_load_initial_heap (void)
   json_t *jsspaceset = json_object_get (loader->ld_json_manifest, "spaceset");
   if (json_is_array (jsspaceset))
     {
-      unsigned nbspace = json_array_size (jsspaceset);
+      nbspace = json_array_size (jsspaceset);
       for (int spix = 0; spix < (int) nbspace; spix++)
 	{
 	  json_t *jscurspace = json_array_get (jsspaceset, spix);
@@ -225,6 +227,16 @@ rps_load_initial_heap (void)
 	  rps_load_first_pass (loader, spix, spaceid);
 	}
     }
+  else
+    RPS_FATAL ("bad spaceset in load directory %s\n%s", rps_load_directory);
+  ld->ld_state = RPSLOADING_FILL_OBJECTS_PASS;
+  for (int spix = 0; spix < (int) nbspace; spix++)
+    {
+      json_t *jscurspace = json_array_get (jsspaceset, spix);
+      const char *spacestr = json_string_value (jscurspace);
+      RpsOid_t spaceid = rps_cstr_to_oid (spacestr, NULL);
+      rps_load_second_pass (loader, spix, spaceid);
+    };
 #warning rps_load_initial_heap needs to be completed
   RPS_FATAL ("incomplete rps_load_initial_heap load directory %s",
 	     rps_load_directory);
@@ -390,5 +402,24 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	  filepath, lincnt);
   fclose (spfil);
 }				/* end rps_load_first_pass */
+
+void
+rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
+{
+  char spacebuf[32];
+  char filepath[256];
+  memset (spacebuf, 0, sizeof (spacebuf));
+  memset (filepath, 0, sizeof (filepath));
+  RPS_ASSERT (rps_is_valid_loader (ld));
+  rps_oid_to_cbuf (spaceid, spacebuf);
+  snprintf (filepath, sizeof (filepath), "%s/persistore/sp%s-rps.json",
+	    rps_load_directory, spacebuf);
+  FILE *spfil = fopen (filepath, "r");
+  if (!spfil)
+    RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
+#warning unimplemented rps_load_second_pass
+  RPS_FATAL ("unimplemented rps_load_second_pass space #%d file %s", spix,
+	     filepath);
+}				/* end rps_load_second_pass */
 
 /************************ end of file load_rps.c *****************/
