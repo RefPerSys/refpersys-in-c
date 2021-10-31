@@ -296,6 +296,11 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
        spix, filepath, lincnt, nbobjects);
   printf ("rps_load_first_pass should load %ld objects from %s\n",
 	  nbobjects, filepath);
+  json_decref(&jsprologue), jsprologue=NULL, jsnbobjects=NULL, jsspaceid=NULL;
+  /*****************
+   * TODO:
+   *  loop and search for start of objects JSON....
+   *****************/
 #warning rps_load_first_pass has to be coded
   RPS_FATAL
     ("unimplemented rps_load_first_pass spix#%d space %s load directory %s",
