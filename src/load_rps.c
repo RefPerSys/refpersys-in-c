@@ -314,7 +314,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
       if (!fgets (linbuf, sizeof (linbuf), spfil))
 	break;
       lincnt++;
-      if (isspace(linbuf[0]))
+      if (isspace (linbuf[0]))
 	continue;
       RpsOid_t curobid = RPS_NULL_OID;
       {
@@ -323,10 +323,11 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	memset (obidbuf, 0, sizeof (obidbuf));
 	/// should test for lines starting objects, i.e. //+ob.... then
 	/// fetch all the lines in some buffer, etc...
-	if (sscanf (linbuf, "//+ob_%18[0-9A-Za-z]", obidbuf+1) >= 1) {
-	  obidbuf[0] = '_';
-	  curobid = rps_cstr_to_oid (obidbuf, NULL);
-	}
+	if (sscanf (linbuf, "//+ob_%18[0-9A-Za-z]", obidbuf + 1) >= 1)
+	  {
+	    obidbuf[0] = '_';
+	    curobid = rps_cstr_to_oid (obidbuf, NULL);
+	  }
 	if (rps_oid_is_valid (curobid))
 	  {
 	    char endlin[48];
@@ -334,12 +335,13 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 	    snprintf (endlin, sizeof (endlin), "//-ob_%s\n", obidbuf);
 	    size_t bufsz = 256;
 	    char *bufjs = RPS_ALLOC_ZEROED (bufsz);
-	    char *linbuf = NULL;
-	    size_t linsz = 0;
+	    size_t linsz = 64;
+	    char *linbuf = RPS_ALLOC_ZEROED (linsz);
 	    long startlin = lincnt;
 	    FILE *obstream = open_memstream (&bufjs, &bufsz);
 	    RPS_ASSERT (obstream);
-	    while (getline (&linbuf, &linsz, spfil) > 0)
+	    while ((linbuf[0] = (char) 0),
+		   getline (&linbuf, &linsz, spfil) > 0)
 	      {
 		lincnt++;
 		if (!strcmp (linbuf, endlin))
