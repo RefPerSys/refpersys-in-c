@@ -181,7 +181,7 @@ rps_show_types_info (void)
 #undef TYPEFMT_rps
   putchar ('\n');
   fflush (NULL);
-  /// four random oid for testing....
+  /// four random oid-s for testing....
   for (int cnt = 0; cnt < 4; cnt++)
     {
       RpsOid_t oidr = rps_random_valid_oid ();
