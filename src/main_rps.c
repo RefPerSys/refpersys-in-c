@@ -208,13 +208,16 @@ rps_show_types_info (void)
   };
   for (int rix = 0; rix < RPS_NB_ROOT_OB; rix++)
     {
-      RPS_ASSERT (rootarridstr[rix] != NULL);
+      const char *curidstr = rootarridstr[rix];
+      RPS_ASSERT (curidstr != NULL);
       const char *end = NULL;
-      RpsOid_t curidroot = rps_cstr_to_oid (rootarridstr[rix], &end);
+      printf ("testing rix#%d curidstr %s (%s:%d)\n", rix, curidstr,
+	      __FILE__, __LINE__);
+      RpsOid_t curidroot = rps_cstr_to_oid (curidstr, &end);
       RPS_ASSERTPRINTF (rps_oid_is_valid (curidroot), "rix#%d rootstr %s",
-			rix, rootarridstr[rix]);
+			rix, curidstr);
       RPS_ASSERTPRINTF (end && *end == 0, "rix#%d rootstr %s bad end", rix,
-			rootarridstr[rix]);
+			curidstr);
       if (rix % 7 == 0)
 	{
 	  char curbuf[32];
