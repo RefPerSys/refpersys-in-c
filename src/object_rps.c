@@ -316,8 +316,8 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
 	  RPS_ASSERTPRINTF (curbuck->obuck_card == 0,
 			    "empty bucket#%d corrupted cardinal %u", bix,
 			    curbuck->obuck_card);
-	  RPS_ASSERTPRINTF (curbuck->obuck_size ==
-			    0 "empty bucket#%d corrupted size %u", bix,
+	  RPS_ASSERTPRINTF (curbuck->obuck_size == 0,
+			    "empty bucket#%d corrupted size %u", bix,
 			    curbuck->obuck_size);
 	  curbuck->obuck_size = minbucksize;
 	  curbuck->obuck_arr =
