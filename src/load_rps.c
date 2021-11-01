@@ -74,6 +74,22 @@ rps_is_valid_loader (RpsLoader_t * ld)
     || ld->ld_state == RPSLOADING_EPILOGUE_PASS;
 }				/* end rps_is_valid_loader */
 
+unsigned
+rps_loader_nb_globals (RpsLoader_t * ld)
+{
+  if (!rps_is_valid_loader (ld))
+    return 0;
+  return ld->ld_nbglobroot;
+}				/* end rps_loader_nb_globals */
+
+unsigned
+rps_loader_nb_constants (RpsLoader_t * ld)
+{
+  if (!rps_is_valid_loader (ld))
+    return 0;
+  return ld->ld_nbconstob;
+}				/* end rps_loader_nb_constants */
+
 bool
 rps_is_valid_filling_loader (RpsLoader_t * ld)
 {
@@ -207,8 +223,7 @@ rps_load_initial_heap (void)
   RpsLoader_t *loader = RPS_ALLOC_ZONE (sizeof (RpsLoader_t), -RpsPyt_Loader);
   loader->ld_magic = RPS_LOADER_MAGIC;
   loader->ld_state = RPSLOADING_PARSE_MANIFEST_PASS;
-  printf("rps_load_initial_heap directory %s\n",
-	 rps_load_directory);
+  printf ("rps_load_initial_heap directory %s\n", rps_load_directory);
   rps_load_parse_manifest (loader);
   json_t *jsspaceset = json_object_get (loader->ld_json_manifest, "spaceset");
   if (json_is_array (jsspaceset))

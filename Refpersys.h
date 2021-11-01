@@ -160,11 +160,15 @@ typedef uintptr_t RpsValue_t;
 
 /// the loader internals are in file load_rps.c
 typedef struct RpsPayl_Loader_st RpsLoader_t;	///// forward declaration
-/// the loader internals are in file dump_rps.c
 extern bool rps_is_valid_loader (RpsLoader_t * ld);
 extern bool rps_is_valid_filling_loader (RpsLoader_t * ld);
 extern bool rps_is_valid_creating_loader (RpsLoader_t * ld);
+extern unsigned rps_loader_nb_globals (RpsLoader_t * ld);
+extern unsigned rps_loader_nb_constants (RpsLoader_t * ld);
 
+
+
+/// the dumper internals are in file dump_rps.c
 typedef struct RpsPayl_Dumper_st RpsDumper_t;	///// forward declaration
 extern bool rps_is_valid_dumper (RpsDumper_t * du);
 
