@@ -153,6 +153,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
       unsigned nbgr = json_array_size (jsglobroot);
       ld->ld_nbglobroot = 0;
       ld->ld_globrootarr = RPS_ALLOC_ZEROED (nbgr * sizeof (RpsObject_t *));
+      rps_initialize_objects_for_loading (ld, nbgr);
       for (int gix = 0; gix < (int) nbgr; gix++)
 	{
 	  RpsObject_t *curoot = NULL;
