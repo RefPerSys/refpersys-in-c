@@ -436,8 +436,9 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	};
       free (oldarr);
     };
-  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%zd size %u",
+  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%zd (max %u) size %u",
 		    buck - rps_object_bucket_array,
+		    RPS_OID_MAXBUCKETS,
 		    cbucksiz);
   unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
