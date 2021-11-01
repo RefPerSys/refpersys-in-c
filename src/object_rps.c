@@ -320,6 +320,7 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
 			    "empty bucket#%d corrupted size %u", bix,
 			    curbuck->obuck_size);
 	  curbuck->obuck_size = minbucksize;
+	  curbuck->obuck_card = 0;
 	  curbuck->obuck_arr =
 	    RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * minbucksize);
 	}
@@ -329,6 +330,9 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
 			  curbuck->obuck_size);
       pthread_mutex_unlock (&rps_object_bucket_array[bix].obuck_mtx);
     }
+  printf("rps_initialize_objects_for_loading nbglobroot=%u minbucksize=%u (%s:%d)\n",
+	 nbglobroot, minbucksize,
+	 __FILE__, __LINE__);
 }				/* end rps_initialize_objects_for_loading */
 
 
@@ -432,7 +436,9 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	};
       free (oldarr);
     };
-  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket size %u", cbucksiz);
+  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%zd size %u",
+		    buck - rps_object_bucket_array,
+		    cbucksiz);
   unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
