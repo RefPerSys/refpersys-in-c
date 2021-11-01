@@ -330,9 +330,9 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
 			  curbuck->obuck_size);
       pthread_mutex_unlock (&rps_object_bucket_array[bix].obuck_mtx);
     }
-  printf("rps_initialize_objects_for_loading nbglobroot=%u minbucksize=%u (%s:%d)\n",
-	 nbglobroot, minbucksize,
-	 __FILE__, __LINE__);
+  printf
+    ("rps_initialize_objects_for_loading nbglobroot=%u minbucksize=%u (%s:%d)\n",
+     nbglobroot, minbucksize, __FILE__, __LINE__);
 }				/* end rps_initialize_objects_for_loading */
 
 
@@ -438,8 +438,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
     };
   RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%zd (max %u) size %u",
 		    buck - rps_object_bucket_array,
-		    RPS_OID_MAXBUCKETS,
-		    cbucksiz);
+		    RPS_OID_MAXBUCKETS, cbucksiz);
   unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
@@ -486,10 +485,14 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid_t oid)
       curbuck = &rps_object_bucket_array[bix];
       if (!curbuck->obuck_arr)
 	{
-	  unsigned inibucksiz = 7;
+	  unsigned inibucksiz =
+	    rps_prime_above (4 + ((rps_loader_nb_globals (ld) +
+				   rps_loader_nb_constants (ld))
+				  / RPS_OID_MAXBUCKETS));
 	  curbuck->obuck_arr =
 	    RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * inibucksiz);
 	  curbuck->obuck_size = inibucksiz;
+	  curbuck->obuck_card = 0;
 	};
       rps_add_object_to_locked_bucket (curbuck, obinfant);
       pthread_mutex_unlock (&curbuck->obuck_mtx);
