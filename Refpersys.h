@@ -359,6 +359,8 @@ struct RpsZoneObject_st
 };
 
 extern void rps_initialize_objects_machinery (void);
+extern void rps_initialize_objects_for_loading (RpsLoader_t * ld,
+						unsigned nbglobroot);
 extern bool rps_is_valid_object (RpsObject_t * obj);
 extern bool rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2);
 extern int rps_object_cmp (const RpsObject_t * ob1, const RpsObject_t * ob2);

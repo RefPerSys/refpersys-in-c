@@ -300,6 +300,37 @@ rps_initialize_objects_machinery (void)
   initialized = true;
 }				/* end rps_initialize_objects_machinery */
 
+void
+rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
+{
+  RPS_ASSERT (rps_is_valid_loader (ld));
+  RPS_ASSERTPRINTF (nbglobroot > 2, "nbglobroot %u", nbglobroot);
+  unsigned minbucksize =
+    rps_prime_above (2 + nbglobroot / RPS_OID_MAXBUCKETS);
+  for (int bix = 0; bix < RPS_OID_MAXBUCKETS; bix++)
+    {
+      struct rps_object_bucket_st *curbuck = rps_object_bucket_array + bix;
+      pthread_mutex_lock (&curbuck->obuck_mtx);
+      if (curbuck->obuck_arr == NULL)
+	{
+	  RPS_ASSERTPRINTF (curbuck->obuck_card == 0,
+			    "empty bucket#%d corrupted cardinal %u", bix,
+			    curbuck->obuck_card);
+	  RPS_ASSERTPRINTF (curbuck->obuck_size ==
+			    0 "empty bucket#%d corrupted size %u", bix,
+			    curbuck->obuck_size);
+	  curbuck->obuck_size = minbucksize;
+	  curbuck->obuck_arr =
+	    RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * minbucksize);
+	}
+      else
+	RPS_ASSERTPRINTF (curbuck->obuck_size > 0,
+			  "bucket#%d corrupted size %u", bix,
+			  curbuck->obuck_size);
+      pthread_mutex_unlock (&rps_object_bucket_array[bix].obuck_mtx);
+    }
+}				/* end rps_initialize_objects_for_loading */
+
 
 // for qsort of objects
 static int
@@ -344,8 +375,10 @@ rps_find_object_by_oid (const RpsOid_t oid)
   if (curbuck->obuck_arr == NULL)
     goto end;
   unsigned cbucksiz = curbuck->obuck_size;
-  RPS_ASSERT (cbucksiz > 3);
-  RPS_ASSERT (5 * curbuck->obuck_card < 4 * cbucksiz);
+  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%u size %u", bix, cbucksiz);
+  RPS_ASSERTPRINTF (5 * curbuck->obuck_card < 4 * cbucksiz,
+		    "bad bucket#%u size %u for cardinal %u",
+		    bix, cbucksiz, curbuck->obuck_card);
   unsigned stix = (oid.id_hi ^ oid.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
@@ -384,8 +417,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   RPS_ASSERT (buck != NULL);
   RPS_ASSERT (obj != NULL);
   unsigned cbucksiz = buck->obuck_size;
-  RPS_ASSERT (cbucksiz > 3);
-  if (5 * buck->obuck_card > 4 * cbucksiz)
+  if (5 * buck->obuck_card + 2 > 4 * cbucksiz)
     {
       unsigned newsiz = rps_prime_above (4 * buck->obuck_card / 3 + 5);
       RpsObject_t **oldarr = buck->obuck_arr;
@@ -400,6 +432,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	};
       free (oldarr);
     };
+  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket size %u", cbucksiz);
   unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
