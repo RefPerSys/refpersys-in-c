@@ -173,7 +173,7 @@ rps_show_types_info (void)
   EXPLAIN_TYPE (pthread_mutex_t);
   EXPLAIN_TYPE (pthread_cond_t);
   EXPLAIN_TYPE (RpsObject_t);
-  EXPLAIN_TYPE (RpsOid_t);
+  EXPLAIN_TYPE (RpsOid);
   EXPLAIN_TYPE (RpsAttrTable_t);
 #undef EXPLAIN_TYPE4
 #undef EXPLAIN_TYPE3
@@ -184,7 +184,7 @@ rps_show_types_info (void)
   /// seven random oid-s for testing....
   for (int cnt = 0; cnt < 7; cnt++)
     {
-      RpsOid_t oidr = rps_random_valid_oid ();
+      RpsOid oidr = rps_random_valid_oid ();
       char idrbuf[32];
       memset (idrbuf, 0, sizeof (idrbuf));
       rps_oid_to_cbuf (oidr, idrbuf);
@@ -192,7 +192,7 @@ rps_show_types_info (void)
 	      cnt, oidr.id_hi, oidr.id_lo, idrbuf,
 	      rps_oid_hash (oidr), __FILE__, __LINE__);
       const char *end = NULL;
-      RpsOid_t oidrbis = rps_cstr_to_oid (idrbuf, &end);
+      RpsOid oidrbis = rps_cstr_to_oid (idrbuf, &end);
       char idbisbuf[32];
       memset (idbisbuf, 0, sizeof (idbisbuf));
       rps_oid_to_cbuf (oidrbis, idbisbuf);
@@ -213,7 +213,7 @@ rps_show_types_info (void)
       const char *end = NULL;
       printf ("testing rix#%d curidstr %s (%s:%d)\n", rix, curidstr,
 	      __FILE__, __LINE__);
-      RpsOid_t curidroot = rps_cstr_to_oid (curidstr, &end);
+      RpsOid curidroot = rps_cstr_to_oid (curidstr, &end);
       RPS_ASSERTPRINTF (rps_oid_is_valid (curidroot), "rix#%d rootstr %s",
 			rix, curidstr);
       RPS_ASSERTPRINTF (end && *end == 0, "rix#%d rootstr %s bad end", rix,
@@ -238,7 +238,7 @@ rps_show_types_info (void)
       ("\"%s\" : strlen=%ld, size=%zd, RPS_OIDBUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
        idstr1, strlen (idstr1), sizeof (idstr1), RPS_OIDBUFLEN,
        RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
-    RpsOid_t id1 = rps_cstr_to_oid (idstr1, &end);
+    RpsOid id1 = rps_cstr_to_oid (idstr1, &end);
     assert (end && *end == 0);
     char idbuf1[32];
     memset (idbuf1, 0, sizeof (idbuf1));

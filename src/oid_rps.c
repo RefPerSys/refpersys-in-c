@@ -36,20 +36,20 @@
 const char rps_sb62digits[] = RPS_B62DIGITS;
 
 bool
-rps_oid_is_null (const RpsOid_t oid)
+rps_oid_is_null (const RpsOid oid)
 {
   return oid.id_hi == 0 && oid.id_lo == 0;
 }				/* end rps_oid_is_null */
 
 bool
-rps_oid_is_valid (const RpsOid_t oid)
+rps_oid_is_valid (const RpsOid oid)
 {
   return oid.id_hi >= RPS_MIN_OID_HI && oid.id_hi < RPS_MAX_OID_HI
     && oid.id_lo >= RPS_MIN_OID_LO && oid.id_lo < RPS_MAX_OID_LO;
 }				/* end rps_oid_is_valid */
 
 RpsHash_t
-rps_oid_hash (const RpsOid_t oid)
+rps_oid_hash (const RpsOid oid)
 {
   RpsHash_t h = 0;
   if (rps_oid_is_null (oid))
@@ -63,7 +63,7 @@ rps_oid_hash (const RpsOid_t oid)
 }				/* end rps_oid_hash */
 
 void
-rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
+rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OIDBUFLEN])
 {
   if (!cbuf)
     return;
@@ -104,7 +104,7 @@ rps_oid_to_cbuf (const RpsOid_t oid, char cbuf[RPS_OIDBUFLEN])
   cbuf[0] = '_';
 }				/* end rps_oid_to_cbuf */
 
-RpsOid_t
+RpsOid
 rps_cstr_to_oid (const char *cstr, const char **pend)
 {
   RPS_ASSERT (cstr != NULL);
@@ -135,7 +135,7 @@ rps_cstr_to_oid (const char *cstr, const char **pend)
     goto fail;
   if (pend)
     *pend = lastlo;
-  RpsOid_t oid = {.id_hi = hi,.id_lo = lo };
+  RpsOid oid = {.id_hi = hi,.id_lo = lo };
   return oid;
 fail:
   if (pend)
@@ -146,13 +146,13 @@ fail:
 
 
 bool
-rps_oid_equal (const RpsOid_t oid1, const RpsOid_t oid2)
+rps_oid_equal (const RpsOid oid1, const RpsOid oid2)
 {
   return oid1.id_hi == oid2.id_hi && oid1.id_lo == oid2.id_lo;
 }				/* end rps_oid_equal */
 
 bool
-rps_oid_less_than (const RpsOid_t oid1, const RpsOid_t oid2)
+rps_oid_less_than (const RpsOid oid1, const RpsOid oid2)
 {
   if (oid1.id_hi < oid2.id_hi)
     return true;
@@ -162,7 +162,7 @@ rps_oid_less_than (const RpsOid_t oid1, const RpsOid_t oid2)
 }				/* end rps_oid_less_than */
 
 bool
-rps_oid_less_equal (const RpsOid_t oid1, const RpsOid_t oid2)
+rps_oid_less_equal (const RpsOid oid1, const RpsOid oid2)
 {
   if (oid1.id_hi < oid2.id_hi)
     return true;
@@ -173,7 +173,7 @@ rps_oid_less_equal (const RpsOid_t oid1, const RpsOid_t oid2)
 
 
 int
-rps_oid_cmp (const RpsOid_t oid1, const RpsOid_t oid2)
+rps_oid_cmp (const RpsOid oid1, const RpsOid oid2)
 {
   if (oid1.id_hi < oid2.id_hi)
     return -1;
@@ -189,17 +189,17 @@ rps_oid_cmp (const RpsOid_t oid1, const RpsOid_t oid2)
 }				/* end rps_oid_cmp */
 
 unsigned
-rps_oid_bucket_num (const RpsOid_t oid)
+rps_oid_bucket_num (const RpsOid oid)
 {
   unsigned b = oid.id_hi / (RPS_MAX_OID_HI / RPS_OID_MAXBUCKETS);
   RPS_ASSERT (b <= RPS_OID_MAXBUCKETS);
   return b;
 }				/* end rps_oid_bucket_num */
 
-RpsOid_t
+RpsOid
 rps_random_valid_oid (void)
 {
-  RpsOid_t roid = { 0, 0 };
+  RpsOid roid = { 0, 0 };
   do
     {
       roid.id_hi =

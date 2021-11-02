@@ -367,7 +367,7 @@ rps_object_array_qsort (const RpsObject_t ** arr, int size)
 
 
 RpsObject_t *
-rps_find_object_by_oid (const RpsOid_t oid)
+rps_find_object_by_oid (const RpsOid oid)
 {
   struct rps_object_bucket_st *curbuck = NULL;
   if (oid.id_hi == 0 || !rps_oid_is_valid (oid))
@@ -468,7 +468,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 
 
 RpsObject_t *
-rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid_t oid)
+rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 {
   struct rps_object_bucket_st *curbuck = NULL;
   RPS_ASSERT (rps_is_valid_loader (ld));

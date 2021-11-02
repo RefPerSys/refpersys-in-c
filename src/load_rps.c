@@ -58,8 +58,8 @@ struct RpsPayl_Loader_st
   RpsObject_t **ld_constobarr;
 };
 
-void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid);
-void rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid);
+void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
+void rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 
 bool
 rps_is_valid_loader (RpsLoader_t * ld)
@@ -117,7 +117,7 @@ rps_load_create_object_from_json_id (RpsLoader_t * ld, json_t * js)
   RPS_ASSERT (js != NULL);
   if (!json_is_string (js))
     return NULL;
-  RpsOid_t oid = rps_cstr_to_oid (json_string_value (js), NULL);
+  RpsOid oid = rps_cstr_to_oid (json_string_value (js), NULL);
   if (!rps_oid_is_valid (oid))
     return NULL;
   return rps_get_loaded_object_by_oid (ld, oid);
@@ -186,7 +186,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
       /// now that the infant root objects are created, we can assign
       /// them to global C variables:
 #define RPS_INSTALL_ROOT_OB(Oid) do {                           \
-        RpsOid_t curoid##Oid =                                  \
+        RpsOid curoid##Oid =                                  \
           rps_cstr_to_oid(#Oid, NULL);				\
         RPS_ROOT_OB(Oid) =                                      \
           rps_find_object_by_oid(curoid##Oid);                  \
@@ -238,7 +238,7 @@ rps_load_initial_heap (void)
 	  const char *spacestr = json_string_value (jscurspace);
 	  printf ("spix=%d spacestr:%s load-dir %s (%s:%d)\n",
 		  spix, spacestr, rps_load_directory, __FILE__, __LINE__);
-	  RpsOid_t spaceid = rps_cstr_to_oid (spacestr, NULL);
+	  RpsOid spaceid = rps_cstr_to_oid (spacestr, NULL);
 	  if (!rps_oid_is_valid (spaceid))
 	    RPS_FATAL ("invalid space #%d id %s in directory %s\n",
 		       spix, spacestr, rps_load_directory);
@@ -252,7 +252,7 @@ rps_load_initial_heap (void)
     {
       json_t *jscurspace = json_array_get (jsspaceset, spix);
       const char *spacestr = json_string_value (jscurspace);
-      RpsOid_t spaceid = rps_cstr_to_oid (spacestr, NULL);
+      RpsOid spaceid = rps_cstr_to_oid (spacestr, NULL);
       rps_load_second_pass (loader, spix, spaceid);
     };
 #warning rps_load_initial_heap needs to be completed
@@ -262,7 +262,7 @@ rps_load_initial_heap (void)
 
 
 void
-rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
+rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 {
   char spacebuf[32];
   char filepath[256];
@@ -348,7 +348,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
       lincnt++;
       if (isspace (linbuf[0]))
 	continue;
-      RpsOid_t curobid = RPS_NULL_OID;
+      RpsOid curobid = RPS_NULL_OID;
       {
 	int endcol = -1;
 	char obidbuf[32];
@@ -422,7 +422,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
 }				/* end rps_load_first_pass */
 
 void
-rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid_t spaceid)
+rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 {
   char spacebuf[32];
   char filepath[256];

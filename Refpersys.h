@@ -308,7 +308,7 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 ////////////////////////// objects
 #define RPSFIELDS_OBJECT                        \
   RPSFIELDS_ZONED_VALUE;                        \
-  RpsOid_t ob_id;                               \
+  RpsOid ob_id;                               \
   double ob_mtime;                              \
   pthread_mutex_t ob_mtx;                       \
   RpsObject_t* ob_class;                        \
@@ -329,9 +329,9 @@ extern bool rps_is_valid_object (RpsObject_t * obj);
 extern bool rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2);
 extern int rps_object_cmp (const RpsObject_t * ob1, const RpsObject_t * ob2);
 extern void rps_object_array_qsort (const RpsObject_t ** arr, int size);
-extern RpsObject_t *rps_find_object_by_oid (const RpsOid_t oid);
+extern RpsObject_t *rps_find_object_by_oid (const RpsOid oid);
 extern RpsObject_t *rps_get_loaded_object_by_oid (RpsLoader_t * ld,
-						  const RpsOid_t oid);
+						  const RpsOid oid);
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes
 struct rps_attrentry_st
