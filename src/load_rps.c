@@ -225,6 +225,7 @@ rps_load_initial_heap (void)
   loader->ld_state = RPSLOADING_PARSE_MANIFEST_PASS;
   printf ("rps_load_initial_heap directory %s\n", rps_load_directory);
   rps_load_parse_manifest (loader);
+  rps_check_all_objects_buckets_are_valid ();
   json_t *jsspaceset = json_object_get (loader->ld_json_manifest, "spaceset");
   if (json_is_array (jsspaceset))
     {
@@ -243,6 +244,7 @@ rps_load_initial_heap (void)
 	    RPS_FATAL ("invalid space #%d id %s in directory %s\n",
 		       spix, spacestr, rps_load_directory);
 	  rps_load_first_pass (loader, spix, spaceid);
+	  rps_check_all_objects_buckets_are_valid ();
 	}
     }
   else
@@ -254,6 +256,7 @@ rps_load_initial_heap (void)
       const char *spacestr = json_string_value (jscurspace);
       RpsOid spaceid = rps_cstr_to_oid (spacestr, NULL);
       rps_load_second_pass (loader, spix, spaceid);
+      rps_check_all_objects_buckets_are_valid ();
     };
 #warning rps_load_initial_heap needs to be completed
   RPS_FATAL ("incomplete rps_load_initial_heap load directory %s",
@@ -277,6 +280,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
   FILE *spfil = fopen (filepath, "r");
   if (!spfil)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
+  rps_check_all_objects_buckets_are_valid();
   long linoff = 0;
   int lincnt = 0;
   size_t linsz = 256;
@@ -365,6 +369,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    char endlin[48];
 	    memset (endlin, 0, sizeof (endlin));
 	    snprintf (endlin, sizeof (endlin), "//-ob%s\n", obidbuf);
+	    rps_check_all_objects_buckets_are_valid ();
 	    size_t bufsz = 256;
 	    char *bufjs = RPS_ALLOC_ZEROED (bufsz);
 	    long startlin = lincnt;
@@ -419,6 +424,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
   printf ("rps_load_first_pass created %ld objects at %s:%d\n", objcount,
 	  filepath, lincnt);
   fclose (spfil);
+  rps_check_all_objects_buckets_are_valid ();
 }				/* end rps_load_first_pass */
 
 void
@@ -435,6 +441,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
   FILE *spfil = fopen (filepath, "r");
   if (!spfil)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
+  rps_check_all_objects_buckets_are_valid ();
 #warning unimplemented rps_load_second_pass
   RPS_FATAL ("unimplemented rps_load_second_pass space #%d file %s", spix,
 	     filepath);

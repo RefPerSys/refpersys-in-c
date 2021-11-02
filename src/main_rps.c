@@ -413,6 +413,7 @@ main (int argc, char **argv)
   if (rps_showing_types)
     rps_show_types_info ();
   rps_initialize_objects_machinery ();
+  rps_check_all_objects_buckets_are_valid ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
   if (!rps_without_terminal_escape)

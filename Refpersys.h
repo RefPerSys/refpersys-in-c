@@ -332,6 +332,8 @@ extern void rps_object_array_qsort (const RpsObject_t ** arr, int size);
 extern RpsObject_t *rps_find_object_by_oid (const RpsOid oid);
 extern RpsObject_t *rps_get_loaded_object_by_oid (RpsLoader_t * ld,
 						  const RpsOid oid);
+extern void rps_check_all_objects_buckets_are_valid (void);
+
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes
 struct rps_attrentry_st

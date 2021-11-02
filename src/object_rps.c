@@ -292,11 +292,11 @@ rps_initialize_objects_machinery (void)
     RPS_FATAL ("failed to settype rps_objmutexattr");
   for (int bix = 0; bix < RPS_OID_MAXBUCKETS; bix++)
     {
-      pthread_mutex_init (&rps_object_bucket_array[bix].obuck_mtx,
-			  &rps_objmutexattr);
-      rps_object_bucket_array[bix].obuck_card = 0;
-      rps_object_bucket_array[bix].obuck_size = initialbucksize;
-      rps_object_bucket_array[bix].obuck_arr =
+      struct rps_object_bucket_st *curbuck = rps_object_bucket_array + bix;
+      pthread_mutex_init (&curbuck->obuck_mtx, &rps_objmutexattr);
+      curbuck->obuck_card = 0;
+      curbuck->obuck_size = initialbucksize;
+      curbuck->obuck_arr =
 	RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * initialbucksize);
     }
   initialized = true;
@@ -304,6 +304,25 @@ rps_initialize_objects_machinery (void)
     ("did rps_initialize_objects_machinery initialbucksize=%u RPS_OID_MAXBUCKETS=%u (%s:%d)\n",
      initialbucksize, RPS_OID_MAXBUCKETS, __FILE__, __LINE__);
 }				/* end rps_initialize_objects_machinery */
+
+
+void
+rps_check_all_objects_buckets_are_valid (void)
+{
+  for (int bix = 0; bix < RPS_OID_MAXBUCKETS; bix++)
+    {
+      struct rps_object_bucket_st *curbuck = rps_object_bucket_array + bix;
+      pthread_mutex_lock (&curbuck->obuck_mtx);
+      RPS_ASSERTPRINTF (curbuck->obuck_size > 2,
+			"bucket#%d wrong size %u", bix, curbuck->obuck_size);
+      RPS_ASSERTPRINTF (curbuck->obuck_arr != NULL,
+			"bucket#%d missing array", bix);
+      RPS_ASSERTPRINTF (curbuck->obuck_card < curbuck->obuck_size,
+			"bucket#%d bad cardinal %u for size %u",
+			bix, curbuck->obuck_card, curbuck->obuck_size);
+      pthread_mutex_unlock (&curbuck->obuck_mtx);
+    }
+}				/* end rps_check_all_objects_buckets_are_valid */
 
 void
 rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
