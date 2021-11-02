@@ -445,17 +445,22 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   RPS_ASSERT (buck != NULL);
   RPS_ASSERT (obj != NULL);
   static int addcnt;
-  if (addcnt % 8 == 0) {
-    rps_check_all_objects_buckets_are_valid();
-    if (addcnt % 32 == 0)
-      printf("rps_add_object_to_locked_bucket bucket#%zd addcnt#%d (%s:%d)\n",
-	     buck-rps_object_bucket_array, addcnt, __FILE__, __LINE__);
-  }
+  if (addcnt % 8 == 0)
+    {
+      rps_check_all_objects_buckets_are_valid ();
+      if (addcnt % 32 == 0)
+	printf
+	  ("rps_add_object_to_locked_bucket bucket#%zd addcnt#%d (%s:%d)\n",
+	   buck - rps_object_bucket_array, addcnt, __FILE__, __LINE__);
+    }
   addcnt++;
   unsigned cbucksiz = buck->obuck_size;
+  RPS_ASSERTPRINTF (cbucksiz > 0,
+		    "bucket#%d zerosized", buck - rps_object_bucket_array);
   if (5 * buck->obuck_card + 2 > 4 * cbucksiz)
     {
-      unsigned newsiz = rps_prime_above (4 * buck->obuck_card / 3 + 5);
+      unsigned newsiz =
+	rps_prime_above (4 * buck->obuck_card / 3 + 6 + buck->obuck_card / 8);
       RpsObject_t **oldarr = buck->obuck_arr;
       buck->obuck_arr = RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * newsiz);
       buck->obuck_size = newsiz;
@@ -467,8 +472,9 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	    rps_add_object_to_locked_bucket (buck, oldobj);
 	};
       free (oldarr);
+      cbucksiz = newsiz;
     };
-  RPS_ASSERTPRINTF (buck->obuck_size > 3,
+  RPS_ASSERTPRINTF (cbucksiz > 3,
 		    "bad bucket#%zd (max %u) size %u card %u array %p addcnt#%d",
 		    buck - rps_object_bucket_array,
 		    RPS_OID_MAXBUCKETS, cbucksiz, buck->obuck_card,
