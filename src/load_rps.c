@@ -345,11 +345,18 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	RPS_FATAL
 	  ("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
 	   spix, filepath, lincnt, objcount, nbobjects);
+      if (objcount % 8 == 0) {
+	rps_check_all_objects_buckets_are_valid();
+	if (objcount % 16 == 0)
+	  printf("rps_load_first_pass space#%d objcount %ld file %s:%d\n", spix, objcount, filepath, lincnt);
+      };
       memset (linbuf, 0, linsz);
       linoff = ftell (spfil);
       if (!fgets (linbuf, linsz, spfil))
 	break;
       lincnt++;
+      if (lincnt % 16 == 0)
+	rps_check_all_objects_buckets_are_valid();
       if (isspace (linbuf[0]))
 	continue;
       RpsOid curobid = RPS_NULL_OID;
