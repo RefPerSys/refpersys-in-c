@@ -283,6 +283,7 @@ void
 rps_initialize_objects_machinery (void)
 {
   static bool initialized;
+  static const int initialbucksize = 5;
   if (initialized)
     RPS_FATAL ("rps_initialize_objects_machinery called twice");
   if (pthread_mutexattr_init (&rps_objmutexattr))
@@ -294,10 +295,14 @@ rps_initialize_objects_machinery (void)
       pthread_mutex_init (&rps_object_bucket_array[bix].obuck_mtx,
 			  &rps_objmutexattr);
       rps_object_bucket_array[bix].obuck_card = 0;
-      rps_object_bucket_array[bix].obuck_size = 0;
-      rps_object_bucket_array[bix].obuck_arr = NULL;
+      rps_object_bucket_array[bix].obuck_size = initialbucksize;
+      rps_object_bucket_array[bix].obuck_arr =
+	RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * initialbucksize);
     }
   initialized = true;
+  printf
+    ("did rps_initialize_objects_machinery initialbucksize=%u RPS_OID_MAXBUCKETS=%u (%s:%d)\n",
+     initialbucksize, RPS_OID_MAXBUCKETS, __FILE__, __LINE__);
 }				/* end rps_initialize_objects_machinery */
 
 void
@@ -436,9 +441,11 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	};
       free (oldarr);
     };
-  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%zd (max %u) size %u",
+  RPS_ASSERTPRINTF (cbucksiz > 3,
+		    "bad bucket#%zd (max %u) size %u card %u array %p",
 		    buck - rps_object_bucket_array,
-		    RPS_OID_MAXBUCKETS, cbucksiz);
+		    RPS_OID_MAXBUCKETS, cbucksiz, buck->obuck_card,
+		    buck->obuck_arr);
   unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
