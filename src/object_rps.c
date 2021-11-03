@@ -344,6 +344,8 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
   RPS_ASSERTPRINTF (nbglobroot > 2, "nbglobroot %u", nbglobroot);
   unsigned minbucksize =
     rps_prime_above (3 + nbglobroot / RPS_OID_MAXBUCKETS);
+  printf("rps_initialize_objects_for_loading nbglobroot=%u minbucksize=%u (%s:%d)\n",
+	 nbglobroot, minbucksize, __FILE__, __LINE__);
   for (int bix = 0; bix < RPS_OID_MAXBUCKETS; bix++)
     {
       struct rps_object_bucket_st *curbuck = rps_object_bucket_array + bix;
