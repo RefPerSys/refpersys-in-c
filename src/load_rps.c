@@ -128,6 +128,7 @@ void
 rps_load_parse_manifest (RpsLoader_t * ld)
 {
   int linenum = 0;
+  long totnbob = 0;
   char manifestpath[256];
   memset (manifestpath, 0, sizeof (manifestpath));
   if (!rps_is_valid_loader (ld))
@@ -175,14 +176,14 @@ rps_load_parse_manifest (RpsLoader_t * ld)
   if (!json_is_integer (jstotobjnb))
     RPS_FATAL ("missing totalobjectnumber JSON attribute in manifest file %s",
 	       manifestpath);
-
+  totnbob = json_integer_value (jstotobjnb);
   ld->ld_state = RPSLOADING_CREATE_OBJECTS_PASS;
   if (json_is_array (jsglobroot))
     {
       unsigned nbgr = json_array_size (jsglobroot);
       ld->ld_nbglobroot = 0;
       ld->ld_globrootarr = RPS_ALLOC_ZEROED (nbgr * sizeof (RpsObject_t *));
-      rps_initialize_objects_for_loading (ld, nbgr);
+      rps_initialize_objects_for_loading (ld, totnbob);
       for (int gix = 0; gix < (int) nbgr; gix++)
 	{
 	  RpsObject_t *curoot = NULL;
@@ -209,6 +210,8 @@ rps_load_parse_manifest (RpsLoader_t * ld)
             } while (0);
 #include "generated/rps-roots.h"
     }
+  else
+    RPS_FATAL ("missing globalroots in manifest file %s", manifestpath);
   json_t *jsconstset = json_object_get (ld->ld_json_manifest, "constset");
   if (json_is_array (jsconstset))
     {
