@@ -277,8 +277,21 @@ struct rps_object_bucket_st
   RpsObject_t **obuck_arr;
 };
 
+enum rps_bucket_grow_en
+{
+  RPS_BUCKET_FIXED,
+  RPS_BUCKET_GROWING
+};
+
+
+
+static void
+rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
+				 RpsObject_t * obj, enum rps_bucket_grow_en growmod);
 struct rps_object_bucket_st rps_object_bucket_array[RPS_OID_MAXBUCKETS];
 static pthread_mutexattr_t rps_objmutexattr;
+
+
 void
 rps_initialize_objects_machinery (void)
 {
@@ -452,12 +465,16 @@ rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
   RPS_ASSERT (buck->obuck_size >= buck->obuck_card);
   RPS_ASSERT (buck->obuck_size > 0);
   RPS_ASSERT (buck->obuck_arr != NULL);
-  return 5 * buck->obuck_card > 4 * buck->obuck_size;
+  return 5 * buck->obuck_card + 1 + buck->obuck_card / 8 >
+    4 * buck->obuck_size;
 }				/* end rps_object_bucket_is_nearly_full */
+
+
 
 static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
-				 RpsObject_t * obj)
+				 RpsObject_t * obj,
+				 enum rps_bucket_grow_en growmode)
 {
   RPS_ASSERT (buck != NULL);
   RPS_ASSERT (obj != NULL);
@@ -467,8 +484,10 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
       rps_check_all_objects_buckets_are_valid ();
       if (addcnt % 32 == 0)
 	printf
-	  ("rps_add_object_to_locked_bucket bucket#%zd addcnt#%d (%s:%d)\n",
-	   buck - rps_object_bucket_array, addcnt, __FILE__, __LINE__);
+	  ("rps_add_object_to_locked_bucket bucket#%zd addcnt#%d %s (%s:%d)\n",
+	   buck - rps_object_bucket_array, addcnt,
+	   (growmode == RPS_BUCKET_FIXED) ? "fixed" : "growing",
+	   __FILE__, __LINE__);
     }
   addcnt++;
   unsigned cbucksiz = buck->obuck_size;
@@ -477,6 +496,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   RPS_ASSERT (buck->obuck_size > 0 && buck->obuck_size > buck->obuck_card);
   if (rps_object_bucket_is_nearly_full (buck))
     {
+      RPS_ASSERT (growmode == RPS_BUCKET_GROWING);
       unsigned newsiz =
 	rps_prime_above (4 * buck->obuck_card / 3 + 6 + buck->obuck_card / 8);
       RpsObject_t **oldarr = buck->obuck_arr;
@@ -487,18 +507,21 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	{
 	  RpsObject_t *oldobj = oldarr[ix];
 	  if (oldobj)		/* this recursion happens once! */
-	    rps_add_object_to_locked_bucket (buck, oldobj);
+	    rps_add_object_to_locked_bucket (buck, oldobj, RPS_BUCKET_FIXED);
 	};
       free (oldarr);
-      RPS_ASSERT (buck->obuck_size > 0
-		  && buck->obuck_size > buck->obuck_card);
       cbucksiz = newsiz;
     };
+  RPS_ASSERT (buck->obuck_size > 0 && buck->obuck_size > buck->obuck_card);
   RPS_ASSERTPRINTF (cbucksiz > 3,
 		    "bad bucket#%zd (max %u) size %u card %u array %p addcnt#%d",
 		    buck - rps_object_bucket_array,
 		    RPS_OID_MAXBUCKETS, cbucksiz, buck->obuck_card,
 		    buck->obuck_arr, addcnt);
+  RPS_ASSERTPRINTF (buck->obuck_size > buck->obuck_card,
+		    "bucket#%zd oversized size:%d card:%d",
+		    buck - rps_object_bucket_array, buck->obuck_size,
+		    buck->obuck_card);
   unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
@@ -555,7 +578,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 	  curbuck->obuck_card = 0;
 	};
       RPS_ASSERT (!rps_object_bucket_is_nearly_full (curbuck));
-      rps_add_object_to_locked_bucket (curbuck, obinfant);
+      rps_add_object_to_locked_bucket (curbuck, obinfant, RPS_BUCKET_GROWING);
       pthread_mutex_unlock (&curbuck->obuck_mtx);
       return obinfant;
     }
