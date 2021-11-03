@@ -456,7 +456,8 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   addcnt++;
   unsigned cbucksiz = buck->obuck_size;
   RPS_ASSERTPRINTF (cbucksiz > 0,
-		    "bucket#%d zerosized", buck - rps_object_bucket_array);
+		    "bucket#%zd zerosized", buck - rps_object_bucket_array);
+  RPS_ASSERT (buck->obuck_size > 0 && buck->obuck_size > buck->obuck_card);
   if (5 * buck->obuck_card + 2 > 4 * cbucksiz)
     {
       unsigned newsiz =
@@ -472,6 +473,8 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	    rps_add_object_to_locked_bucket (buck, oldobj);
 	};
       free (oldarr);
+      RPS_ASSERT (buck->obuck_size > 0
+		  && buck->obuck_size > buck->obuck_card);
       cbucksiz = newsiz;
     };
   RPS_ASSERTPRINTF (cbucksiz > 3,
@@ -534,6 +537,8 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 	  curbuck->obuck_size = inibucksiz;
 	  curbuck->obuck_card = 0;
 	};
+      RPS_ASSERT (curbuck->obuck_size > 0
+		  && curbuck->obuck_size > curbuck->obuck_card);
       rps_add_object_to_locked_bucket (curbuck, obinfant);
       pthread_mutex_unlock (&curbuck->obuck_mtx);
       return obinfant;
