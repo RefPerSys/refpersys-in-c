@@ -287,7 +287,8 @@ enum rps_bucket_grow_en
 
 static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
-				 RpsObject_t * obj, enum rps_bucket_grow_en growmod);
+				 RpsObject_t * obj,
+				 enum rps_bucket_grow_en growmod);
 struct rps_object_bucket_st rps_object_bucket_array[RPS_OID_MAXBUCKETS];
 static pthread_mutexattr_t rps_objmutexattr;
 
@@ -338,14 +339,15 @@ rps_check_all_objects_buckets_are_valid (void)
 }				/* end rps_check_all_objects_buckets_are_valid */
 
 void
-rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
+rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
 {
   RPS_ASSERT (rps_is_valid_loader (ld));
-  RPS_ASSERTPRINTF (nbglobroot > 2, "nbglobroot %u", nbglobroot);
+  RPS_ASSERTPRINTF (totnbobj > 2, "totnbobj %u", nbglobroot);
   unsigned minbucksize =
     rps_prime_above (3 + nbglobroot / RPS_OID_MAXBUCKETS);
-  printf("rps_initialize_objects_for_loading nbglobroot=%u minbucksize=%u (%s:%d)\n",
-	 nbglobroot, minbucksize, __FILE__, __LINE__);
+  printf
+    ("rps_initialize_objects_for_loading totnbobj=%u minbucksize=%u (%s:%d)\n",
+     totnbobj, minbucksize, __FILE__, __LINE__);
   for (int bix = 0; bix < RPS_OID_MAXBUCKETS; bix++)
     {
       struct rps_object_bucket_st *curbuck = rps_object_bucket_array + bix;
@@ -370,7 +372,7 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned nbglobroot)
       pthread_mutex_unlock (&rps_object_bucket_array[bix].obuck_mtx);
     }
   printf
-    ("rps_initialize_objects_for_loading nbglobroot=%u minbucksize=%u (%s:%d)\n",
+    ("rps_initialize_objects_for_loading ending totnbobj=%u minbucksize=%u (%s:%d)\n",
      nbglobroot, minbucksize, __FILE__, __LINE__);
 }				/* end rps_initialize_objects_for_loading */
 
