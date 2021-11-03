@@ -297,7 +297,7 @@ void
 rps_initialize_objects_machinery (void)
 {
   static bool initialized;
-  static const int initialbucksize = 5;
+  static const int initialbucksize = 7;
   if (initialized)
     RPS_FATAL ("rps_initialize_objects_machinery called twice");
   if (pthread_mutexattr_init (&rps_objmutexattr))
@@ -343,8 +343,7 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
 {
   RPS_ASSERT (rps_is_valid_loader (ld));
   RPS_ASSERTPRINTF (totnbobj > 2, "totnbobj %u", totnbobj);
-  unsigned minbucksize =
-    rps_prime_above (3 + totnbobj / RPS_OID_MAXBUCKETS);
+  unsigned minbucksize = rps_prime_above (3 + totnbobj / RPS_OID_MAXBUCKETS);
   printf
     ("rps_initialize_objects_for_loading totnbobj=%u minbucksize=%u (%s:%d)\n",
      totnbobj, minbucksize, __FILE__, __LINE__);
@@ -469,8 +468,8 @@ rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
   RPS_ASSERT (buck->obuck_size >= buck->obuck_card);
   RPS_ASSERT (buck->obuck_size > 0);
   RPS_ASSERT (buck->obuck_arr != NULL);
-  return 5 * buck->obuck_card + 1 + buck->obuck_card / 8 >
-    4 * buck->obuck_size;
+  return (5 * buck->obuck_card + 2 + (buck->obuck_card / 8)) >
+    (4 * buck->obuck_size);
 }				/* end rps_object_bucket_is_nearly_full */
 
 
@@ -502,7 +501,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
     {
       RPS_ASSERT (growmode == RPS_BUCKET_GROWING);
       unsigned newsiz =
-	rps_prime_above (4 * buck->obuck_card / 3 + 6 + buck->obuck_card / 8);
+	rps_prime_above (4 * buck->obuck_card / 3 + 7 + buck->obuck_card / 8);
       RpsObject_t **oldarr = buck->obuck_arr;
       buck->obuck_arr = RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * newsiz);
       buck->obuck_size = newsiz;
@@ -517,6 +516,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
       cbucksiz = newsiz;
     };
   RPS_ASSERT (buck->obuck_size > 0 && buck->obuck_size > buck->obuck_card);
+  RPS_ASSERT (!rps_object_bucket_is_nearly_full (buck));
   RPS_ASSERTPRINTF (cbucksiz > 3,
 		    "bad bucket#%zd (max %u) size %u card %u array %p addcnt#%d",
 		    buck - rps_object_bucket_array,
@@ -534,6 +534,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	{
 	  buck->obuck_arr[ix] = obj;
 	  buck->obuck_card++;
+	  RPS_ASSERT (!rps_object_bucket_is_nearly_full (buck));
 	  return;
 	}
       if (curob == obj)
@@ -546,6 +547,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	{
 	  buck->obuck_arr[ix] = obj;
 	  buck->obuck_card++;
+	  RPS_ASSERT (!rps_object_bucket_is_nearly_full (buck));
 	  return;
 	}
       if (curob == obj)
