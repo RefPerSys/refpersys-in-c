@@ -56,6 +56,7 @@ struct RpsPayl_Loader_st
   RpsObject_t **ld_globrootarr;
   unsigned ld_nbconstob;
   RpsObject_t **ld_constobarr;
+  unsigned ld_totalobjectnb;
 };
 
 void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
@@ -163,6 +164,18 @@ rps_load_parse_manifest (RpsLoader_t * ld)
 	 jerr.column);
   }
   json_t *jsglobroot = json_object_get (ld->ld_json_manifest, "globalroots");
+  json_t *jstotobjnb =
+    json_object_get (ld->ld_json_manifest, "totalobjectnumber");
+  json_t *jsformat = json_object_get (ld->ld_json_manifest, "format");
+  if (!json_is_string (jsformat)
+      || strcmp (json_string_value (jsformat), RPS_MANIFEST_FORMAT))
+    RPS_FATAL ("bad JSON format in manifest file %s, expecting %s",
+	       manifestpath, RPS_MANIFEST_FORMAT);
+
+  if (!json_is_integer (jstotobjnb))
+    RPS_FATAL ("missing totalobjectnumber JSON attribute in manifest file %s",
+	       manifestpath);
+
   ld->ld_state = RPSLOADING_CREATE_OBJECTS_PASS;
   if (json_is_array (jsglobroot))
     {
@@ -186,7 +199,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
       /// now that the infant root objects are created, we can assign
       /// them to global C variables:
 #define RPS_INSTALL_ROOT_OB(Oid) do {                           \
-        RpsOid curoid##Oid =                                  \
+        RpsOid curoid##Oid =					\
           rps_cstr_to_oid(#Oid, NULL);				\
         RPS_ROOT_OB(Oid) =                                      \
           rps_find_object_by_oid(curoid##Oid);                  \

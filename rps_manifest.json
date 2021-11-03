@@ -35,7 +35,7 @@
   "_8KJHUldX8GJ03G5OWp",
   "_9uwZtDshW4401x6MsY"
  ],
- "format" : "RefPerSysFormat2019A",
+ "format" : "RefPerSysFormat2021A",
  "globalnames" : 
  [
   {
@@ -249,7 +249,8 @@
  ],
  "origitid" : "e8af0c67e8da2dbf13e13d0bc52a2d33e0b86d86",
  "plugins" : [],
- "spaceset" : [ "_8J6vNYtP5E812eCr5q" ]
+ "spaceset" : [ "_8J6vNYtP5E812eCr5q" ],
+ "totalobjectnumber" : 195
 }
 
 //// end of RefPerSys manifest file
