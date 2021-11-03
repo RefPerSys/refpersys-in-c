@@ -437,6 +437,23 @@ end:
 }				/* end rps_find_object_by_oid */
 
 
+bool
+rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
+{
+  RPS_ASSERT (buck != NULL);
+  RPS_ASSERT (buck >= rps_object_bucket_array
+	      && buck < rps_object_bucket_array + RPS_OID_MAXBUCKETS);
+  if (buck->obuck_size == 0)
+    {
+      RPS_ASSERT (buck->obuck_card == 0);
+      RPS_ASSERT (buck->obuck_arr == NULL);
+      return true;
+    };
+  RPS_ASSERT (buck->obuck_size >= buck->obuck_card);
+  RPS_ASSERT (buck->obuck_size > 0);
+  RPS_ASSERT (buck->obuck_arr != NULL);
+  return 5 * buck->obuck_card > 4 * buck->obuck_size;
+}				/* end rps_object_bucket_is_nearly_full */
 
 static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
@@ -458,7 +475,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   RPS_ASSERTPRINTF (cbucksiz > 0,
 		    "bucket#%zd zerosized", buck - rps_object_bucket_array);
   RPS_ASSERT (buck->obuck_size > 0 && buck->obuck_size > buck->obuck_card);
-  if (5 * buck->obuck_card + 2 > 4 * cbucksiz)
+  if (rps_object_bucket_is_nearly_full (buck))
     {
       unsigned newsiz =
 	rps_prime_above (4 * buck->obuck_card / 3 + 6 + buck->obuck_card / 8);
@@ -537,8 +554,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 	  curbuck->obuck_size = inibucksiz;
 	  curbuck->obuck_card = 0;
 	};
-      RPS_ASSERT (curbuck->obuck_size > 0
-		  && curbuck->obuck_size > curbuck->obuck_card);
+      RPS_ASSERT (!rps_object_bucket_is_nearly_full (curbuck));
       rps_add_object_to_locked_bucket (curbuck, obinfant);
       pthread_mutex_unlock (&curbuck->obuck_mtx);
       return obinfant;
