@@ -342,9 +342,9 @@ void
 rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
 {
   RPS_ASSERT (rps_is_valid_loader (ld));
-  RPS_ASSERTPRINTF (totnbobj > 2, "totnbobj %u", nbglobroot);
+  RPS_ASSERTPRINTF (totnbobj > 2, "totnbobj %u", totnbobj);
   unsigned minbucksize =
-    rps_prime_above (3 + nbglobroot / RPS_OID_MAXBUCKETS);
+    rps_prime_above (3 + totnbobj / RPS_OID_MAXBUCKETS);
   printf
     ("rps_initialize_objects_for_loading totnbobj=%u minbucksize=%u (%s:%d)\n",
      totnbobj, minbucksize, __FILE__, __LINE__);
@@ -373,7 +373,7 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
     }
   printf
     ("rps_initialize_objects_for_loading ending totnbobj=%u minbucksize=%u (%s:%d)\n",
-     nbglobroot, minbucksize, __FILE__, __LINE__);
+     totnbobj, minbucksize, __FILE__, __LINE__);
 }				/* end rps_initialize_objects_for_loading */
 
 
