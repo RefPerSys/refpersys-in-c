@@ -329,8 +329,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
     RPS_FATAL
       ("invalid prologue JSON for space #%d in %s:%d - bad nbobjects %ld",
        spix, filepath, lincnt, nbobjects);
-  printf ("rps_load_first_pass should load %ld objects from %s\n",
-	  nbobjects, filepath);
+  printf ("rps_load_first_pass should load %ld objects from %s (%s:%d)\n",
+	  nbobjects, filepath, __FILE__, __LINE__);
   lincnt += json_object_size (jsprologue);
   json_decref (jsprologue), jsprologue = NULL,
     jsnbobjects = NULL, jsspaceid = NULL;
@@ -349,8 +349,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	{
 	  rps_check_all_objects_buckets_are_valid ();
 	  if (objcount % 16 == 0)
-	    printf ("rps_load_first_pass space#%d objcount %ld file %s:%d\n",
-		    spix, objcount, filepath, lincnt);
+	    printf ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
+		    spix, objcount, filepath, lincnt, __FILE__, __LINE__);
 	};
       memset (linbuf, 0, linsz);
       linoff = ftell (spfil);
@@ -430,8 +430,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	  }
       }
     }
-  printf ("rps_load_first_pass created %ld objects at %s:%d\n", objcount,
-	  filepath, lincnt);
+  printf ("rps_load_first_pass created %ld objects at %s:%d (%s:%d)\n", objcount,
+	  filepath, lincnt, __FILE__, __LINE__);
   fclose (spfil);
   rps_check_all_objects_buckets_are_valid ();
 }				/* end rps_load_first_pass */
