@@ -562,8 +562,8 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	  buck->obuck_arr[ix] = obj;
 	  buck->obuck_card++;
 	  RPS_ASSERTPRINTF (!rps_object_bucket_is_nearly_full (buck),
-			    "wrongly full bucket#%d of card %u",
-			    buckix, buck->obuck_card);
+			    "wrongly full bucket#%d of card %u size %u",
+			    buckix, buck->obuck_card, buck->obuck_size);
 	  return;
 	}
       if (curob == obj)
@@ -577,8 +577,8 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	  buck->obuck_arr[ix] = obj;
 	  buck->obuck_card++;
 	  RPS_ASSERTPRINTF (!rps_object_bucket_is_nearly_full (buck),
-			    "wrongly full bucket#%d of card %u",
-			    buckix, buck->obuck_card);
+			    "wrongly full bucket#%d of card %u size %u",
+			    buckix, buck->obuck_card, buck->obuck_size);
 	  return;
 	}
       if (curob == obj)
