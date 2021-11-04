@@ -44,7 +44,7 @@ alloc0_at_rps (size_t sz, const char *file, int lineno)
 #warning we probably want some synchronization in alloc0_at_rps
   void *z = malloc (sz);
   if (!z)
-    RPS_FATAL_AT (file, lineno, "failed to allocate %zd bytes.");
+    RPS_FATAL_AT (file, lineno, "failed to allocate %zd bytes (%m).", sz);
   memset (z, 0, sz);
   return z;
 }				/* end alloc_at_rps */
