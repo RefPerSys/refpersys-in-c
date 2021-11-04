@@ -342,8 +342,17 @@ void
 rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
 {
   RPS_ASSERT (rps_is_valid_loader (ld));
+  /// we have at least two objects, and when we have a million of
+  /// them, this code should have been regenerated automatically.
   RPS_ASSERTPRINTF (totnbobj > 2, "totnbobj %u", totnbobj);
-  unsigned minbucksize = rps_prime_above (5 + totnbobj / RPS_OID_MAXBUCKETS);
+  RPS_ASSERTPRINTF (totnbobj < 1000000, "totnbobj %u", totnbobj);
+  /// A bucket is nearly full if less than a third of the slots are
+  /// empty.  See code of rps_object_bucket_is_nearly_full below. We
+  /// preallocate each of them for more than twice the total number of
+  /// objects on average... So each of them should be less than half
+  /// full on average.
+  unsigned minbucksize =
+    rps_prime_above (5 + (2 * totnbobj + totnbobj / 4) / RPS_OID_MAXBUCKETS);
   printf
     ("rps_initialize_objects_for_loading totnbobj=%u minbucksize=%u (%s:%d)\n",
      totnbobj, minbucksize, __FILE__, __LINE__);
@@ -453,6 +462,8 @@ end:
 }				/* end rps_find_object_by_oid */
 
 
+/* An object bucket is nearly full if less than a third of slots are
+   empty, and we need two empty slots... */
 bool
 rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
 {
@@ -468,8 +479,11 @@ rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
   RPS_ASSERT (buck->obuck_size >= buck->obuck_card);
   RPS_ASSERT (buck->obuck_size > 0);
   RPS_ASSERT (buck->obuck_arr != NULL);
-  return (5 * buck->obuck_card + 4 + (buck->obuck_card / 8)) >=
-    (4 * buck->obuck_size);
+  // at least two empty slots ....
+  if (buck->obuck_card + 2 > buck->obuck_size)
+    return true;
+  // otherwise, a third of them should be empty ...
+  return (3 * (buck->obuck_size - buck->obuck_card) < buck->obuck_size);
 }				/* end rps_object_bucket_is_nearly_full */
 
 
@@ -499,11 +513,13 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   RPS_ASSERT (buck->obuck_size > 0 && buck->obuck_size > buck->obuck_card);
   if (rps_object_bucket_is_nearly_full (buck))
     {
+      /// So less than a third of slots is empty.... See above code of
+      /// rps_object_bucket_is_nearly_full
       RPS_ASSERT (growmode == RPS_BUCKET_GROWING);
       unsigned newsiz =
-	rps_prime_above (4 * cbucksiz / 3 + (buck->obuck_card / 8) + 10
-			 + (cbucksiz / 4));
+	rps_prime_above ((3 * cbucksiz) / 2 + (cbucksiz / 8) + 5);
       RPS_ASSERT (newsiz > cbucksiz + 3);
+      RPS_ASSERT (3 * newsiz > 2 * cbucksiz);
       RpsObject_t **oldarr = buck->obuck_arr;
       buck->obuck_arr = RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * newsiz);
       buck->obuck_size = newsiz;
