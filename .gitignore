@@ -43,4 +43,7 @@ refpersys
 ## timestamp stuff
 __timestamp.*
 
+## tags file
+tags
+
 gmon.out
