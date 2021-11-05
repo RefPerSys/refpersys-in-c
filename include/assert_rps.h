@@ -31,25 +31,25 @@
 
 
 #ifndef REFPERSYS_INCLUDE_ASSERT_RPS_H_INCLUDED
-#define REFPSERSY_INCLUDE_ASSERT_RPS_H_INCCLUDED
+#define REFPSERSY_INCLUDE_ASSERT_RPS_H_INCLUDED
 
 
 #ifndef NDEBUG
-# define RPS_ASSERT_AT_BIS(Fil,Lin,Func,Cond)                           \
-    do                                                                  \
-      {                                                                 \
-        if (!(Cond))                                                    \
-          {						                \
-            fprintf(stderr, "\n\n"				        \
-	      "%s*** RefPerSys ASSERT failed: %s%s\n"		        \
-	      "%s:%d: {%s}\n\n",				        \
-	      (rps_stderr_istty ? RPS_TERMINAL_BOLD_ESCAPE : ""),	\
-              #Cond,						        \
-	      (rps_stderr_istty ? RPS_TERMINAL_NORMAL_ESCAPE : ""),	\
-	      Fil, Lin, Func);					        \
-              rps_fatal_stop_at(Fil, Lin);                              \
-          }                                                             \
-      }                                                                 \
+# define RPS_ASSERT_AT_BIS(Fil,Lin,Func,Cond)                                   \
+    do                                                                          \
+      {                                                                         \
+        if (!(Cond))                                                            \
+          {						                        \
+            fprintf(stderr, "\n\n"				                \
+	      "%s*** RefPerSys ASSERT failed: %s%s\n"		                \
+	      "%s:%d: {%s}\n\n",				                \
+	      (rps_terminal_has_stderr ? RPS_TERMINAL_BOLD_ESCAPE : ""),	\
+              #Cond,						                \
+	      (rps_terminal_has_stderr ? RPS_TERMINAL_NORMAL_ESCAPE : ""),	\
+	      Fil, Lin, Func);					                \
+              rps_fatal_stop_at(Fil, Lin);                                      \
+          }                                                                     \
+      }                                                                         \
     while (0)
 
 # define RPS_ASSERT_AT(Fil, Lin, Func, Cond)                            \
@@ -58,22 +58,22 @@
 # define RPS_ASSERT(Cond)                                               \
     RPS_ASSERT_AT(__FILE__, __LINE__, __PRETTY_FUNCTION__, (Cond))
 
-# define RPS_ASSERTPRINTF_AT_BIS(Fil,Lin,Func,Cond,Fmt,...)             \
-    do                                                                  \
-      {                                                                 \
-        if (!(Cond))                                                    \
-          {						                \
-            fprintf(stderr, "\n\n"				        \
-	      "%s*** RefPerSys ASSERTPRINTF failed:%s %s\n"	        \
-	      "%s:%d: {%s}\n",					        \
-	      (rps_stderr_istty?RPS_TERMINAL_BOLD_ESCAPE:""),	        \
-	      #Cond,						        \
-	      (rps_stderr_istty?RPS_TERMINAL_NORMAL_ESCAPE:""),	        \
-	      Fil, Lin, Func);					        \
-              fprintf(stderr, "!*!*! " Fmt "\n\n", ##__VA_ARGS__);      \
-              rps_fatal_stop_at(Fil, Lin);                              \
-          }                                                             \
-      }                                                                 \
+# define RPS_ASSERTPRINTF_AT_BIS(Fil,Lin,Func,Cond,Fmt,...)                     \
+    do                                                                          \
+      {                                                                         \
+        if (!(Cond))                                                            \
+          {						                        \
+            fprintf(stderr, "\n\n"				                \
+	      "%s*** RefPerSys ASSERTPRINTF failed:%s %s\n"	                \
+	      "%s:%d: {%s}\n",					                \
+	      (rps_terminal_has_stderr ? RPS_TERMINAL_BOLD_ESCAPE : ""),	\
+	      #Cond,						                \
+	      (rps_terminal_has_stderr ? RPS_TERMINAL_NORMAL_ESCAPE : ""),	\
+	      Fil, Lin, Func);					                \
+              fprintf(stderr, "!*!*! " Fmt "\n\n", ##__VA_ARGS__);              \
+              rps_fatal_stop_at(Fil, Lin);                                      \
+          }                                                                     \
+      }                                                                         \
     while (0)
 
 # define RPS_ASSERTPRINTF_AT(Fil, Lin, Func, Cond, Fmt, ...)            \

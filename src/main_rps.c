@@ -34,9 +34,10 @@ bool rps_running_in_batch;
 bool rps_showing_version;
 bool rps_showing_types;
 bool rps_with_gui;
-bool rps_without_terminal_escape;
-bool rps_stderr_istty;
-bool rps_stdout_istty;
+
+bool rps_terminal_is_escaped;
+bool rps_terminal_has_stderr;
+bool rps_terminal_has_stdout;
 
 
 struct backtrace_state *rps_backtrace_common_state;
@@ -416,11 +417,14 @@ main (int argc, char **argv)
   rps_check_all_objects_buckets_are_valid ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
-  if (!rps_without_terminal_escape)
+
+
+  if (rps_terminal_is_escaped)
     {
-      rps_stderr_istty = isatty (STDERR_FILENO);
-      rps_stdout_istty = isatty (STDOUT_FILENO);
+      rps_terminal_has_stderr = isatty (STDERR_FILENO);
+      rps_terminal_has_stdout = isatty (STDOUT_FILENO);
     }
+
   rps_load_initial_heap ();
 }				/* end of main function */
 
