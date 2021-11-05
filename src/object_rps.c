@@ -267,7 +267,14 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 
 
 /*****************************************************************
- * Objects
+ * Objects.
+ *
+ * We need to quickly and concurrently be able to find an object from
+ * its oid.  For that we have an array of buckets, each one owning a
+ * mutex to enable parallel access in several threads.  Each bucket is
+ * an hashtable of object pointers.  That hashtable, named
+ * rps_object_bucket_array, needs to be no more than two third full,
+ * otherwise finding an object in its bucket could take too much time!
  *****************************************************************/
 struct rps_object_bucket_st
 {
