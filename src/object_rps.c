@@ -291,6 +291,7 @@ enum rps_bucket_grow_en
   RPS_BUCKET_GROWING
 };
 
+bool rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck);
 
 
 static void
@@ -342,9 +343,14 @@ rps_check_all_objects_buckets_are_valid (void)
       RPS_ASSERTPRINTF (curbuck->obuck_card < curbuck->obuck_size,
 			"bucket#%d bad cardinal %u for size %u",
 			bix, curbuck->obuck_card, curbuck->obuck_size);
+      RPS_ASSERTPRINTF (!rps_object_bucket_is_nearly_full (curbuck),
+			"nearly full bucket#%u size %u for cardinal %u",
+			bix, curbuck->obuck_size, curbuck->obuck_card);
       pthread_mutex_unlock (&curbuck->obuck_mtx);
     }
 }				/* end rps_check_all_objects_buckets_are_valid */
+
+
 
 void
 rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
