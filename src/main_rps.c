@@ -35,6 +35,7 @@ bool rps_showing_version;
 bool rps_showing_types;
 bool rps_with_gui;
 
+/* The following terminal globals are declared in include/terminal_rps.h */
 bool rps_terminal_is_escaped;
 bool rps_terminal_has_stderr;
 bool rps_terminal_has_stdout;
