@@ -293,6 +293,11 @@ enum rps_bucket_grow_en
 
 bool rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck);
 
+/* If a bucket is full, return a larger capacity for later resizing;
+   but if the bucket is not nearly full, return 0 */
+unsigned rps_object_bucket_perhaps_increased_capacity (struct
+						       rps_object_bucket_st
+						       *buck);
 
 static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
@@ -503,6 +508,29 @@ rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
 }				/* end rps_object_bucket_is_nearly_full */
 
 
+// return 0 if growing the bucket is not necessary, but a larger
+// capacity if so needed.  The increased capacity is some prime
+// number...
+unsigned
+rps_object_bucket_perhaps_increased_capacity (struct rps_object_bucket_st
+					      *buck)
+{
+  RPS_ASSERT (buck != NULL);
+  RPS_ASSERT (buck >= rps_object_bucket_array
+	      && buck < rps_object_bucket_array + RPS_OID_MAXBUCKETS);
+  if (buck->obuck_capacity == 0)
+    return 5;
+  RPS_ASSERT (buck->obuck_arr != NULL);
+  if (buck->obuck_card + 2 > buck->obuck_capacity)
+    return rps_prime_above (3 * buck->obuck_card / 2 +
+			    buck->obuck_capacity / 8 + 4);
+  RPS_ASSERT (buck->obuck_card < buck->obuck_capacity);
+  if (3 * (buck->obuck_capacity - buck->obuck_card) > buck->obuck_capacity)
+    // resize not needed, so...
+    return 0;
+  return rps_prime_above (3 * buck->obuck_card / 2 +
+			  buck->obuck_capacity / 8 + 4);
+}				/* end rps_object_bucket_perhaps_increased_capacity */
 
 static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
@@ -531,7 +559,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   RPS_ASSERTPRINTF (buck->obuck_capacity > 0
 		    && buck->obuck_capacity > buck->obuck_card,
 		    "bucket#%d corrupted capacity %u for cardinal %u",
-		    buck->obuck_capacity, buck->obuck_card);
+		    buckix, buck->obuck_capacity, buck->obuck_card);
   if (rps_object_bucket_is_nearly_full (buck))
     {
       /// So less than a third of slots is empty.... See above code of
