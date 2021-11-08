@@ -502,8 +502,8 @@ rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
   // at least two empty slots ....
   if (buck->obuck_card + 2 > buck->obuck_capacity)
     return true;
-  // otherwise, a third of them should be empty ...
-  return (3 * (buck->obuck_capacity - buck->obuck_card) <
+  // otherwise, a fourth of them should be empty ...
+  return (4 * (buck->obuck_capacity - buck->obuck_card) <
 	  buck->obuck_capacity);
 }				/* end rps_object_bucket_is_nearly_full */
 
@@ -519,17 +519,18 @@ rps_object_bucket_perhaps_increased_capacity (struct rps_object_bucket_st
   RPS_ASSERT (buck >= rps_object_bucket_array
 	      && buck < rps_object_bucket_array + RPS_OID_MAXBUCKETS);
   if (buck->obuck_capacity == 0)
-    return 5;
+    return 7;
   RPS_ASSERT (buck->obuck_arr != NULL);
   if (buck->obuck_card + 2 > buck->obuck_capacity)
     return rps_prime_above (3 * buck->obuck_card / 2 +
-			    buck->obuck_capacity / 8 + 4);
+			    buck->obuck_capacity / 8 + 6);
   RPS_ASSERT (buck->obuck_card < buck->obuck_capacity);
-  if (3 * (buck->obuck_capacity - buck->obuck_card) > buck->obuck_capacity)
+  if (3 * (buck->obuck_capacity - buck->obuck_card) >
+      buck->obuck_capacity + 2)
     // resize not needed, so...
     return 0;
   return rps_prime_above (3 * buck->obuck_card / 2 +
-			  buck->obuck_capacity / 8 + 4);
+			  buck->obuck_capacity / 8 + 6);
 }				/* end rps_object_bucket_perhaps_increased_capacity */
 
 static void
