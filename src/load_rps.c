@@ -457,6 +457,45 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 
 
 
+RpsValue_t
+rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
+{
+  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  RPS_ASSERT (jv != NULL);
+  if (json_is_integer (jv))
+    return rps_tagged_integer_value (json_integer_value (jv));
+  else if (json_is_real (jv))
+    return rps_alloc_boxed_double (json_double_value (jv));
+  else if (json_is_null (jv))
+    return NULL;
+  else if (json_is_string (jv))
+    {
+      const char *str = json_string_value (jv);
+      RPS_ASSERT (str != NULL);
+      if (str[0] == '_' && isdigit (str[1]))
+	{
+	  RpsOid_t oid = RPS_NULL_OID;
+	  char *end = NULL;
+	  oid = rps_cstr_to_oid (str, &end);
+	  if (end && *end == (char) 0 && rps_oid_is_valid (oid))
+	    {
+	      RpsObject_t *obj = rps_find_object_by_oid (oid);
+	      if (obj != NULL)
+		return obj;
+	    };
+	}
+      return rps_alloc_string (str);
+    }
+  else if (json_is_object (jv))
+    {
+#warning incomplete rps_loader_json_to_value
+      RPS_FATAL ("incomplete rps_loader_json_to_value \n... json %s",
+		 json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+    }
+  RPS_FATAL ("rps_loader_json_to_value unexpected ...\n... json %s",
+	     json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+}				/* end rps_loader_json_to_value */
+
 void
 rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 				    RpsObject_t * obj, json_t * jsobj)
