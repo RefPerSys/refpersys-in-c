@@ -165,6 +165,7 @@ extern bool rps_is_valid_filling_loader (RpsLoader_t * ld);
 extern bool rps_is_valid_creating_loader (RpsLoader_t * ld);
 extern unsigned rps_loader_nb_globals (RpsLoader_t * ld);
 extern unsigned rps_loader_nb_constants (RpsLoader_t * ld);
+extern RpsValue_t rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv);
 
 
 
@@ -246,7 +247,7 @@ const RpsString_t *rps_alloc_string (const char *str);
 // sprintf a string value
 const RpsString_t *rps_sprintf_string (const char *fmt, ...)
   __attribute__((__format__ (__printf__, 1, 2)));
-// load a boxed double
+// load a string
 const RpsString_t *rps_load_string (json_t * js, RpsLoader_t * ld);
 
 /////////////// boxed JSON values
