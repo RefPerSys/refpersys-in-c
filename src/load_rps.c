@@ -624,6 +624,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 		 json_string_value (jsoid), obidbuf);
 	    RpsObject_t *curob = rps_find_object_by_oid (curobid);
 	    RPS_ASSERT (curob != NULL);
+	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject);
 #warning missing code in rps_load_second_pass to fill the object
 	    RPS_FATAL ("missing code in rps_load_second_pass filling %s",
 		       obidbuf);
