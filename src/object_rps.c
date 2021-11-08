@@ -281,7 +281,7 @@ struct rps_object_bucket_st
 {
   pthread_mutex_t obuck_mtx;
   unsigned obuck_card;		/* number of objects in the bucket */
-  unsigned obuck_size;		/* allocated size of obuck_arr, some prime */
+  unsigned obuck_capacity;	/* allocated size of obuck_arr, some prime */
   RpsObject_t **obuck_arr;
 };
 
@@ -293,6 +293,11 @@ enum rps_bucket_grow_en
 
 bool rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck);
 
+/* If a bucket is full, return a larger capacity for later resizing;
+   but if the bucket is not nearly full, return 0 */
+unsigned rps_object_bucket_perhaps_increased_capacity (struct
+						       rps_object_bucket_st
+						       *buck);
 
 static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
@@ -318,7 +323,7 @@ rps_initialize_objects_machinery (void)
       struct rps_object_bucket_st *curbuck = rps_object_bucket_array + bix;
       pthread_mutex_init (&curbuck->obuck_mtx, &rps_objmutexattr);
       curbuck->obuck_card = 0;
-      curbuck->obuck_size = initialbucksize;
+      curbuck->obuck_capacity = initialbucksize;
       curbuck->obuck_arr =
 	RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * initialbucksize);
     }
@@ -336,16 +341,17 @@ rps_check_all_objects_buckets_are_valid (void)
     {
       struct rps_object_bucket_st *curbuck = rps_object_bucket_array + bix;
       pthread_mutex_lock (&curbuck->obuck_mtx);
-      RPS_ASSERTPRINTF (curbuck->obuck_size > 2,
-			"bucket#%d wrong size %u", bix, curbuck->obuck_size);
-      RPS_ASSERTPRINTF (curbuck->obuck_arr != NULL,
-			"bucket#%d missing array", bix);
-      RPS_ASSERTPRINTF (curbuck->obuck_card < curbuck->obuck_size,
-			"bucket#%d bad cardinal %u for size %u",
-			bix, curbuck->obuck_card, curbuck->obuck_size);
+      RPS_ASSERTPRINTF (curbuck->obuck_capacity > 2,
+			"bucket#%d wrong capacity %u", bix,
+			curbuck->obuck_capacity);
+      RPS_ASSERTPRINTF (curbuck->obuck_arr != NULL, "bucket#%d missing array",
+			bix);
+      RPS_ASSERTPRINTF (curbuck->obuck_card < curbuck->obuck_capacity,
+			"bucket#%d bad cardinal %u for capacity %u", bix,
+			curbuck->obuck_card, curbuck->obuck_capacity);
       RPS_ASSERTPRINTF (!rps_object_bucket_is_nearly_full (curbuck),
-			"nearly full bucket#%u size %u for cardinal %u",
-			bix, curbuck->obuck_size, curbuck->obuck_card);
+			"nearly full bucket#%u capacity %u for cardinal %u",
+			bix, curbuck->obuck_capacity, curbuck->obuck_card);
       pthread_mutex_unlock (&curbuck->obuck_mtx);
     }
 }				/* end rps_check_all_objects_buckets_are_valid */
@@ -379,18 +385,18 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
 	  RPS_ASSERTPRINTF (curbuck->obuck_card == 0,
 			    "empty bucket#%d corrupted cardinal %u", bix,
 			    curbuck->obuck_card);
-	  RPS_ASSERTPRINTF (curbuck->obuck_size == 0,
-			    "empty bucket#%d corrupted size %u", bix,
-			    curbuck->obuck_size);
-	  curbuck->obuck_size = minbucksize;
+	  RPS_ASSERTPRINTF (curbuck->obuck_capacity == 0,
+			    "empty bucket#%d corrupted capacity %u", bix,
+			    curbuck->obuck_capacity);
+	  curbuck->obuck_capacity = minbucksize;
 	  curbuck->obuck_card = 0;
 	  curbuck->obuck_arr =
 	    RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * minbucksize);
 	}
       else
-	RPS_ASSERTPRINTF (curbuck->obuck_size > 0,
-			  "bucket#%d corrupted size %u", bix,
-			  curbuck->obuck_size);
+	RPS_ASSERTPRINTF (curbuck->obuck_capacity > 0,
+			  "bucket#%d corrupted capacity %u", bix,
+			  curbuck->obuck_capacity);
       pthread_mutex_unlock (&rps_object_bucket_array[bix].obuck_mtx);
     }
   printf
@@ -441,8 +447,8 @@ rps_find_object_by_oid (const RpsOid oid)
   curbuck = &rps_object_bucket_array[bix];
   if (curbuck->obuck_arr == NULL)
     goto end;
-  unsigned cbucksiz = curbuck->obuck_size;
-  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%u size %u", bix, cbucksiz);
+  unsigned cbucksiz = curbuck->obuck_capacity;
+  RPS_ASSERTPRINTF (cbucksiz > 3, "bad bucket#%u capacity %u", bix, cbucksiz);
   RPS_ASSERTPRINTF (5 * curbuck->obuck_card < 4 * cbucksiz,
 		    "bad bucket#%u size %u for cardinal %u",
 		    bix, cbucksiz, curbuck->obuck_card);
@@ -484,23 +490,48 @@ rps_object_bucket_is_nearly_full (struct rps_object_bucket_st *buck)
   RPS_ASSERT (buck != NULL);
   RPS_ASSERT (buck >= rps_object_bucket_array
 	      && buck < rps_object_bucket_array + RPS_OID_MAXBUCKETS);
-  if (buck->obuck_size == 0)
+  if (buck->obuck_capacity == 0)
     {
       RPS_ASSERT (buck->obuck_card == 0);
       RPS_ASSERT (buck->obuck_arr == NULL);
       return true;
     };
-  RPS_ASSERT (buck->obuck_size >= buck->obuck_card);
-  RPS_ASSERT (buck->obuck_size > 0);
+  RPS_ASSERT (buck->obuck_capacity >= buck->obuck_card);
+  RPS_ASSERT (buck->obuck_capacity > 0);
   RPS_ASSERT (buck->obuck_arr != NULL);
   // at least two empty slots ....
-  if (buck->obuck_card + 2 > buck->obuck_size)
+  if (buck->obuck_card + 2 > buck->obuck_capacity)
     return true;
-  // otherwise, a third of them should be empty ...
-  return (3 * (buck->obuck_size - buck->obuck_card) < buck->obuck_size);
+  // otherwise, a fourth of them should be empty ...
+  return (4 * (buck->obuck_capacity - buck->obuck_card) <
+	  buck->obuck_capacity);
 }				/* end rps_object_bucket_is_nearly_full */
 
 
+// return 0 if growing the bucket is not necessary, but a larger
+// capacity if so needed.  The increased capacity is some prime
+// number...
+unsigned
+rps_object_bucket_perhaps_increased_capacity (struct rps_object_bucket_st
+					      *buck)
+{
+  RPS_ASSERT (buck != NULL);
+  RPS_ASSERT (buck >= rps_object_bucket_array
+	      && buck < rps_object_bucket_array + RPS_OID_MAXBUCKETS);
+  if (buck->obuck_capacity == 0)
+    return 7;
+  RPS_ASSERT (buck->obuck_arr != NULL);
+  if (buck->obuck_card + 2 > buck->obuck_capacity)
+    return rps_prime_above (3 * buck->obuck_card / 2 +
+			    buck->obuck_capacity / 8 + 6);
+  RPS_ASSERT (buck->obuck_card < buck->obuck_capacity);
+  if (3 * (buck->obuck_capacity - buck->obuck_card) >
+      buck->obuck_capacity + 2)
+    // resize not needed, so...
+    return 0;
+  return rps_prime_above (3 * buck->obuck_card / 2 +
+			  buck->obuck_capacity / 8 + 6);
+}				/* end rps_object_bucket_perhaps_increased_capacity */
 
 static void
 rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
@@ -509,6 +540,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 {
   RPS_ASSERT (buck != NULL);
   RPS_ASSERT (obj != NULL);
+  unsigned newsiz = 0;
   int buckix = buck - rps_object_bucket_array;
   RPS_ASSERTPRINTF (buckix >= 0 && buckix < RPS_OID_MAXBUCKETS,
 		    "bad bucket index #%d", buckix);
@@ -524,18 +556,20 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	   __FILE__, __LINE__);
     }
   addcnt++;
-  unsigned cbucksiz = buck->obuck_size;
+  unsigned cbucksiz = buck->obuck_capacity;
   RPS_ASSERTPRINTF (cbucksiz > 0, "bucket#%d zerosized", buckix);
-  RPS_ASSERT (buck->obuck_size > 0 && buck->obuck_size > buck->obuck_card);
-  if (rps_object_bucket_is_nearly_full (buck))
+  RPS_ASSERTPRINTF (buck->obuck_capacity > 0
+		    && buck->obuck_capacity > buck->obuck_card,
+		    "bucket#%d corrupted capacity %u for cardinal %u",
+		    buckix, buck->obuck_capacity, buck->obuck_card);
+  newsiz = rps_object_bucket_perhaps_increased_capacity (buck);
+  if (newsiz > 0)
     {
       /// So less than a third of slots is empty.... See above code of
       /// rps_object_bucket_is_nearly_full
       RPS_ASSERTPRINTF (growmode == RPS_BUCKET_GROWING,
 			"bad growmode#%d for buckix#%d", (int) growmode,
 			buckix);
-      unsigned newsiz =
-	rps_prime_above ((3 * cbucksiz) / 2 + (cbucksiz / 8) + 5);
       RPS_ASSERTPRINTF (newsiz > cbucksiz + 3, "bad newsiz %u for buckix#%d",
 			newsiz, buckix);
       RPS_ASSERTPRINTF (3 * newsiz > 2 * cbucksiz,
@@ -543,7 +577,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 			cbucksiz, buckix);
       RpsObject_t **oldarr = buck->obuck_arr;
       buck->obuck_arr = RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * newsiz);
-      buck->obuck_size = newsiz;
+      buck->obuck_capacity = newsiz;
       buck->obuck_card = 0;
       for (int ix = 0; ix < (int) cbucksiz; ix++)
 	{
@@ -554,19 +588,23 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
       free (oldarr);
       cbucksiz = newsiz;
     };
-  RPS_ASSERTPRINTF (buck->obuck_size > 0
-		    && buck->obuck_size > buck->obuck_card,
-		    "corrupted bucket#%d size %u card %u", buckix,
-		    buck->obuck_size, buck->obuck_card);
-  RPS_ASSERT (!rps_object_bucket_is_nearly_full (buck));
+  RPS_ASSERTPRINTF (buck->obuck_capacity > 0
+		    && buck->obuck_capacity > buck->obuck_card,
+		    "corrupted bucket#%d capacity %u card %u", buckix,
+		    buck->obuck_capacity, buck->obuck_card);
+  RPS_ASSERTPRINTF (rps_object_bucket_perhaps_increased_capacity (buck) == 0,
+		    "could be increased bucket#%d capacity %u card %u",
+		    buckix, buck->obuck_capacity, buck->obuck_card);
+  RPS_ASSERTPRINTF (!rps_object_bucket_is_nearly_full (buck),
+		    "nearly full bucket#%d capacity %u card %u", buckix,
+		    buck->obuck_capacity, buck->obuck_card);
   RPS_ASSERTPRINTF (cbucksiz > 3,
-		    "bad bucket#%d (max %u) size %u card %u array %p addcnt#%d",
-		    buckix,
-		    RPS_OID_MAXBUCKETS, cbucksiz, buck->obuck_card,
+		    "bad bucket#%d (max %u) capacity %u card %u array %p addcnt#%d",
+		    buckix, RPS_OID_MAXBUCKETS, cbucksiz, buck->obuck_card,
 		    buck->obuck_arr, addcnt);
-  RPS_ASSERTPRINTF (buck->obuck_size > buck->obuck_card,
-		    "bucket#%d oversized size:%d card:%d",
-		    buckix, buck->obuck_size, buck->obuck_card);
+  RPS_ASSERTPRINTF (buck->obuck_capacity > buck->obuck_card,
+		    "bucket#%d oversized capacity:%d card:%d", buckix,
+		    buck->obuck_capacity, buck->obuck_card);
   unsigned stix = (obj->ob_id.id_hi ^ obj->ob_id.id_lo) % cbucksiz;
   for (int ix = stix; ix < (int) cbucksiz; ix++)
     {
@@ -576,8 +614,8 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	  buck->obuck_arr[ix] = obj;
 	  buck->obuck_card++;
 	  RPS_ASSERTPRINTF (!rps_object_bucket_is_nearly_full (buck),
-			    "wrongly full bucket#%d of card %u size %u",
-			    buckix, buck->obuck_card, buck->obuck_size);
+			    "wrongly full bucket#%d of card %u capacity %u",
+			    buckix, buck->obuck_card, buck->obuck_capacity);
 	  return;
 	}
       if (curob == obj)
@@ -592,7 +630,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 	  buck->obuck_card++;
 	  RPS_ASSERTPRINTF (!rps_object_bucket_is_nearly_full (buck),
 			    "wrongly full bucket#%d of card %u size %u",
-			    buckix, buck->obuck_card, buck->obuck_size);
+			    buckix, buck->obuck_card, buck->obuck_capacity);
 	  return;
 	}
       if (curob == obj)
@@ -625,7 +663,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 				  / RPS_OID_MAXBUCKETS));
 	  curbuck->obuck_arr =
 	    RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * inibucksiz);
-	  curbuck->obuck_size = inibucksiz;
+	  curbuck->obuck_capacity = inibucksiz;
 	  curbuck->obuck_card = 0;
 	};
       RPS_ASSERT (!rps_object_bucket_is_nearly_full (curbuck));

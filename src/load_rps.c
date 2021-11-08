@@ -61,6 +61,8 @@ struct RpsPayl_Loader_st
 
 void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 void rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
+void rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
+					 RpsObject_t * obj, json_t * jsobj);
 
 bool
 rps_is_valid_loader (RpsLoader_t * ld)
@@ -453,6 +455,26 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
   rps_check_all_objects_buckets_are_valid ();
 }				/* end rps_load_first_pass */
 
+
+
+void
+rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
+				    RpsObject_t * obj, json_t * jsobj)
+{
+  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (json_is_object (jsobj));
+  char obidbuf[32];
+  memset (obidbuf, 0, sizeof (obidbuf));
+  rps_oid_to_cbuf (obj->ob_id, obidbuf);
+#warning rps_loader_fill_object_second_pass unimplemented
+  RPS_FATAL
+    ("unimplemented rps_loader_fill_object_second_pass spix#%d object %s\n... json %s",
+     spix, obidbuf, json_dumps (jsobj, JSON_INDENT (2) | JSON_SORT_KEYS));
+}				/* end rps_loader_fill_object_second_pass */
+
+
+
 void
 rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 {
@@ -468,9 +490,155 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
   if (!spfil)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
   rps_check_all_objects_buckets_are_valid ();
+  ld->ld_state = RPSLOADING_FILL_OBJECTS_PASS;
+  long linoff = 0;
+  int lincnt = 0;
+  size_t linsz = 256;
+  char *linbuf = RPS_ALLOC_ZEROED (linsz);
+  do
+    {
+      memset (linbuf, 0, sizeof (linbuf));
+      linoff = ftell (spfil);
+      if (!fgets (linbuf, linsz, spfil))
+	break;
+      lincnt++;
+      if (linbuf[0] == '/' || isspace (linbuf[0]))
+	continue;
+      if (linbuf[0] == '{')
+	break;
+    }
+  while (!feof (spfil));
+  //// parse the JSON prologue
+  fseek (spfil, linoff, SEEK_SET);
+  json_error_t jerror = { };
+  json_t *jsprologue = json_loadf (spfil, JSON_DISABLE_EOF_CHECK, &jerror);
+  json_t *jsformat = NULL, *jsnbobjects = NULL, *jsspaceid = NULL;
+  long nbobjects = -1;
+  if (!jsprologue)
+    RPS_FATAL ("failed to read prologue for space #%d in %s:%d - %s",
+	       spix, filepath, lincnt, jerror.text);
+  if (!json_is_object (jsprologue)
+      || !(jsformat = json_object_get (jsprologue, "format"))
+      || !(jsnbobjects = json_object_get (jsprologue, "nbobjects"))
+      || !(jsspaceid = json_object_get (jsprologue, "spaceid")))
+    RPS_FATAL ("invalid prologue JSON for space #%d in %s:%d", spix, filepath,
+	       lincnt);
+  if (!json_is_string (jsformat)
+      || strcmp (json_string_value (jsformat), RPS_MANIFEST_FORMAT))
+    RPS_FATAL
+      ("invalid prologue JSON for space #%d in %s:%d format, expecting %s",
+       spix, filepath, lincnt, RPS_MANIFEST_FORMAT);
+  if (!json_is_string (jsspaceid)
+      || strcmp (json_string_value (jsspaceid), spacebuf))
+    RPS_FATAL
+      ("invalid prologue JSON for space #%d  in %s:%d bad spaceid - expecting %s",
+       spix, filepath, lincnt, spacebuf);
+  if (json_is_integer (jsnbobjects))
+    nbobjects = json_integer_value (jsnbobjects);
+  if (nbobjects < 0)
+    RPS_FATAL
+      ("invalid prologue JSON for space #%d in %s:%d - bad nbobjects %ld",
+       spix, filepath, lincnt, nbobjects);
+  lincnt += json_object_size (jsprologue);
+  json_decref (jsprologue), jsprologue = NULL,
+    jsnbobjects = NULL, jsspaceid = NULL;
+  /*****************
+   * TODO:
+   *  loop and search for start of objects JSON....
+   *****************/
+  long objcount = 0;
+  while (objcount < nbobjects)
+    {
+      if (feof (spfil))
+	RPS_FATAL
+	  ("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
+	   spix, filepath, lincnt, objcount, nbobjects);
+      if (objcount % 8 == 0)
+	{
+	  rps_check_all_objects_buckets_are_valid ();
+	  if (objcount % 16 == 0)
+	    printf
+	      ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
+	       spix, objcount, filepath, lincnt, __FILE__, __LINE__);
+	};
+      memset (linbuf, 0, linsz);
+      linoff = ftell (spfil);
+      if (!fgets (linbuf, linsz, spfil))
+	break;
+      lincnt++;
+      if (lincnt % 16 == 0)
+	rps_check_all_objects_buckets_are_valid ();
+      if (isspace (linbuf[0]))
+	continue;
+      RpsOid curobid = RPS_NULL_OID;
+      {
+	int endcol = -1;
+	char obidbuf[32];
+	memset (obidbuf, 0, sizeof (obidbuf));
+	/// should test for lines starting objects, i.e. //+ob.... then
+	/// fetch all the lines in some buffer, etc...
+	if (sscanf (linbuf, "//+ob_%18[0-9A-Za-z]", obidbuf + 1) >= 1)
+	  {
+	    obidbuf[0] = '_';
+	    curobid = rps_cstr_to_oid (obidbuf, NULL);
+	  }
+	if (rps_oid_is_valid (curobid))
+	  {
+	    char endlin[48];
+	    memset (endlin, 0, sizeof (endlin));
+	    snprintf (endlin, sizeof (endlin), "//-ob%s\n", obidbuf);
+	    rps_check_all_objects_buckets_are_valid ();
+	    size_t bufsz = 256;
+	    char *bufjs = RPS_ALLOC_ZEROED (bufsz);
+	    long startlin = lincnt;
+	    FILE *obstream = open_memstream (&bufjs, &bufsz);
+	    RPS_ASSERT (obstream);
+	    while ((linbuf[0] = (char) 0),
+		   getline (&linbuf, &linsz, spfil) > 0)
+	      {
+		lincnt++;
+		if (!strcmp (linbuf, endlin))
+		  break;
+		if (linbuf[0] != '/')
+		  fputs (linbuf, obstream);
+	      }
+	    fputc ('\n', obstream);
+	    fflush (obstream);
+	    long obsiz = ftell (obstream);
+	    json_error_t jerror = { };
+	    json_t *jsobject =
+	      json_loadb (bufjs, obsiz, JSON_DISABLE_EOF_CHECK, &jerror);
+	    if (!jsobject)
+	      RPS_FATAL
+		("failed to parse JSON#%ld in spix#%d  at %s:%ld - %s",
+		 objcount, spix, filepath, startlin, jerror.text);
+	    json_t *jsoid = json_object_get (jsobject, "oid");
+	    if (!json_is_string (jsoid))
+	      RPS_FATAL
+		(" JSON#%ld in spix#%d  at %s:%ld without oid JSON attribute",
+		 objcount, spix, filepath, startlin);
+	    if (strcmp (json_string_value (jsoid), obidbuf))
+	      RPS_FATAL
+		(" JSON#%ld in spix#%d  at %s:%ld with bad oid JSON attribute %s - expecting %s",
+		 objcount, spix, filepath, startlin,
+		 json_string_value (jsoid), obidbuf);
+	    RpsObject_t *curob = rps_find_object_by_oid (curobid);
+	    RPS_ASSERT (curob != NULL);
+	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject);
+#warning missing code in rps_load_second_pass to fill the object
+	    RPS_FATAL ("missing code in rps_load_second_pass filling %s",
+		       obidbuf);
+	    objcount++;
+	    json_decref (jsobject);
+	    fclose (obstream);
+	    free (bufjs), bufjs = NULL;
+	    bufsz = 0;
+	  }
+      }
+    }
 #warning unimplemented rps_load_second_pass
-  RPS_FATAL ("unimplemented rps_load_second_pass space #%d file %s", spix,
-	     filepath);
+  RPS_FATAL ("unimplemented rps_load_second_pass space #%d file %s:%d", spix,
+	     filepath, lincnt);
 }				/* end rps_load_second_pass */
 
 /************************ end of file load_rps.c *****************/
