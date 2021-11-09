@@ -309,13 +309,13 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 ////////////////////////// objects
 #define RPSFIELDS_OBJECT                        \
   RPSFIELDS_ZONED_VALUE;                        \
-  RpsOid ob_id;                               \
+  RpsOid ob_id;                                 \
   double ob_mtime;                              \
   pthread_mutex_t ob_mtx;                       \
   RpsObject_t* ob_class;                        \
   RpsObject_t* ob_zone;                         \
   RpsAttrTable_t* ob_attrtable;                 \
-				/* other fields missing */
+                                /* other fields missing */
 
 
 struct RpsZoneObject_st
