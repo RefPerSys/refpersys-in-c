@@ -235,7 +235,7 @@ const RpsDouble_t *rps_load_boxed_double (json_t * js, RpsLoader_t * ld);
 ////////////// string values; their zm_xtra is an index of a prime allocated size
 #define RPSFIELDS_STRING \
   RPSFIELDS_ZONED_VALUE; \
-  char cstr[];			/* flexible array zone, zm_size is length in UTF8 characters, not in bytes */
+  char cstr[];			/* flexible array zone, zm_length is length in UTF8 characters, not in bytes */
 
 struct RpsZoneString_st
 {
