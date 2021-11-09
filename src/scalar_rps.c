@@ -327,4 +327,23 @@ rps_alloc_gtk_widget (GtkWidget * widg)
   return vw;
 }				/* end rps_alloc_gtk_widget */
 
+
+const RpsString_t *
+rps_alloc_string (const char *str)
+{
+  RpsString_t *res = NULL;
+  if (!str)
+    return NULL;
+  int slen = strlen (str);
+  if (!g_utf8_validate (str, slen, NULL))
+    RPS_FATAL ("bad non-UTF string of %d char to rps_alloc_string", slen);
+  int rndslen = ((slen + 2) | 3) + 1;	// round allocation length to multiple of four
+  res = RPS_ALLOC_ZONE (sizeof (RpsString_t) + rndslen, RPS_TYPE_STRING);
+  res->zv_hash = rps_hash_cstr (str);
+  memcpy (res->cstr, str, slen);
+  res->zm_length =		// number of UTF8 characters
+    g_utf8_strlen (str, slen);
+  return res;
+}				/* end of rps_alloc_string */
+
 /********************* end of file scalar_rps.c ***************/
