@@ -144,46 +144,11 @@ fail:
 }				/* end rps_cstr_to_oid */
 
 
-#if 0
-bool
-rps_oid_equal (const RpsOid oid1, const RpsOid oid2)
-{
-  return oid1.id_hi == oid2.id_hi && oid1.id_lo == oid2.id_lo;
-}				/* end rps_oid_equal */
-#endif
 
 extern inline bool rps_oid_equal (const RpsOid lhs, const RpsOid rhs);
-
-#if 0
-bool
-rps_oid_less_than (const RpsOid oid1, const RpsOid oid2)
-{
-  if (oid1.id_hi < oid2.id_hi)
-    return true;
-  if (oid1.id_hi == oid2.id_hi)
-    return oid1.id_lo < oid2.id_lo;
-  return false;
-}				/* end rps_oid_less_than */
-#endif
-
 extern inline bool rps_oid_less_than (RpsOid lhs, RpsOid rhs);
-
-#if 0
-bool
-rps_oid_less_equal (const RpsOid oid1, const RpsOid oid2)
-{
-  if (oid1.id_hi < oid2.id_hi)
-    return true;
-  if (oid1.id_hi == oid2.id_hi)
-    return oid1.id_lo <= oid2.id_lo;
-  return false;
-}				/* end rps_oid_less_equal */
-#endif
-
 extern inline bool rps_oid_less_than_equal (RpsOid lhs, RpsOid rhs);
-
 extern inline bool rps_oid_greater_than (RpsOid lhs, RpsOid rhs);
-
 extern inline bool rps_oid_greater_than_equal (RpsOid lhs, RpsOid rhs);
 
 

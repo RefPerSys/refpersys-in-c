@@ -62,9 +62,6 @@ typedef struct _RpsOid
 
 extern bool rps_oid_is_null (const RpsOid oid);
 extern bool rps_oid_is_valid (const RpsOid oid);
-//extern bool rps_oid_equal (const RpsOid oid1, const RpsOid oid2);
-//extern bool rps_oid_less_than (const RpsOid oid1, const RpsOid oid2);
-//extern bool rps_oid_less_equal (const RpsOid oid1, const RpsOid oid2);
 extern int rps_oid_cmp (const RpsOid oid1, const RpsOid oid2);
 extern void rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OIDBUFLEN]);
 extern RpsOid rps_cstr_to_oid (const char *cstr, const char **pend);
