@@ -506,7 +506,35 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
-#warning rps_loader_fill_object_second_pass unimplemented
+  pthread_mutex_lock (&obj->ob_mtx);
+  json_t *jsattrarr = json_object_get (jsobj, "attrs");
+  json_t *jsclass = json_object_get (jsobj, "class");
+#warning should set the class according to jsclass
+  if (json_is_array (jsattrarr))
+    {
+      int nbattr = json_array_size (jsattrarr);
+      obj->ob_attrtable =
+	rps_alloc_empty_attr_table (nbattr + nbattr / 4 + 1);
+      for (int aix = 0; aix < nbattr; aix++)
+	{
+	  json_t *jscurattr = json_array_get (jsattrarr, aix);
+	  if (!json_is_object (jscurattr))
+	    continue;
+	  json_t *jsat = json_object_get (jscurattr, "at");
+	  json_t *jsva = json_object_get (jscurattr, "va");
+	  RPS_ASSERT (json_is_string (jsat));
+	  RPS_ASSERT (jsva != NULL);
+	  const char *atstr = json_string_value (jsat);
+	  RpsOid atoid = rps_cstr_to_oid (atstr, NULL);
+	  RpsObject_t *atob = rps_find_object_by_oid (atoid);
+	  RPS_ASSERT (atob != NULL);
+	  RpsValue_t atval = rps_loader_json_to_value (ld, jsva);
+	  obj->ob_attrtable =
+	    rps_attr_table_put (obj->ob_attrtable, atob, atval);
+	}
+    }
+#warning rps_loader_fill_object_second_pass incomplete
+  pthread_mutex_unlock (&obj->ob_mtx);
   RPS_FATAL
     ("unimplemented rps_loader_fill_object_second_pass spix#%d object %s\n... json %s",
      spix, obidbuf, json_dumps (jsobj, JSON_INDENT (2) | JSON_SORT_KEYS));
