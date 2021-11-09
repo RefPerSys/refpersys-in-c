@@ -99,6 +99,13 @@ rps_oid_greater_than (RpsOid lhs, RpsOid rhs)
 }
 
 
+inline bool
+rps_oid_greater_than_equal (RpsOid lhs, RpsOid rhs)
+{
+  return rps_oid_cmp (lhs, rhs) >= 0;
+}
+
+
 
 // compute a random and valid oid
 extern RpsOid rps_random_valid_oid (void);
