@@ -144,12 +144,15 @@ fail:
 }				/* end rps_cstr_to_oid */
 
 
-
+#if 0
 bool
 rps_oid_equal (const RpsOid oid1, const RpsOid oid2)
 {
   return oid1.id_hi == oid2.id_hi && oid1.id_lo == oid2.id_lo;
 }				/* end rps_oid_equal */
+#endif
+
+extern bool rps_oid_equal (const RpsOid lhs, const RpsOid rhs);
 
 bool
 rps_oid_less_than (const RpsOid oid1, const RpsOid oid2)
