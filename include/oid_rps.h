@@ -86,7 +86,7 @@ rps_oid_less_than (RpsOid lhs, RpsOid rhs)
 
 
 inline bool
-rps_oid_less_equal (RpsOid lhs, RpsOid rhs)
+rps_oid_less_than_equal (RpsOid lhs, RpsOid rhs)
 {
   return rps_oid_cmp (lhs, rhs) <= 0;
 }

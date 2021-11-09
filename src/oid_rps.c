@@ -180,7 +180,7 @@ rps_oid_less_equal (const RpsOid oid1, const RpsOid oid2)
 }				/* end rps_oid_less_equal */
 #endif
 
-extern inline bool rps_oid_less_equal (RpsOid lhs, RpsOid rhs);
+extern inline bool rps_oid_less_than_equal (RpsOid lhs, RpsOid rhs);
 
 
 int
