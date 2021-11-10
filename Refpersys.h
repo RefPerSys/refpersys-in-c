@@ -315,6 +315,10 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
   RpsObject_t* ob_class;                        \
   RpsObject_t* ob_zone;                         \
   RpsAttrTable_t* ob_attrtable;                 \
+  unsigned ob_nbcomp;                           \
+  unsigned ob_compsize;                         \
+  RpsValue_t**ob_comparr;                       \
+  void* ob_payload
 				/* other fields missing */
 
 
