@@ -315,7 +315,7 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
   RpsObject_t* ob_class;                        \
   RpsObject_t* ob_zone;                         \
   RpsAttrTable_t* ob_attrtable;                 \
-                                /* other fields missing */
+				/* other fields missing */
 
 
 struct RpsZoneObject_st
