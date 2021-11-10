@@ -366,10 +366,10 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
       if (objcount % 8 == 0)
 	{
 	  rps_check_all_objects_buckets_are_valid ();
-	  if (objcount % 16 == 0)
-	    printf
-	      ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
-	       spix, objcount, filepath, lincnt, __FILE__, __LINE__);
+//     if (objcount % 16 == 0)
+//       printf
+//         ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
+//          spix, objcount, filepath, lincnt, __FILE__, __LINE__);
 	};
       memset (linbuf, 0, linsz);
       linoff = ftell (spfil);
