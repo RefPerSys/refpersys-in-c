@@ -399,9 +399,9 @@ rps_initialize_objects_for_loading (RpsLoader_t * ld, unsigned totnbobj)
 			  curbuck->obuck_capacity);
       pthread_mutex_unlock (&rps_object_bucket_array[bix].obuck_mtx);
     }
-  printf
-    ("rps_initialize_objects_for_loading ending totnbobj=%u minbucksize=%u (%s:%d)\n",
-     totnbobj, minbucksize, __FILE__, __LINE__);
+  //printf
+  //  ("rps_initialize_objects_for_loading ending totnbobj=%u minbucksize=%u (%s:%d)\n",
+  //   totnbobj, minbucksize, __FILE__, __LINE__);
 }				/* end rps_initialize_objects_for_loading */
 
 
@@ -548,12 +548,12 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
   if (addcnt % 8 == 0)
     {
       rps_check_all_objects_buckets_are_valid ();
-      if (addcnt % 32 == 0)
-	printf
-	  ("rps_add_object_to_locked_bucket bucket#%d addcnt#%d %s (%s:%d)\n",
-	   buckix, addcnt,
-	   (growmode == RPS_BUCKET_FIXED) ? "fixed" : "growing",
-	   __FILE__, __LINE__);
+      //   if (addcnt % 32 == 0)
+      //     printf
+      //     ("rps_add_object_to_locked_bucket bucket#%d addcnt#%d %s (%s:%d)\n",
+      //      buckix, addcnt,
+      //      (growmode == RPS_BUCKET_FIXED) ? "fixed" : "growing",
+      //      __FILE__, __LINE__);
     }
   addcnt++;
   unsigned cbucksiz = buck->obuck_capacity;
