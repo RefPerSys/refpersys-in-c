@@ -571,6 +571,11 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 	    rps_attr_table_put (obj->ob_attrtable, atob, atval);
 	}
     }
+  json_t *jscomparr = json_object_get (jsobj, "comps");
+  if (json_is_array (jscomparr))
+    {
+      int nbcomp = json_array_size (jscomparr);
+    }
 #warning rps_loader_fill_object_second_pass incomplete
   pthread_mutex_unlock (&obj->ob_mtx);
   RPS_FATAL
