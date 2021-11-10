@@ -234,6 +234,23 @@ rps_load_parse_manifest (RpsLoader_t * ld)
   fclose (ld->ld_manifest_file), ld->ld_manifest_file = NULL;
 }				/* end rps_load_parse_manifest */
 
+
+/// this routine sets the class of root objects temporarily to `object`
+void
+rps_load_initialize_root_objects (RpsLoader_t * loader)
+{
+  RPS_ASSERT (rps_is_valid_loader (loader));
+  RpsOid oid = RPS_NULL_OID;
+#define RPS_INSTALL_ROOT_OB(Oidstr) do {			\
+  oid= rps_cstr_to_oid(#Oidstr, NULL);				\
+  RpsObject_t* rootob = rps_find_object_by_oid(oid);		\
+  if (rootob && !rootob->ob_class)				\
+    rootob->ob_class						\
+      = RPS_ROOT_OB(_5yhJGgxLwLp00X0xEQ);	/*object∈class*/	\
+  } while(0);
+#include "generated/rps-roots.h"
+}				/* end rps_load_initialize_root_objects */
+
 void
 rps_load_initial_heap (void)
 {
@@ -268,6 +285,7 @@ rps_load_initial_heap (void)
   else
     RPS_FATAL ("bad spaceset in load directory %s", rps_load_directory);
   loader->ld_state = RPSLOADING_FILL_OBJECTS_PASS;
+  rps_load_initialize_root_objects (loader);
   for (int spix = 0; spix < (int) nbspace; spix++)
     {
       json_t *jscurspace = json_array_get (jsspaceset, spix);
@@ -436,6 +454,10 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    RpsObject_t *obclass = NULL;
 	    if (json_is_string (jsclass))
 	      obclass = rps_load_create_object_from_json_id (ld, jsclass);
+	    else
+	      obclass = RPS_ROOT_OB (_5yhJGgxLwLp00X0xEQ);	//object∈class
+	    RPS_ASSERTPRINTF (obclass != NULL,
+			      "no class for object of oid %s", curobid);
 	    RpsObject_t *curob =
 	      rps_load_create_object_from_json_id (ld, jsoid);
 	    if (curob && obclass)
@@ -510,18 +532,18 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   /// set the object class
   {
     json_t *jsclass = json_object_get (jsobj, "class");
-    RPS_ASSERT(json_is_string(jsclass));
-    RpsOid classoid = rps_cstr_to_oid (json_string_value(jsclass), NULL);
+    RPS_ASSERT (json_is_string (jsclass));
+    RpsOid classoid = rps_cstr_to_oid (json_string_value (jsclass), NULL);
     RpsObject_t *classob = rps_find_object_by_oid (classoid);
-    RPS_ASSERT(classob != NULL);
+    RPS_ASSERT (classob != NULL);
     obj->ob_class = classob;
   }
   /// set the object mtime
   {
-    json_t* jsmtime = json_object_get (jsobj, "mtime");
-    RPS_ASSERT(json_is_real(jsmtime));
-    double mtime = json_real_value(jsmtime);
-    RPS_ASSERT(mtime > 0.0 && mtime < 1e12);
+    json_t *jsmtime = json_object_get (jsobj, "mtime");
+    RPS_ASSERT (json_is_real (jsmtime));
+    double mtime = json_real_value (jsmtime);
+    RPS_ASSERT (mtime > 0.0 && mtime < 1e12);
     obj->ob_mtime = mtime;
   }
   /// set the object attributes
