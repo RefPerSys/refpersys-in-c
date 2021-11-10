@@ -37,7 +37,13 @@ rps_is_valid_object (RpsObject_t * obj)
     return false;
   pthread_mutex_lock (&obj->ob_mtx);
   if (obj->ob_class == NULL)
-    RPS_FATAL ("invalid classless object %p", obj);
+    {
+      RpsOid oid = obj->ob_id;
+      char oidbuf[32];
+      memset (oidbuf, 0, sizeof (oidbuf));
+      rps_oid_to_cbuf (oid, oidbuf);
+      RPS_FATAL ("invalid classless object %s @%p", oidbuf, obj);
+    }
   pthread_mutex_unlock (&obj->ob_mtx);
   return true;
 }				/* end rps_is_valid_object */
@@ -652,7 +658,10 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 	RPS_ALLOC_ZONE (sizeof (RpsObject_t), RPS_TYPE_OBJECT);
       pthread_mutex_init (&obinfant->ob_mtx, &rps_objmutexattr);
       obinfant->ob_id = oid;
-      // the infant object has no class yet!
+      // the infant object temporary class is the object class, which
+      // might not exist yet ...
+      obinfant->ob_class = RPS_ROOT_OB (_5yhJGgxLwLp00X0xEQ);	//object∈class
+      // see also routine rps_load_initialize_root_objects
       pthread_mutex_lock (&rps_object_bucket_array[bix].obuck_mtx);
       curbuck = &rps_object_bucket_array[bix];
       if (!curbuck->obuck_arr)
