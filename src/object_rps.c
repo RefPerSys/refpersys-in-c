@@ -125,19 +125,28 @@ rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
 /* internal routine to put or insert an entry ... Return true if successful */
 static bool
 rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
-			  RpsValue_t obval)
+			  RpsValue_t val)
 {
   RPS_ASSERT (tbl != NULL);
   intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
   unsigned tbllen = tbl->zm_length;
+  RPS_ASSERT(obattr != NULL);
+  RPS_ASSERT(val != RPS_NULL_VALUE);
+  RPS_ASSERT(tbllen < tblsiz);
+  if (tbllen == 0) {
+    tbl->attr_entries[0].ent_attr = obattr;
+    tbl->attr_entries[0].ent_val = val;
+    tbl->zm_length = 1;
+    return true;
+  };
   int lo = 0, hi = (int) tbllen - 1;
-  while (lo < hi + 4)
+  while (lo + 4 < hi)
     {
       int mi = (lo + hi) / 2;
       RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
       if (curattr == obattr)
 	{
-	  tbl->attr_entries[mi].ent_val = obval;
+	  tbl->attr_entries[mi].ent_val = val;
 	  return true;
 	}
       else if (rps_object_less (curattr, obattr))
@@ -151,7 +160,7 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
       RpsObject_t *curattr = tbl->attr_entries[ix].ent_attr;
       if (curattr == obattr)
 	{
-	  tbl->attr_entries[ix].ent_val = obval;
+	  tbl->attr_entries[ix].ent_val = val;
 	  return true;
 	}
       else if (rps_object_less (curattr, obattr))
@@ -159,7 +168,7 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
 	  memmove (tbl->attr_entries + ix, tbl->attr_entries + ix + 1,
 		   (tbllen - ix) * sizeof (struct rps_attrentry_st));
 	  tbl->attr_entries[ix].ent_attr = obattr;
-	  tbl->attr_entries[ix].ent_val = obval;
+	  tbl->attr_entries[ix].ent_val = val;
 	  tbl->zm_length = tbllen + 1;
 	  return true;
 	}
