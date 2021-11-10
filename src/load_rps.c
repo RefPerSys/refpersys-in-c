@@ -507,9 +507,25 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
   pthread_mutex_lock (&obj->ob_mtx);
+  /// set the object class
+  {
+    json_t *jsclass = json_object_get (jsobj, "class");
+    RPS_ASSERT(json_is_string(jsclass));
+    RpsOid classoid = rps_cstr_to_oid (json_string_value(jsclass), NULL);
+    RpsObject_t *classob = rps_find_object_by_oid (classoid);
+    RPS_ASSERT(classob != NULL);
+    obj->ob_class = classob;
+  }
+  /// set the object mtime
+  {
+    json_t* jsmtime = json_object_get (jsobj, "mtime");
+    RPS_ASSERT(json_is_real(jsmtime));
+    double mtime = json_real_value(jsmtime);
+    RPS_ASSERT(mtime > 0.0 && mtime < 1e12);
+    obj->ob_mtime = mtime;
+  }
+  /// set the object attributes
   json_t *jsattrarr = json_object_get (jsobj, "attrs");
-  json_t *jsclass = json_object_get (jsobj, "class");
-#warning should set the class according to jsclass
   if (json_is_array (jsattrarr))
     {
       int nbattr = json_array_size (jsattrarr);
