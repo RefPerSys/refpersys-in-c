@@ -252,7 +252,21 @@ rps_show_types_info (void)
 }				/* end rps_show_types_info */
 
 
-
+/// Very probably, in the future, rps_value_type will disappear and be
+/// replaced by similar C statements in generated C code. Before that
+/// happens, do not make it inline without discussion on
+/// <team@refpersys.org>
+enum RpsType
+rps_value_type (RpsValue_t val)
+{
+  if (val == RPS_NULL_VALUE)
+    return RPS_TYPE__NONE;
+  else if (val & 1)
+    return RPS_TYPE_INT;
+  struct RpsZonedMemory_st *zm = (struct RpsZonedMemory_st *) val;
+  RPS_ASSERT (zm->zm_type != 0);
+  return (enum RpsType) (zm->zm_type);
+}				/* end of rps_value_type */
 
 /// nearly copied from Ian Lance Taylor's libbacktrace/print.c
 /// see https://github.com/ianlancetaylor/libbacktrace

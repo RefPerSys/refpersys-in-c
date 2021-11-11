@@ -61,14 +61,14 @@ rps_get_object_attribute (RpsObject_t * obj, RpsObject_t * obattr)
   pthread_mutex_lock (&obj->ob_mtx);
   if (obattr == RPS_ROOT_OB (_41OFI3r0S1t03qdB2E))	//class∈class
     {
-      res = (RpsValue_t)(obj->ob_class);
+      res = (RpsValue_t) (obj->ob_class);
       goto end;
     }
   if (obattr == RPS_ROOT_OB (_2i66FFjmS7n03HNNBx)	//space∈class
       || obattr == RPS_ROOT_OB (_9uwZtDshW4401x6MsY)	//space∈symbol
     )
     {
-      res = (RpsValue_t)(obj->ob_space);
+      res = (RpsValue_t) (obj->ob_space);
       goto end;
     };
   RpsAttrTable_t *atbl = obj->ob_attrtable;
@@ -80,6 +80,42 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
   return res;
 }				/* end rps_get_object_attribute */
+
+void
+rps_put_object_attribute (RpsObject_t * obj, RpsObject_t * obattr,
+			  RpsValue_t val)
+{
+  if (!obj || !obattr)
+    return;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  RPS_ASSERT (rps_is_valid_object (obattr));
+  if (val == RPS_NULL_VALUE)
+    return;
+  pthread_mutex_lock (&obj->ob_mtx);
+  if (obattr == RPS_ROOT_OB (_41OFI3r0S1t03qdB2E))	//class∈class
+    {
+      if (rps_value_type (val) == RPS_TYPE_OBJECT)
+	{
+	  /// need an test that the value has some payload...
+	  obj->ob_class = (RpsObject_t *) val;
+	}
+      goto end;
+    };
+  if (obattr == RPS_ROOT_OB (_2i66FFjmS7n03HNNBx)	//space∈class
+      || obattr == RPS_ROOT_OB (_9uwZtDshW4401x6MsY)	//space∈symbol
+    )
+    {
+      if (rps_value_type (val) == RPS_TYPE_OBJECT)
+	{
+	  /// need an test that the value has some payload...
+	  obj->ob_space = (RpsObject_t *) val;
+	}
+      goto end;
+    }
+  obj->ob_attrtable = rps_attr_table_put (obj->ob_attrtable, obattr, val);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end rps_put_object_attribute */
 
 bool
 rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2)
