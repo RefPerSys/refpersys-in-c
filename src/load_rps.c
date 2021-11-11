@@ -579,6 +579,11 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
       if (nbcomp > 0)
 	{
 	  rps_object_reserve_components (obj, nbcomp);
+	  RPS_ASSERT(obj->ob_comparr != NULL);
+	  for (int cix=0; cix<nbcomp; cix++)
+	    obj->ob_comparr[cix] =
+	      rps_loader_json_to_value (ld, json_array_get(jscomparr, cix));
+	  obj->ob_nbcomp = nbcomp;
 	}
     }
 #warning rps_loader_fill_object_second_pass incomplete
