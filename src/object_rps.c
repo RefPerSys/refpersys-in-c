@@ -48,6 +48,38 @@ rps_is_valid_object (RpsObject_t * obj)
   return true;
 }				/* end rps_is_valid_object */
 
+RpsValue_t
+rps_get_object_attribute (RpsObject_t * obj, RpsObject_t * obattr)
+{
+  if (!obj)
+    return RPS_NULL_VALUE;
+  if (!obattr)
+    return RPS_NULL_VALUE;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  RPS_ASSERT (rps_is_valid_object (obattr));
+  RpsValue_t res = RPS_NULL_VALUE;
+  pthread_mutex_lock (&obj->ob_mtx);
+  if (obattr == RPS_ROOT_OB (_41OFI3r0S1t03qdB2E))	//class∈class
+    {
+      res = (RpsValue_t)(obj->ob_class);
+      goto end;
+    }
+  if (obattr == RPS_ROOT_OB (_2i66FFjmS7n03HNNBx)	//space∈class
+      || obattr == RPS_ROOT_OB (_9uwZtDshW4401x6MsY)	//space∈symbol
+    )
+    {
+      res = (RpsValue_t)(obj->ob_space);
+      goto end;
+    };
+  RpsAttrTable_t *atbl = obj->ob_attrtable;
+  if (!atbl)
+    goto end;
+  RPS_ASSERT (atbl->zm_type == RpsPyt_AttrTable);
+  res = rps_attr_table_find (atbl, obattr);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return res;
+}				/* end rps_get_object_attribute */
 
 bool
 rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2)
@@ -130,15 +162,16 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
   RPS_ASSERT (tbl != NULL);
   intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
   unsigned tbllen = tbl->zm_length;
-  RPS_ASSERT(obattr != NULL);
-  RPS_ASSERT(val != RPS_NULL_VALUE);
-  RPS_ASSERT(tbllen < tblsiz);
-  if (tbllen == 0) {
-    tbl->attr_entries[0].ent_attr = obattr;
-    tbl->attr_entries[0].ent_val = val;
-    tbl->zm_length = 1;
-    return true;
-  };
+  RPS_ASSERT (obattr != NULL);
+  RPS_ASSERT (val != RPS_NULL_VALUE);
+  RPS_ASSERT (tbllen < tblsiz);
+  if (tbllen == 0)
+    {
+      tbl->attr_entries[0].ent_attr = obattr;
+      tbl->attr_entries[0].ent_val = val;
+      tbl->zm_length = 1;
+      return true;
+    };
   int lo = 0, hi = (int) tbllen - 1;
   while (lo + 4 < hi)
     {

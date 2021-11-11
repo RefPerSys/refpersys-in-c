@@ -313,7 +313,7 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
   double ob_mtime;                              \
   pthread_mutex_t ob_mtx;                       \
   RpsObject_t* ob_class;                        \
-  RpsObject_t* ob_zone;                         \
+  RpsObject_t* ob_space;                        \
   RpsAttrTable_t* ob_attrtable;                 \
   unsigned ob_nbcomp;                           \
   unsigned ob_compsize;                         \
@@ -337,6 +337,8 @@ extern void rps_object_array_qsort (const RpsObject_t ** arr, int size);
 extern RpsObject_t *rps_find_object_by_oid (const RpsOid oid);
 extern RpsObject_t *rps_get_loaded_object_by_oid (RpsLoader_t * ld,
 						  const RpsOid oid);
+extern RpsValue_t rps_get_object_attribute (RpsObject_t * ob,
+					    RpsObject_t * obattr);
 extern void rps_check_all_objects_buckets_are_valid (void);
 
 /////////////// table of attributes (objects) with their values
