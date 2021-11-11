@@ -457,7 +457,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    else
 	      obclass = RPS_ROOT_OB (_5yhJGgxLwLp00X0xEQ);	//object∈class
 	    RPS_ASSERTPRINTF (obclass != NULL,
-			      "no class for object of oid %s near %s:%d", obidbuf, filepath, lincnt);
+			      "no class for object of oid %s near %s:%d",
+			      obidbuf, filepath, lincnt);
 	    RpsObject_t *curob =
 	      rps_load_create_object_from_json_id (ld, jsoid);
 	    if (curob && obclass)
