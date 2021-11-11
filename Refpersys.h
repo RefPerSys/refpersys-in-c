@@ -321,6 +321,7 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
   void* ob_payload
 				/* other fields missing */
 
+#define RPS_MAX_NB_OBJECT_COMPONENTS (1U<<20)
 
 struct RpsZoneObject_st
 {
@@ -340,6 +341,8 @@ extern RpsObject_t *rps_get_loaded_object_by_oid (RpsLoader_t * ld,
 extern RpsValue_t rps_get_object_attribute (RpsObject_t * ob,
 					    RpsObject_t * obattr);
 extern void rps_check_all_objects_buckets_are_valid (void);
+extern void rps_object_reserve_components (RpsObject_t * obj,
+					   unsigned nbcomp);
 
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes

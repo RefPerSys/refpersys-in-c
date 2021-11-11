@@ -117,6 +117,40 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_put_object_attribute */
 
+void
+rps_object_reserve_components (RpsObject_t * obj, unsigned nbcomp)
+{
+  if (!obj)
+    return;
+  if (nbcomp > RPS_MAX_NB_OBJECT_COMPONENTS)
+    {
+      char obidbuf[32];
+      memset (obidbuf, 0, sizeof (obidbuf));
+      rps_oid_to_cbuf (obj->ob_id, obidbuf);
+      RPS_FATAL ("too many components %u for object %s", nbcomp, obidbuf);
+    };
+  pthread_mutex_lock (&obj->ob_mtx);
+  unsigned oldnbcomp = obj->ob_nbcomp;
+  unsigned oldcompsize = obj->ob_compsize;
+  RPS_ASSERT (oldnbcomp <= oldcompsize);
+  RPS_ASSERT (oldcompsize < RPS_MAX_NB_OBJECT_COMPONENTS);
+  if ((oldnbcomp + 2) >= oldcompsize)
+    {
+      unsigned newcompsize = rps_prime_above (oldnbcomp + oldnbcomp / 3 + 3);
+      RPS_ASSERT (newcompsize < RPS_MAX_NB_OBJECT_COMPONENTS);
+      RpsValue_t **newcomparr =
+	RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * newcompsize);
+      for (unsigned ix = 0; ix < oldnbcomp; ix++)
+	newcomparr[ix] = obj->ob_comparr[ix];
+      free (obj->ob_comparr);
+      obj->ob_comparr = newcomparr;
+      obj->ob_compsize = newcompsize;
+    }
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end rps_object_reserve_components */
+
+
 bool
 rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2)
 {

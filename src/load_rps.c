@@ -576,6 +576,10 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   if (json_is_array (jscomparr))
     {
       int nbcomp = json_array_size (jscomparr);
+      if (nbcomp > 0)
+	{
+	  rps_object_reserve_components (obj, nbcomp);
+	}
     }
 #warning rps_loader_fill_object_second_pass incomplete
   pthread_mutex_unlock (&obj->ob_mtx);
