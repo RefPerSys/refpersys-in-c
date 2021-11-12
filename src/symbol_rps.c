@@ -27,11 +27,37 @@
 
 #include "Refpersys.h"
 
-#include "kvl.h"
+#include "kavl.h"
 
-void
-rpsldpy_symbol (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
-		int spix)
+struct internal_symbol_node_rps_st
+{
+  RpsSymbol_t *synodrps_symbol;
+    KAVL_HEAD (struct internal_symbol_node_rps_st) synodrps_head;
+};
+
+static int
+rps_symbol_node_cmp (const struct internal_symbol_node_rps_st *left,
+		     const struct internal_symbol_node_rps_st *right)
+{
+  RPS_ASSERT (left);
+  RPS_ASSERT (right);
+  RpsSymbol_t *syleft = left->synodrps_symbol;
+  RpsSymbol_t *syright = right->synodrps_symbol;
+  RPS_ASSERT (syleft != NULL && syleft->zm_type == -RpsPyt_Symbol);
+  RPS_ASSERT (syright != NULL && syright->zm_type == -RpsPyt_Symbol);
+  if (syleft == syright)
+    return 0;
+  const RpsString_t *namleft = syleft->symb_name;
+  const RpsString_t *namright = syright->symb_name;
+  RPS_ASSERT (namleft != NULL && namleft->zm_type == RPS_TYPE_STRING);
+  RPS_ASSERT (namright != NULL && namright->zm_type == RPS_TYPE_STRING);
+  return strcmp (namleft->cstr, namright->cstr);
+}				/* end rps_symbol_node_cmp */
+
+KAVL_INIT (rpsynod, struct internal_symbol_node_rps_st, synodrps_head,
+	   rps_symbol_node_cmp)
+     void rpsldpy_symbol (RpsObject_t * obj, RpsLoader_t * ld,
+			  const json_t * jv, int spix)
 {
   char idbuf[32];
   memset (idbuf, 0, sizeof (idbuf));

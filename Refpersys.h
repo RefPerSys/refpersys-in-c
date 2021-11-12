@@ -457,7 +457,7 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
  ****************************************************************/
 #define RPSFIELDS_PAYLOAD_SYMBOL		\
   RPSFIELDS_OWNED_PAYLOAD;			\
-  RpsString_t* symb_name;			\
+  const RpsString_t* symb_name;			\
   RpsValue_t symb_value
 
 
