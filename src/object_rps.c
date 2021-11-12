@@ -799,4 +799,48 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
     }
 }				/* end rps_get_loaded_object_by_oid */
 
+
+static pthread_mutex_t rps_payload_mtx =
+  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static rps_payload_remover_t
+  *rps_payload_removing_rout_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+static void *rps_payload_removing_data_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+
+void
+rps_register_payload_removal (int paylty, rps_payload_remover_t * rout,
+			      void *data)
+{
+  pthread_mutex_lock (&rps_payload_mtx);
+  if (paylty == 0 || paylty >= RPS_MAX_PAYLOAD_TYPE_INDEX)
+    {
+      Dl_info routinfo = { };
+      dladdr ((void *) rout, &routinfo);
+      const char *routname = routinfo.dli_sname;
+      if (!routname)
+	routname = "???";
+      RPS_FATAL
+	("payload type#%d invalid for payload removal routine %p / %s",
+	 paylty, (void *) rout, routname);
+    };
+  if ((void *) rout == NULL && data != NULL)
+    {
+      RPS_FATAL
+	("payload type#%d without removal routine, but with some removal data @%p",
+	 paylty, data);
+    }
+  rps_payload_removing_rout_arr[paylty] = rout;
+  rps_payload_removing_data_arr[paylty] = data;
+end:
+  pthread_mutex_unlock (&rps_payload_mtx);
+}				/* end rps_register_payload_removal */
+
+void
+rps_object_put_payload (RpsObject_t * obj, void *payl)
+{
+  if (!ob)
+    return;
+  RPS_ASSERT (rps_is_valid_object (obj));
+}				/* end of rps_object_put_payload */
+
+
 /*************** end of file object_rps.c ****************/

@@ -170,7 +170,8 @@ extern RpsValue_t rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv);
 
 //// Signature of extern "C" functions dlsymed for payload loading;
 //// their name starts with rpsldpy_ and the object has been locked..
-typedef void rpsldpysig_t(RpsObject_t*obz, RpsLoader_t*ld, const json_t*jv, int spaceindex);
+typedef void rpsldpysig_t (RpsObject_t * obz, RpsLoader_t * ld,
+			   const json_t * jv, int spaceindex);
 #define RPS_PAYLOADING_PREFIX "rpsldpy_"
 
 /// the dumper internals are in file dump_rps.c
@@ -184,11 +185,12 @@ extern RpsHash_t rps_hash_cstr (const char *s);
 
 #include "include/oid_rps.h"
 
-
-/// a payload is not a proper value, but garbaged collected as if it was one....
-/// payload types - prefix is RpsPyt
+struct rps_owned_payload_st;
+/// A payload is not a proper value, but garbaged collected as if it was one....
+/// payload types - prefix is RpsPyt.
 enum
 {
+  //// this enumeration needs to be in generated C code of course....
   RpsPyt__NONE,
   RpsPyt_Loader,		/* the initial loader */
   RpsPyt_AttrTable,		/* associate objects to values */
@@ -196,6 +198,11 @@ enum
   RpsPyt_Symbol,		/* symbol */
   RpsPyt__LAST
 };
+
+// the maximal index is for internal arrays, and allow for more than
+// ten more payload types to be added during a run.
+#define RPS_MAX_PAYLOAD_TYPE_INDEX  (((RpsPyt__LAST+15)|0xf)+1)
+
 
 /****************************************************************
  * Garbage collected memory zones.  Most boxed values or payloads are
@@ -430,9 +437,18 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
   RPSFIELDS_ZONED_MEMORY;			\
   RpsObject_t* payl_owner
 
+struct rps_owned_payload_st
+{
+  RPSFIELDS_OWNED_PAYLOAD;
+};
 
-
-
+void rps_object_put_payload (RpsObject_t * ob, void *payl);
+typedef void rps_payload_remover_t (RpsObject_t *,
+				    struct rps_owned_payload_st *,
+				    void *data);
+extern void rps_register_payload_removal (int pty,
+					  rps_payload_remover_t * rout,
+					  void *data);
 
 
 /****************************************************************
@@ -442,7 +458,9 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
   RPSFIELDS_OWNED_PAYLOAD;			\
   RpsString_t* symb_name;			\
   RpsValue_t symb_value
-  
+
+
+
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_abort (void) __attribute__((noreturn));
