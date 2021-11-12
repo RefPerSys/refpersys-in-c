@@ -834,13 +834,38 @@ end:
   pthread_mutex_unlock (&rps_payload_mtx);
 }				/* end rps_register_payload_removal */
 
+
+
 void
 rps_object_put_payload (RpsObject_t * obj, void *payl)
 {
   if (!obj)
     return;
   RPS_ASSERT (rps_is_valid_object (obj));
-#warning missing code in rps_object_put_payload
+  struct rps_owned_payload_st*newpayl = payl;
+  int newptype = 0;
+  if (newpayl) {
+    newptype = -newpayl->zm_type;
+    RPS_ASSERT(newptype > 0 && newptype < RPS_MAX_PAYLOAD_TYPE_INDEX) ;
+  }
+  pthread_mutex_lock(&obj->ob_mtx);
+  struct rps_owned_payload_st*oldpayl = obj->ob_payload;
+  if (oldpayl) {
+    rps_payload_remover_t *oldremover = NULL;
+    void* oldremdata = NULL;
+    int oldptype = -oldpayl->zm_type;
+    if (oldptype > 0 && oldptype<RPS_MAX_PAYLOAD_TYPE_INDEX) {
+      pthread_mutex_lock (&rps_payload_mtx);
+      oldremover = rps_payload_removing_rout_arr[oldptype];
+      oldremdata = rps_payload_removing_data_arr[oldptype];
+      pthread_mutex_unlock (&rps_payload_mtx);
+    }
+    if (oldremover)
+      (*oldremover) (obj, oldpayl,  oldremdata);
+  }
+  obj->ob_payload = newpayl;
+ end:
+  pthread_mutex_unlock(&obj->ob_mtx);
 }				/* end of rps_object_put_payload */
 
 

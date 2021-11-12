@@ -79,7 +79,7 @@ all:
 	sync
 
 clean:
-	$(RM) *.o */*.o *.orig *~ *% refpersys gmon.out
+	$(RM) *.o */*.o */*.i *.orig *~ *% refpersys gmon.out
 
 indent:
 	for f in $(RPS_C_SOURCES) ; do \
@@ -95,6 +95,12 @@ $(RPS_TSTAMP).c: | Makefile tools/generate-timestamp.sh
 	printf 'const char rps_c_compiler_version[]="%s";\n' "$$($(CC) --version | head -1)" >> $@-tmp
 	printf 'const char _rps_git_short_id[] = "%s";\n' "$(RPS_SHORTGIT_ID)" >> $@-tmp
 	$(MV) --backup $@-tmp $@
+
+
+## preprocessed form
+src/%_rps.i: src/%_rps.c
+	$(CC) $(CPPFLAGS) -C -E $^ -o $@%
+	sed "1,$s:^#\(.*\)://\1:g" $@% > $@
 
 refpersys: objects $(RPS_TSTAMP).o
 	$(LINK.c) $(LDFLAGS) $(RPS_C_OBJECTS) $(RPS_TSTAMP).o $(LDLIBES) -o $@

@@ -170,8 +170,7 @@ extern RpsValue_t rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv);
 
 //// Signature of extern "C" functions dlsymed for payload loading;
 //// their name starts with rpsldpy_ and the object has been locked..
-typedef void rpsldpysig_t (RpsObject_t * obz, RpsLoader_t * ld,
-			   const json_t * jv, int spaceindex);
+typedef void rpsldpysig_t(RpsObject_t*obz, RpsLoader_t*ld, const json_t*jv, int spaceindex);
 #define RPS_PAYLOADING_PREFIX "rpsldpy_"
 
 /// the dumper internals are in file dump_rps.c
@@ -187,7 +186,7 @@ extern RpsHash_t rps_hash_cstr (const char *s);
 
 struct rps_owned_payload_st;
 /// A payload is not a proper value, but garbaged collected as if it was one....
-/// payload types - prefix is RpsPyt.
+/// payload types - prefix is RpsPyt.  In memory we used negative payload indexes...
 enum
 {
   //// this enumeration needs to be in generated C code of course....
@@ -359,7 +358,7 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
   pthread_mutex_t ob_mtx;                       \
   RpsObject_t* ob_class;                        \
   RpsObject_t* ob_space;                        \
-  RpsAttrTable_t* ob_attrtable;                 \
+  RpsAttrTable_t* ob_attrtable /*unowned!*/;	\
   unsigned ob_nbcomp;                           \
   unsigned ob_compsize;                         \
   RpsValue_t**ob_comparr;                       \
@@ -392,6 +391,26 @@ extern void rps_object_reserve_components (RpsObject_t * obj,
 
 
 
+
+
+
+/****************************************************************
+ * Common superfields of owned payloads
+ ****************************************************************/
+#define RPSFIELDS_OWNED_PAYLOAD			\
+  RPSFIELDS_ZONED_MEMORY;			\
+  RpsObject_t* payl_owner
+
+/// By convention, the zm_type of payload is a small negative index, e.g. some RpsPyt_* 
+struct rps_owned_payload_st {
+  RPSFIELDS_OWNED_PAYLOAD;
+};
+
+void rps_object_put_payload(RpsObject_t*ob, void*payl);
+typedef void rps_payload_remover_t (RpsObject_t*, struct rps_owned_payload_st*, void*data);
+extern void rps_register_payload_removal(int paylty, rps_payload_remover_t*rout, void*data);
+
+
 /****************************************************************
  * Payload for table of ordered attributes (objects) associated to
  * values.
@@ -408,7 +427,7 @@ struct rps_attrentry_st
 //// the zm_xtra is a prime index for the allocated size
 //// the zm_length is the actual number of non-empty entries
 #define RPSFIELDS_ATTRTABLE			\
-  RPSFIELDS_ZONED_MEMORY;			\
+  RPSFIELDS_OWNED_PAYLOAD;			\
   struct rps_attrentry_st attr_entries[]
 
 ///// for RpsAttrTable_t
@@ -425,30 +444,6 @@ extern RpsAttrTable_t *rps_attr_table_put (RpsAttrTable_t * tbl,
 					   RpsValue_t val);
 extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 					      RpsObject_t * obattr);
-
-
-
-
-
-/****************************************************************
- * Common superfields of owned payloads
- ****************************************************************/
-#define RPSFIELDS_OWNED_PAYLOAD			\
-  RPSFIELDS_ZONED_MEMORY;			\
-  RpsObject_t* payl_owner
-
-struct rps_owned_payload_st
-{
-  RPSFIELDS_OWNED_PAYLOAD;
-};
-
-void rps_object_put_payload (RpsObject_t * ob, void *payl);
-typedef void rps_payload_remover_t (RpsObject_t *,
-				    struct rps_owned_payload_st *,
-				    void *data);
-extern void rps_register_payload_removal (int pty,
-					  rps_payload_remover_t * rout,
-					  void *data);
 
 
 /****************************************************************
