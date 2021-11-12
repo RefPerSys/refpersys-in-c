@@ -67,7 +67,8 @@ CFLAGS := -O0 -g3 -pg
 ## preprocessor flags for gcc
 CPPFLAGS += $(RPS_PKG_CFLAGS) \
             -DRPS_GITID=\"$(RPS_GIT_ID)\" \
-            -DRPS_SHORTGITID=\"$(RPS_SHORTGIT_ID)\"
+            -DRPS_SHORTGITID=\"$(RPS_SHORTGIT_ID)\" \
+	    -I $(PWD)/include/
 LDFLAGS += -rdynamic  -pie -Bdynamic -pthread -L /usr/local/lib -L /usr/lib
 
 all:
