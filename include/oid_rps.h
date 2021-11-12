@@ -47,7 +47,8 @@ typedef struct _RpsOid
 
 #define RPS_OID_BUFLEN 24
 
-#define RPS_OIDBASE (sizeof(RPS_B62DIGITS)-1)
+#define RPS_OID_BASE (sizeof(RPS_B62DIGITS)-1)
+
 #define RPS_MIN_OID_HI (62*62*62)
 #define RPS_MAX_OID_HI /* 8392993658683402240, about 8.392994e+18 */ \
   ((uint64_t)10 * 62 * (62 * 62 * 62) * (62 * 62 * 62) * (62 * 62 * 62))

@@ -83,8 +83,8 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
   uint64_t n = oid.id_hi;
   do
     {
-      unsigned d = n % RPS_OIDBASE;
-      n = n / RPS_OIDBASE;
+      unsigned d = n % RPS_OID_BASE;
+      n = n / RPS_OID_BASE;
       *pc = rps_sb62digits[d];
       pc--;
     }
@@ -95,8 +95,8 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
   n = oid.id_lo;
   do
     {
-      unsigned d = n % RPS_OIDBASE;
-      n = n / RPS_OIDBASE;
+      unsigned d = n % RPS_OID_BASE;
+      n = n / RPS_OID_BASE;
       *pc = rps_sb62digits[d];
       pc--;
     }
