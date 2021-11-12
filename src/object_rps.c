@@ -837,9 +837,10 @@ end:
 void
 rps_object_put_payload (RpsObject_t * obj, void *payl)
 {
-  if (!ob)
+  if (!obj)
     return;
   RPS_ASSERT (rps_is_valid_object (obj));
+#warning missing code in rps_object_put_payload
 }				/* end of rps_object_put_payload */
 
 
