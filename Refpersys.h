@@ -168,7 +168,8 @@ extern unsigned rps_loader_nb_constants (RpsLoader_t * ld);
 extern RpsValue_t rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv);
 
 
-//// signature of extern "C" functions dlsymed for payload loading; their name starts with rpsldpy_
+//// Signature of extern "C" functions dlsymed for payload loading;
+//// their name starts with rpsldpy_ and the object has been locked..
 typedef void rpsldpysig_t(RpsObject_t*obz, RpsLoader_t*ld, const json_t*jv, int spaceindex);
 #define RPS_PAYLOADING_PREFIX "rpsldpy_"
 
@@ -192,9 +193,14 @@ enum
   RpsPyt_Loader,		/* the initial loader */
   RpsPyt_AttrTable,		/* associate objects to values */
   RpsPyt_StringBuf,		/* mutable string buffer */
+  RpsPyt_Symbol,		/* symbol */
   RpsPyt__LAST
 };
 
+/****************************************************************
+ * Garbage collected memory zones.  Most boxed values or payloads are
+ * starting with these...
+ ****************************************************************/
 /// the fields in every zoned memory -value or payload-; we use macros to mimic C field inheritance
 #define RPSFIELDS_ZONED_MEMORY						\
   int8_t zm_type; /* the type of that zone - value (>0) or payload (<0) */ \
@@ -219,7 +225,9 @@ struct RpsZonedValue_st
 };
 
 
-////////////// boxed double
+/****************************************************************
+ * Boxed double values
+ ****************************************************************/
 #define RPSFIELDS_DOUBLE \
   RPSFIELDS_ZONED_VALUE; \
   double dbl_val
@@ -235,7 +243,12 @@ const RpsDouble_t *rps_alloc_boxed_double (double x);
 // load a boxed double
 const RpsDouble_t *rps_load_boxed_double (json_t * js, RpsLoader_t * ld);
 
-////////////// string values; their zm_xtra is an index of a prime allocated size
+
+
+/****************************************************************
+ * Boxed string values; their zm_xtra is an index of a prime allocated
+ * size.
+ ****************************************************************/
 #define RPSFIELDS_STRING \
   RPSFIELDS_ZONED_VALUE; \
   char cstr[];			/* flexible array zone, zm_length is length in UTF8 characters, not in bytes */
@@ -253,7 +266,11 @@ const RpsString_t *rps_sprintf_string (const char *fmt, ...)
 // load a string
 const RpsString_t *rps_load_string (json_t * js, RpsLoader_t * ld);
 
-/////////////// boxed JSON values
+
+
+/****************************************************************
+ * Boxed JSON values.
+ ****************************************************************/
 #define RPSFIELDS_JSON \
   RPSFIELDS_ZONED_VALUE; \
   const json_t *json
@@ -266,6 +283,11 @@ typedef struct RpsZoneJson_st RpsJson_t;	/* for RPS_TYPE_JSON */
 const RpsJson_t *rps_alloc_json (const json_t * js);
 const RpsJson_t *rps_load_json (const json_t * js, RpsLoader_t * ld);
 
+
+
+/****************************************************************
+ * Boxed GtkWidget-s values, they cannot be persisted in the heap.
+ ****************************************************************/
 /////////////// boxed GtkWidget*
 #define RPSFIELDS_GTKWIDGET \
   RPSFIELDS_ZONED_VALUE; \
@@ -279,7 +301,12 @@ typedef struct RpsZoneGtkWidget_st RpsGtkWidget_t;	/* for RPS_GTKWIDGET */
 const RpsGtkWidget_t *rps_alloc_gtk_widget (GtkWidget *);
 // no load routine for GtkWidget
 
-/////////////// tuple of objects value
+
+
+
+/****************************************************************
+ * Tuple of objects value.
+ ****************************************************************/
 #define RPSFIELDS_TUPLEOB \
   RPSFIELDS_ZONED_VALUE; \
   RpsObject_t* tuple_comp[]	/* zv_size is the number of components */
@@ -295,7 +322,10 @@ const RpsTupleOb_t *rps_alloc_tuple_sized (unsigned arity,
 const RpsTupleOb_t *rps_load_tuple (const json_t * js, RpsLoader_t * ld);
 
 
-/////////////// set of objects value
+
+/****************************************************************
+ * Ordered set of objects value.
+ ****************************************************************/
 #define RPSFIELDS_SETOB \
   RPSFIELDS_ZONED_VALUE; \
   RpsObject_t* set_elem[]	/* zv_size is the number of elements, and they are ordered by oid */
@@ -309,7 +339,12 @@ const RpsSetOb_t *rps_alloc_vset (unsigned card, /*objects */ ...);
 const RpsSetOb_t *rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr);
 const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 
-////////////////////////// objects
+
+
+
+/****************************************************************
+ * Mutable and mutexed heavy objects.
+ ****************************************************************/
 #define RPSFIELDS_OBJECT                        \
   RPSFIELDS_ZONED_VALUE;                        \
   RpsOid ob_id;                                 \
@@ -347,6 +382,13 @@ extern void rps_check_all_objects_buckets_are_valid (void);
 extern void rps_object_reserve_components (RpsObject_t * obj,
 					   unsigned nbcomp);
 
+
+
+
+/****************************************************************
+ * Payload for table of ordered attributes (objects) associated to
+ * values.
+ ****************************************************************/
 /////////////// table of attributes (objects) with their values
 /////////////// entries are either empty or sorted by ascending attributes
 struct rps_attrentry_st
@@ -377,6 +419,30 @@ extern RpsAttrTable_t *rps_attr_table_put (RpsAttrTable_t * tbl,
 extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 					      RpsObject_t * obattr);
 
+
+
+
+
+/****************************************************************
+ * Common superfields of owned payloads
+ ****************************************************************/
+#define RPSFIELDS_OWNED_PAYLOAD			\
+  RPSFIELDS_ZONED_MEMORY;			\
+  RpsObject_t* payl_owner
+
+
+
+
+
+
+/****************************************************************
+ * Owned symbol payload
+ ****************************************************************/
+#define RPSFIELDS_PAYLOAD_SYMBOL		\
+  RPSFIELDS_OWNED_PAYLOAD;			\
+  RpsString_t* symb_name;			\
+  RpsValue_t symb_value
+  
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_abort (void) __attribute__((noreturn));
