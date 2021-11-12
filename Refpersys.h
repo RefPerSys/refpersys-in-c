@@ -467,6 +467,8 @@ struct RpsPayl_Symbol_st
   RPSFIELDS_PAYLOAD_SYMBOL;
 };
 typedef struct RpsPayl_Symbol_st RpsSymbol_t;
+extern RpsSymbol_t *rps_find_symbol (const char *name);
+extern RpsSymbol_t *rps_register_symbol (const char *name);
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
@@ -497,8 +499,8 @@ extern void rps_fatal_stop_at (const char *fil, int lineno)
 extern void *alloc0_at_rps (size_t sz, const char *fil, int lineno);
 #define RPS_ALLOC_ZEROED(Sz) alloc0_at_rps((Sz),__FILE__,__LINE__)
 
-extern void *alloczone_at_rps (size_t bytsz, int8_t type, const char *fil,
-			       int lineno);
+extern void *alloczone_at_rps (size_t bytsz, int8_t type,
+			       const char *fil, int lineno);
 #define RPS_ALLOC_ZONE(Bsz,Ty) alloczone_at_rps((Bsz),(Ty),__FILE__,__LINE__)
 #define RPS_MAX_ZONE_SIZE (size_t)(1L<<28)
 extern pid_t rps_gettid (void);
