@@ -55,9 +55,63 @@ rps_symbol_node_cmp (const struct internal_symbol_node_rps_st *left,
 }				/* end rps_symbol_node_cmp */
 
 KAVL_INIT (rpsynod, struct internal_symbol_node_rps_st, synodrps_head,
-	   rps_symbol_node_cmp)
-     void rpsldpy_symbol (RpsObject_t * obj, RpsLoader_t * ld,
-			  const json_t * jv, int spix)
+	   rps_symbol_node_cmp);
+
+static pthread_mutex_t rps_symbol_mtx =
+  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+static struct internal_symbol_node_rps_st *rps_symbol_node_root;
+
+RpsSymbol_t *
+rps_register_symbol (const char *name)
+{
+  RpsSymbol_t *symb = NULL;
+  RPS_ASSERT (name != NULL);
+  pthread_mutex_lock (&rps_symbol_mtx);
+  const RpsString_t *namestr = rps_alloc_string (name);
+  RpsSymbol_t pseudosymb = {.zm_type = -RpsPyt_Symbol,.zm_gcmark =
+      1,.symb_name = namestr };
+  struct internal_symbol_node_rps_st pseudonode = {.synodrps_symbol =
+      &pseudosymb };
+  struct internal_symbol_node_rps_st *nod =
+    kavl_find_rpsynod (rps_symbol_node_root, &pseudonode, NULL);
+  if (!nod)
+    {
+      nod = RPS_ALLOC_ZEROED (sizeof (nod));
+      symb = RPS_ALLOC_ZONE (sizeof (RpsSymbol_t), -RpsPyt_Symbol);
+      nod->synodrps_symbol = symb;
+      kavl_insert_rpsynod (&rps_symbol_node_root, nod, NULL);
+    }
+  else
+    symb = nod->synodrps_symbol;
+end:
+  pthread_mutex_unlock (&rps_symbol_mtx);
+  return symb;
+}				/* end rps_register_symbol */
+
+RpsSymbol_t *
+rps_find_symbol (const char *name)
+{
+  RpsSymbol_t *symb = NULL;
+  RPS_ASSERT (name != NULL);
+  pthread_mutex_lock (&rps_symbol_mtx);
+  const RpsString_t *namestr = rps_alloc_string (name);
+  RpsSymbol_t pseudosymb = {.zm_type = -RpsPyt_Symbol,.zm_gcmark =
+      1,.symb_name = namestr };
+  struct internal_symbol_node_rps_st pseudonode = {.synodrps_symbol =
+      &pseudosymb };
+  struct internal_symbol_node_rps_st *nod =
+    kavl_find_rpsynod (rps_symbol_node_root, &pseudonode, NULL);
+  if (nod && nod != &pseudonode)
+    symb = nod->synodrps_symbol;
+end:
+  pthread_mutex_unlock (&rps_symbol_mtx);
+  return symb;
+}				/* end rps_find_symbol */
+
+void
+rpsldpy_symbol (RpsObject_t * obj, RpsLoader_t * ld,
+		const json_t * jv, int spix)
 {
   char idbuf[32];
   memset (idbuf, 0, sizeof (idbuf));
@@ -70,12 +124,9 @@ KAVL_INIT (rpsynod, struct internal_symbol_node_rps_st, synodrps_head,
       RPS_FATAL ("invalid symb_name for %s in space#%d\n... json %s", idbuf, spix,	//
 		 json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
     };
-  RpsSymbol_t *pysymb = RPS_ALLOC_ZONE (sizeof (RpsSymbol_t), -RpsPyt_Symbol);
-  pysymb->symb_name = rps_alloc_string (json_string_value (jsymbname));
+  RpsSymbol_t *pysymb = rps_register_symbol (json_string_value (jsymbname));
   if (jsymbvalue)
     pysymb->symb_value = rps_loader_json_to_value (ld, jsymbvalue);
   pysymb->payl_owner = obj;
   obj->ob_payload = pysymb;
-  RPS_FATAL ("missing code to register the symbol payload of %s named %s",
-	     idbuf, json_string_value (jsymbname));
 }				/* end rpsldpy_symbol */
