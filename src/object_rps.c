@@ -800,31 +800,6 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 }				/* end rps_get_loaded_object_by_oid */
 
 
-void
-rpsldpy_symbol (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
-		int spix)
-{
-  char idbuf[32];
-  memset (idbuf, 0, sizeof (idbuf));
-  RPS_ASSERT (rps_is_valid_object (obj));
-  rps_oid_to_cbuf (obj->ob_id, idbuf);
-  json_t *jsymbname = json_object_get (jv, "symb_name");
-  json_t *jsymbvalue = json_object_get (jv, "symb_value");
-  if (!json_is_string (jsymbname))
-    {
-      RPS_FATAL ("invalid symb_name for %s in space#%d\n... json %s", idbuf, spix,	//
-		 json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
-    };
-  RpsSymbol_t *pysymb = RPS_ALLOC_ZONE (sizeof (RpsSymbol_t), -RpsPyt_Symbol);
-  pysymb->symb_name = rps_alloc_string (json_string_value (jsymbname));
-  if (jsymbvalue)
-    pysymb->symb_value = rps_loader_json_to_value (ld, jsymbvalue);
-  pysymb->payl_owner = obj;
-  obj->ob_payload = pysymb;
-  RPS_FATAL ("missing code to register the symbol payload of %s named %s",
-	     idbuf, json_string_value (jsymbname));
-}				/* end rpsldpy_symbol */
-
 
 
 static pthread_mutex_t rps_payload_mtx =
