@@ -101,7 +101,7 @@ $(RPS_TSTAMP).c: | Makefile tools/generate-timestamp.sh
 ## preprocessed form
 src/%_rps.i: src/%_rps.c
 	$(CC) $(CPPFLAGS) -C -E $^ -o $@%
-	sed "1,$s:^#\(.*\)://\1:g" $@% > $@
+	sed '1,$$s:^#\(.*\)://\1:g' $@% > $@
 
 refpersys: objects $(RPS_TSTAMP).o
 	$(LINK.c) $(LDFLAGS) $(RPS_C_OBJECTS) $(RPS_TSTAMP).o $(LDLIBES) -o $@
