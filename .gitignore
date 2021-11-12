@@ -46,4 +46,6 @@ __timestamp.*
 ## tags file
 tags
 
+*.i
+
 gmon.out
