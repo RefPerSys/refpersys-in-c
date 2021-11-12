@@ -613,9 +613,6 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
       }
   }
   pthread_mutex_unlock (&obj->ob_mtx);
-  RPS_FATAL
-    ("unimplemented rps_loader_fill_object_second_pass spix#%d object %s\n... json %s",
-     spix, obidbuf, json_dumps (jsobj, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rps_loader_fill_object_second_pass */
 
 
@@ -770,9 +767,6 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    RpsObject_t *curob = rps_find_object_by_oid (curobid);
 	    RPS_ASSERT (curob != NULL);
 	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject);
-#warning missing code in rps_load_second_pass to fill the object
-	    RPS_FATAL ("missing code in rps_load_second_pass filling %s",
-		       obidbuf);
 	    objcount++;
 	    json_decref (jsobject);
 	    fclose (obstream);
