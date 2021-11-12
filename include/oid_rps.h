@@ -68,6 +68,8 @@ extern RpsOid rps_cstr_to_oid (const char *cstr, const char **pend);
 extern unsigned rps_oid_bucket_num (const RpsOid oid);
 extern RpsHash_t rps_oid_hash (const RpsOid oid);
 
+
+/* Checks if two object IDs are equal. */
 inline bool
 rps_oid_equal (RpsOid lhs, RpsOid rhs)
 {
@@ -75,6 +77,7 @@ rps_oid_equal (RpsOid lhs, RpsOid rhs)
 }
 
 
+/* Checks if an object ID is less than another. */
 inline bool
 rps_oid_less_than (RpsOid lhs, RpsOid rhs)
 {
@@ -82,6 +85,7 @@ rps_oid_less_than (RpsOid lhs, RpsOid rhs)
 }
 
 
+/* Checks if an object ID is less than or equal to another. */
 inline bool
 rps_oid_less_than_equal (RpsOid lhs, RpsOid rhs)
 {
@@ -89,6 +93,7 @@ rps_oid_less_than_equal (RpsOid lhs, RpsOid rhs)
 }
 
 
+/* Checks if an object ID is greater than another. */
 inline bool
 rps_oid_greater_than (RpsOid lhs, RpsOid rhs)
 {
@@ -96,6 +101,7 @@ rps_oid_greater_than (RpsOid lhs, RpsOid rhs)
 }
 
 
+/* Checks if an object ID is greater than or equal to another. */
 inline bool
 rps_oid_greater_than_equal (RpsOid lhs, RpsOid rhs)
 {

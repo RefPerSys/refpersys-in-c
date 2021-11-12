@@ -145,6 +145,8 @@ fail:
 
 
 
+/* The following functions are defined in oid_rps.h, and are wrappers around
+ * rps_oid_cmp(). */
 extern inline bool rps_oid_equal (const RpsOid lhs, const RpsOid rhs);
 extern inline bool rps_oid_less_than (RpsOid lhs, RpsOid rhs);
 extern inline bool rps_oid_less_than_equal (RpsOid lhs, RpsOid rhs);
@@ -152,6 +154,8 @@ extern inline bool rps_oid_greater_than (RpsOid lhs, RpsOid rhs);
 extern inline bool rps_oid_greater_than_equal (RpsOid lhs, RpsOid rhs);
 
 
+/* Compares two object IDs; the return values are analogous to those of
+ * strcmp(). */
 int
 rps_oid_cmp (const RpsOid oid1, const RpsOid oid2)
 {
