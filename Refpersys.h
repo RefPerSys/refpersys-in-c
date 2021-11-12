@@ -170,7 +170,8 @@ extern RpsValue_t rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv);
 
 //// Signature of extern "C" functions dlsymed for payload loading;
 //// their name starts with rpsldpy_ and the object has been locked..
-typedef void rpsldpysig_t(RpsObject_t*obz, RpsLoader_t*ld, const json_t*jv, int spaceindex);
+typedef void rpsldpysig_t (RpsObject_t * obz, RpsLoader_t * ld,
+			   const json_t * jv, int spaceindex);
 #define RPS_PAYLOADING_PREFIX "rpsldpy_"
 
 /// the dumper internals are in file dump_rps.c
@@ -402,13 +403,18 @@ extern void rps_object_reserve_components (RpsObject_t * obj,
   RpsObject_t* payl_owner
 
 /// By convention, the zm_type of payload is a small negative index, e.g. some RpsPyt_* 
-struct rps_owned_payload_st {
+struct rps_owned_payload_st
+{
   RPSFIELDS_OWNED_PAYLOAD;
 };
 
-void rps_object_put_payload(RpsObject_t*ob, void*payl);
-typedef void rps_payload_remover_t (RpsObject_t*, struct rps_owned_payload_st*, void*data);
-extern void rps_register_payload_removal(int paylty, rps_payload_remover_t*rout, void*data);
+void rps_object_put_payload (RpsObject_t * ob, void *payl);
+typedef void rps_payload_remover_t (RpsObject_t *,
+				    struct rps_owned_payload_st *,
+				    void *data);
+extern void rps_register_payload_removal (int paylty,
+					  rps_payload_remover_t * rout,
+					  void *data);
 
 
 /****************************************************************
@@ -455,6 +461,12 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
   RpsValue_t symb_value
 
 
+///// for RpsPyt_Symbol
+struct RpsPayl_Symbol_st
+{
+  RPSFIELDS_PAYLOAD_SYMBOL;
+};
+typedef struct RpsPayl_Symbol_st RpsSymbol_t;
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);

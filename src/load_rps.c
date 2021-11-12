@@ -606,12 +606,8 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 		  RPS_PAYLOADING_PREFIX "%s", json_string_value (jspayload));
 	void *routad = dlsym (rps_dlhandle, paylroutname);
 	if (!routad)
-	  RPS_FATAL
-	    ("failed dlsym %s: %s - for loading payload of object %s in space#%d\n... json %s",
-	     paylroutname, dlerror (), obidbuf, spix, json_dumps (jsobj,
-								  JSON_INDENT
-								  (2) |
-								  JSON_SORT_KEYS));
+	  RPS_FATAL ("failed dlsym %s: %s - for loading payload of object %s in space#%d\n... json %s", paylroutname, dlerror (), obidbuf, spix,	//
+		     json_dumps (jsobj, JSON_INDENT (2) | JSON_SORT_KEYS));
 	rpsldpysig_t *payloader = (rpsldpysig_t *) routad;
 	(*payloader) (obj, ld, jsobj, spix);
       }
