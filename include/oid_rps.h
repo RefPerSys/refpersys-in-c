@@ -43,7 +43,8 @@ typedef struct _RpsOid
   "abcdefghijklmnopqrstuvwxyz"		  \
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-#define RPS_NULL_OID ((RpsOid){id_hi:0, id_lo:0})
+#define RPS_OID_NULL ((RpsOid){id_hi:0, id_lo:0})
+
 #define RPS_OIDBUFLEN 24
 #define RPS_OIDBASE (sizeof(RPS_B62DIGITS)-1)
 #define RPS_MIN_OID_HI (62*62*62)

@@ -140,7 +140,7 @@ rps_cstr_to_oid (const char *cstr, const char **pend)
 fail:
   if (pend)
     *pend = cstr;
-  return RPS_NULL_OID;
+  return RPS_OID_NULL;
 }				/* end rps_cstr_to_oid */
 
 

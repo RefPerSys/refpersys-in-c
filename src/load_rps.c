@@ -240,7 +240,7 @@ void
 rps_load_initialize_root_objects (RpsLoader_t * loader)
 {
   RPS_ASSERT (rps_is_valid_loader (loader));
-  RpsOid oid = RPS_NULL_OID;
+  RpsOid oid = RPS_OID_NULL;
 #define RPS_INSTALL_ROOT_OB(Oidstr) do {			\
   oid= rps_cstr_to_oid(#Oidstr, NULL);				\
   RpsObject_t* rootob = rps_find_object_by_oid(oid);		\
@@ -398,7 +398,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	rps_check_all_objects_buckets_are_valid ();
       if (isspace (linbuf[0]))
 	continue;
-      RpsOid curobid = RPS_NULL_OID;
+      RpsOid curobid = RPS_OID_NULL;
       {
 	int endcol = -1;
 	char obidbuf[32];
@@ -497,7 +497,7 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
       RPS_ASSERT (str != NULL);
       if (str[0] == '_' && isdigit (str[1]))
 	{
-	  RpsOid oid = RPS_NULL_OID;
+	  RpsOid oid = RPS_OID_NULL;
 	  const char *end = NULL;
 	  oid = rps_cstr_to_oid (str, &end);
 	  if (end && *end == (char) 0 && rps_oid_is_valid (oid))
@@ -690,7 +690,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	rps_check_all_objects_buckets_are_valid ();
       if (isspace (linbuf[0]))
 	continue;
-      RpsOid curobid = RPS_NULL_OID;
+      RpsOid curobid = RPS_OID_NULL;
       {
 	int endcol = -1;
 	char obidbuf[32];
