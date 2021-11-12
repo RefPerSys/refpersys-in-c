@@ -69,16 +69,17 @@ rps_register_symbol (const char *name)
   RPS_ASSERT (name != NULL);
   pthread_mutex_lock (&rps_symbol_mtx);
   const RpsString_t *namestr = rps_alloc_string (name);
-  RpsSymbol_t pseudosymb = {.zm_type = -RpsPyt_Symbol,.zm_gcmark =
-      1,.symb_name = namestr };
-  struct internal_symbol_node_rps_st pseudonode = {.synodrps_symbol =
-      &pseudosymb };
+  RpsSymbol_t pseudosymb =	//
+  {.zm_type = -RpsPyt_Symbol,.zm_gcmark = 1,.symb_name = namestr };
+  struct internal_symbol_node_rps_st pseudonode	//
+  = {.synodrps_symbol = &pseudosymb };
   struct internal_symbol_node_rps_st *nod =
     kavl_find_rpsynod (rps_symbol_node_root, &pseudonode, NULL);
   if (!nod)
     {
       nod = RPS_ALLOC_ZEROED (sizeof (nod));
       symb = RPS_ALLOC_ZONE (sizeof (RpsSymbol_t), -RpsPyt_Symbol);
+      symb->symb_name = namestr;
       nod->synodrps_symbol = symb;
       kavl_insert_rpsynod (&rps_symbol_node_root, nod, NULL);
     }
@@ -97,9 +98,11 @@ rps_find_symbol (const char *name)
   pthread_mutex_lock (&rps_symbol_mtx);
   const RpsString_t *namestr = rps_alloc_string (name);
   RpsSymbol_t pseudosymb = {.zm_type = -RpsPyt_Symbol,.zm_gcmark =
-      1,.symb_name = namestr };
+      1,.symb_name = namestr
+  };
   struct internal_symbol_node_rps_st pseudonode = {.synodrps_symbol =
-      &pseudosymb };
+      &pseudosymb
+  };
   struct internal_symbol_node_rps_st *nod =
     kavl_find_rpsynod (rps_symbol_node_root, &pseudonode, NULL);
   if (nod && nod != &pseudonode)
