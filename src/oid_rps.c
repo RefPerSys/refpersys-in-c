@@ -44,7 +44,7 @@ rps_oid_is_null (const RpsOid oid)
 bool
 rps_oid_is_valid (const RpsOid oid)
 {
-  return oid.id_hi >= RPS_MIN_OID_HI && oid.id_hi < RPS_MAX_OID_HI
+  return oid.id_hi >= RPS_OID_HI_MIN && oid.id_hi < RPS_MAX_OID_HI
     && oid.id_lo >= RPS_MIN_OID_LO && oid.id_lo < RPS_MAX_OID_LO;
 }				/* end rps_oid_is_valid */
 
@@ -122,7 +122,7 @@ rps_cstr_to_oid (const char *cstr, const char **pend)
 	goto fail;
       hi = hi * 62 + (pcs - rps_sb62digits);
     }
-  if ((hi > 0 && hi < RPS_MIN_OID_HI) || hi >= RPS_MAX_OID_HI)
+  if ((hi > 0 && hi < RPS_OID_HI_MIN) || hi >= RPS_MAX_OID_HI)
     goto fail;
   for (const char *pcb = lasthi; *pcb && pcb < lastlo; pcb++)
     {

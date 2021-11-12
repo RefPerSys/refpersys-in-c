@@ -49,11 +49,12 @@ typedef struct _RpsOid
 
 #define RPS_OID_BASE (sizeof(RPS_B62DIGITS)-1)
 
-#define RPS_MIN_OID_HI (62*62*62)
+#define RPS_OID_HI_MIN (62*62*62)
+
 #define RPS_MAX_OID_HI /* 8392993658683402240, about 8.392994e+18 */ \
   ((uint64_t)10 * 62 * (62 * 62 * 62) * (62 * 62 * 62) * (62 * 62 * 62))
 #define RPS_NBDIGITS_OID_HI 11
-#define RPS_DELTA_OID_HI (RPS_MAX_OID_HI - RPS_MIN_OID_HI)
+#define RPS_DELTA_OID_HI (RPS_MAX_OID_HI - RPS_ID_HI_MIN)
 #define RPS_MIN_OID_LO (62*62*62)
 #define RPS_MAX_OID_LO /* about 3.52161e+12 */ \
   ((uint64_t)62 * (62L * 62 * 62) * (62 * 62 * 62))
