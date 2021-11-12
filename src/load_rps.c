@@ -547,7 +547,8 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
     RPS_ASSERT (mtime > 0.0 && mtime < 1e12);
     obj->ob_mtime = mtime;
   }
-  /// set the object attributes
+  /// load the object attributes
+  {
   json_t *jsattrarr = json_object_get (jsobj, "attrs");
   if (json_is_array (jsattrarr))
     {
@@ -572,12 +573,18 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 	    rps_attr_table_put (obj->ob_attrtable, atob, atval);
 	}
     }
+  }
+  /// load the object components
+  {
   json_t *jscomparr = json_object_get (jsobj, "comps");
   if (json_is_array (jscomparr))
     {
       int nbcomp = json_array_size (jscomparr);
       if (nbcomp > 0)
 	{
+	  /* Notice that the below call also locks the mutex. When C
+	     code is generated, we could avoid this useless
+	     lock.... */
 	  rps_object_reserve_components (obj, nbcomp);
 	  RPS_ASSERT(obj->ob_comparr != NULL);
 	  for (int cix=0; cix<nbcomp; cix++)
@@ -586,7 +593,24 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 	  obj->ob_nbcomp = nbcomp;
 	}
     }
-#warning rps_loader_fill_object_second_pass incomplete
+  }
+  //// load the object payload
+  {
+    json_t* jspayload = json_object_get(jsobj, "payload");
+    if (json_is_string(jspayload)) {
+      char paylroutname[80];
+      memset(paylroutname, 0, sizeof(paylroutname));
+      snprintf(paylroutname, sizeof(paylroutname),
+	       RPS_PAYLOADING_PREFIX "%s", json_string_value(jspayload));
+      void*routad = dlsym(rps_dlhandle, paylroutname);
+      if (!routad)
+	RPS_FATAL ("failed dlsym %s: %s - for loading payload of object %s in space#%d\n... json %s",
+		   paylroutname, dlerror(),  obidbuf, spix,
+		   json_dumps (jsobj, JSON_INDENT (2) | JSON_SORT_KEYS));
+      rpsldpysig_t*payloader = (rpsldpysig_t*)routad;
+      (*payloader)(obj, ld, jsobj, spix);
+    }
+  }
   pthread_mutex_unlock (&obj->ob_mtx);
   RPS_FATAL
     ("unimplemented rps_loader_fill_object_second_pass spix#%d object %s\n... json %s",

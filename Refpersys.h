@@ -168,6 +168,9 @@ extern unsigned rps_loader_nb_constants (RpsLoader_t * ld);
 extern RpsValue_t rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv);
 
 
+//// signature of extern "C" functions dlsymed for payload loading; their name starts with rpsldpy_
+typedef void rpsldpysig_t(RpsObject_t*obz, RpsLoader_t*ld, const json_t*jv, int spaceindex);
+#define RPS_PAYLOADING_PREFIX "rpsldpy_"
 
 /// the dumper internals are in file dump_rps.c
 typedef struct RpsPayl_Dumper_st RpsDumper_t;	///// forward declaration
