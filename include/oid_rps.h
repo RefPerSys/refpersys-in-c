@@ -45,7 +45,8 @@ typedef struct _RpsOid
 
 #define RPS_OID_NULL ((RpsOid){id_hi:0, id_lo:0})
 
-#define RPS_OIDBUFLEN 24
+#define RPS_OID_BUFLEN 24
+
 #define RPS_OIDBASE (sizeof(RPS_B62DIGITS)-1)
 #define RPS_MIN_OID_HI (62*62*62)
 #define RPS_MAX_OID_HI /* 8392993658683402240, about 8.392994e+18 */ \
@@ -64,7 +65,7 @@ typedef struct _RpsOid
 extern bool rps_oid_is_null (const RpsOid oid);
 extern bool rps_oid_is_valid (const RpsOid oid);
 extern int rps_oid_cmp (const RpsOid oid1, const RpsOid oid2);
-extern void rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OIDBUFLEN]);
+extern void rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN]);
 extern RpsOid rps_cstr_to_oid (const char *cstr, const char **pend);
 extern unsigned rps_oid_bucket_num (const RpsOid oid);
 extern RpsHash_t rps_oid_hash (const RpsOid oid);

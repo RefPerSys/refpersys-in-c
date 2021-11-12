@@ -63,7 +63,7 @@ rps_oid_hash (const RpsOid oid)
 }				/* end rps_oid_hash */
 
 void
-rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OIDBUFLEN])
+rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
 {
   if (!cbuf)
     return;
@@ -76,7 +76,7 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OIDBUFLEN])
     return;
   /// example cbuf = "_0abcdefghijABCDEFG"
   ///                  |0         |11    |19
-  memset (cbuf, 0, RPS_OIDBUFLEN);
+  memset (cbuf, 0, RPS_OID_BUFLEN);
   char *last = cbuf + RPS_NBDIGITS_OID_HI;
   char *pc = last;
   cbuf[0] = '_';
