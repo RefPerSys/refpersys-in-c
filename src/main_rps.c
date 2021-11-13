@@ -28,6 +28,8 @@
  ******************************************************************************/
 
 #include "Refpersys.h"
+/* for mallopt: */
+#include <malloc.h>
 
 /********* global variables ********/
 bool rps_running_in_batch;
@@ -392,6 +394,8 @@ int
 main (int argc, char **argv)
 {
   rps_progname = argv[0];
+#warning temporary call to mallopt. Should be removed once loading completes.
+  mallopt (M_CHECK_ACTION, 03);
   rps_main_thread_handle = pthread_self ();
   pthread_setname_np (rps_main_thread_handle, "rps-main");
   rps_backtrace_common_state =
