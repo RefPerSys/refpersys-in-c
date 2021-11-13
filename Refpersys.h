@@ -502,7 +502,7 @@ extern RpsSymbol_t *rps_register_symbol (const char *name);
   uint64_t pclass_magic /*always RPS_CLASSINFO_MAGIC*/;         \
   RpsObject_t* pclass_super /*:superclass*/;			\
   RpsAttrTable_t *pclass_methdict/*:method dictionary*/;	\
-  RpsObject_t* pclass_symbol /*:optional symbol*/
+  RpsObject_t* pclass_symbol	/*:optional symbol */
 
 #define RPS_CLASSINFO_MAGIC 0x3d3c6b284031d237UL
 
