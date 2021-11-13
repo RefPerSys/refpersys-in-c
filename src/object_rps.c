@@ -889,6 +889,31 @@ rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
   RPS_ASSERT (rps_is_valid_loader (ld));
   RPS_ASSERT (jv != NULL && json_is_object (jv));
   RPS_ASSERT (spacix >= 0);
+  json_t *jsclassmethdict = json_object_get (jv, "class_methodict");
+  json_t *jsclassname = json_object_get (jv, "class_name");
+  json_t *jsclasssuper = json_object_get (jv, "class_super");
+  json_t *jsclasssymb = json_object_get (jv, "class_symbol");
+  RPS_ASSERT (jsclassmethdict != NULL);
+  RPS_ASSERT (jsclassname != NULL);
+  RPS_ASSERT (jsclasssuper != NULL);
+  RpsClassInfo_t *clinf =
+    RPS_ALLOC_ZONE (sizeof (RpsClassInfo_t), -RpsPyt_ClassInfo);
+  clinf->payl_owner = obj;
+  if (json_is_array (jsclassmethdict))
+    {
+      int nbmeth = json_array_size (jsclassmethdict);
+      RpsAttrTable_t *methdict =
+	rps_alloc_empty_attr_table (nbmeth + nbmeth / 8 + 2);
+      for (int mix = 0; mix < nbmeth; mix++)
+	{
+	  json_t *jsmethent = json_array_get (jsclassmethdict, mix);
+	  RPS_ASSERT (json_is_object (jsmethent));
+	  json_t *jsmethosel = json_object_get (jsmethent, "methosel");
+	  json_t *jsmethclos = json_object_get (jsmethent, "methclos");
+	}
+      clinf->pclass_methdict = methdict;
+    }
+
 #warning unimplememented rpsldpy_classinfo
   RPS_FATAL ("unimplememented rpsldpy_classinfo\n.. jv=%s",
 	     json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
