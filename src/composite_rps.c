@@ -94,7 +94,7 @@ rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr)
   RpsSetOb_t *set = NULL;
   if (!arr && nbcomp > 0)
     return NULL;
-  RpsObject_t **arrcpy =
+  const RpsObject_t **arrcpy =
     RPS_ALLOC_ZEROED ((nbcomp + 1) * sizeof (RpsObject_t *));
   memcpy (arrcpy, arr, nbcomp * sizeof (RpsObject_t *));
   rps_object_array_qsort (arrcpy, (int) nbcomp);
