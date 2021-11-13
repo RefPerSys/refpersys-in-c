@@ -874,4 +874,24 @@ end:
 }				/* end of rps_object_put_payload */
 
 
+
+
+
+void
+rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
+		   const json_t * jv, int spacix)
+{
+  char idbuf[32];
+  memset (idbuf, 0, sizeof (idbuf));
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_object (obj));
+  rps_oid_to_cbuf (obj->ob_id, idbuf);
+  RPS_ASSERT (rps_is_valid_loader (ld));
+  RPS_ASSERT (jv != NULL && json_is_object (jv));
+  RPS_ASSERT (spacix >= 0);
+#warning unimplememented rpsldpy_classinfo
+  RPS_FATAL ("unimplememented rpsldpy_classinfo\n.. jv=%s",
+	     json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+}				/* end rpsldpy_classinfo */
+
 /*************** end of file object_rps.c ****************/

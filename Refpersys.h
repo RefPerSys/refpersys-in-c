@@ -6,10 +6,6 @@
  *      This file is part of the Reflective Persistent System.
  *      It is almost its only public C11 header file.
  *
- * Author(s):
- *      Basile Starynkevitch <basile@starynkevitch.net>
- *      Abhishek Chakravarti <abhishek@taranjali.org>
- *      Nimesh Neema <nimeshneema@gmail.com>
  *
  *      © Copyright 2019 - 2021 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
@@ -469,6 +465,27 @@ struct RpsPayl_Symbol_st
 typedef struct RpsPayl_Symbol_st RpsSymbol_t;
 extern RpsSymbol_t *rps_find_symbol (const char *name);
 extern RpsSymbol_t *rps_register_symbol (const char *name);
+
+
+
+/****************************************************************
+ * Class information payload
+ ****************************************************************/
+#define RPSFIELDS_PAYLOAD_CLASSINFO				\
+  RPSFIELDS_OWNED_PAYLOAD;					\
+  uint64_t pclass_magic /*always RPS_CLASSINFO_MAGIC*/;         \
+  RpsObject_t* pclass_super /*:superclass*/;			\
+  RpsAttrTable_t *pclass_methdict/*:method dictionary*/;	\
+  RpsObject_t* pclass_symbol /*:optional symbol*/;		\
+  RpsSetOb_t*pclass_attrset	/*:set of attributes */
+
+#define RPS_CLASSINFO_MAGIC 0x3d3c6b284031d237UL
+
+struct RpsPayl_ClassInfo_st
+{
+  RPSFIELDS_PAYLOAD_CLASSINFO;
+};
+typedef struct RpsPayl_ClasInfo_st RpsClassInfo_t;
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
