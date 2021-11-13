@@ -499,7 +499,7 @@ rps_loader_json_to_object (RpsLoader_t * ld, json_t * jv)
       json_t *joid = json_object_get (jv, "oid");
       if (joid && json_is_string (joid))
 	{
-	  const char*end = NULL;
+	  const char *end = NULL;
 	  oid = rps_cstr_to_oid (json_string_value (joid), &end);
 	  if (end && *end == 0)
 	    obres = rps_find_object_by_oid (oid);
@@ -794,6 +794,8 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 		 json_string_value (jsoid), obidbuf);
 	    RpsObject_t *curob = rps_find_object_by_oid (curobid);
 	    RPS_ASSERT (curob != NULL);
+	    printf ("before ldfillobj2ndpass obidbuf=%s lincnt=%d (%s:%d)\n",
+		    obidbuf, lincnt, __FILE__, __LINE__);
 	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject);
 	    objcount++;
 	    json_decref (jsobject);
