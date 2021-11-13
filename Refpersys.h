@@ -137,6 +137,7 @@ enum RpsType
   RPS_TYPE_GTKWIDGET,		/* some GtkWidget* pointer; of course GTK widgets are not persisted */
   RPS_TYPE_TUPLE,
   RPS_TYPE_SET,
+  RPS_TYPE_CLOSURE,
   RPS_TYPE_OBJECT,
   RPS_TYPE_FILE,		/* some opened FILE* handle; of course they are not persisted */
   RPS_TYPE__LAST
@@ -344,7 +345,30 @@ const RpsSetOb_t *rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr);
 const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 
 
+/****************************************************************
+ * Closures.
+ ****************************************************************/
+#define RPSFIELDS_CLOSURE \
+  RPSFIELDS_ZONED_VALUE; \
+  RpsObject_t* clos_conn; \
+  RpsValue_t clos_meta; \
+  RpsValue_t clos_val[]		/*of zv_size */
 
+#define RPS_CLOSURE_MAX_NB_VALUE 1024
+struct RpsClosure_st
+{
+  RPSFIELDS_CLOSURE;
+};
+typedef struct RpsClosure_st RpsClosure_t;
+
+const RpsClosure_t *rps_closure_make (RpsObject_t * conn, unsigned arity,
+				      ...);
+const RpsClosure_t *rps_closure_meta_make (RpsObject_t * conn,
+					   RpsValue_t meta, unsigned arity,
+					   ...);
+const RpsClosure_t *rps_closure_array_make (RpsObject_t * conn,
+					    RpsValue_t meta, unsigned arity,
+					    RpsValue_t * cvalarr);
 
 /****************************************************************
  * Mutable and mutexed heavy objects.
