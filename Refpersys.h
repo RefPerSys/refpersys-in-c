@@ -164,6 +164,7 @@ extern unsigned rps_loader_nb_globals (RpsLoader_t * ld);
 extern unsigned rps_loader_nb_constants (RpsLoader_t * ld);
 extern RpsValue_t rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv);
 
+extern RpsObject_t *rps_loader_json_to_object (RpsLoader_t * ld, json_t * jv);
 
 //// Signature of extern "C" functions dlsymed for payload loading;
 //// their name starts with rpsldpy_ and the object has been locked..
@@ -383,7 +384,7 @@ const RpsClosure_t *rps_closure_array_make (RpsObject_t * conn,
   RpsAttrTable_t* ob_attrtable /*unowned!*/;	\
   unsigned ob_nbcomp;                           \
   unsigned ob_compsize;                         \
-  RpsValue_t**ob_comparr;                       \
+  RpsValue_t*ob_comparr;                       \
   void* ob_payload
 				/* other fields missing */
 
