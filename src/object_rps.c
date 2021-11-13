@@ -910,13 +910,16 @@ rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
 	  RPS_ASSERT (json_is_object (jsmethent));
 	  json_t *jsmethosel = json_object_get (jsmethent, "methosel");
 	  json_t *jsmethclos = json_object_get (jsmethent, "methclos");
+	  RpsObject_t *methselob = rps_loader_json_to_object (ld, jsmethosel);
+	  RpsValue_t methclos = rps_loader_json_to_value(ld, jsmethclos);
+	  methdict = rps_attr_table_put(methdict, methselob, methclos);
 	}
       clinf->pclass_methdict = methdict;
     }
-
-#warning unimplememented rpsldpy_classinfo
-  RPS_FATAL ("unimplememented rpsldpy_classinfo\n.. jv=%s",
-	     json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
-}				/* end rpsldpy_classinfo */
+  if (jsclasssuper != NULL) {
+  }
+  RPS_FATAL("rpsldpy_classinfo incomplete idbuf=%s\n.. jv=%s", idbuf,
+	    json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+} /* end rpsldpy_classinfo */
 
 /*************** end of file object_rps.c ****************/
