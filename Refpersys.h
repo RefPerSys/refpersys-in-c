@@ -192,6 +192,7 @@ enum
   RpsPyt_AttrTable,		/* associate objects to values */
   RpsPyt_StringBuf,		/* mutable string buffer */
   RpsPyt_Symbol,		/* symbol */
+  RpsPyt_ClassInfo,		/* class */
   RpsPyt__LAST
 };
 
