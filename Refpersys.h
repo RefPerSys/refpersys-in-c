@@ -486,7 +486,7 @@ struct RpsPayl_ClassInfo_st
 {
   RPSFIELDS_PAYLOAD_CLASSINFO;
 };
-typedef struct RpsPayl_ClasInfo_st RpsClassInfo_t;
+typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
