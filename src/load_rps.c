@@ -480,6 +480,34 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 
 
 
+RpsObject_t *
+rps_loader_json_to_object (RpsLoader_t * ld, json_t * jv)
+{
+  RpsObject_t *obres = NULL;
+  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  RPS_ASSERT (jv != NULL);
+  RpsOid oid = RPS_OID_NULL;
+  if (json_is_string (jv))
+    {
+      const char *end = NULL;
+      oid = rps_cstr_to_oid (json_string_value (jv), &end);
+      if (end && *end == 0)
+	obres = rps_find_object_by_oid (oid);
+    }
+  else if (json_is_object (jv))
+    {
+      json_t *joid = json_object_get (jv, "oid");
+      if (joid && json_is_string (joid))
+	{
+	  const char*end = NULL;
+	  oid = rps_cstr_to_oid (json_string_value (joid), &end);
+	  if (end && *end == 0)
+	    obres = rps_find_object_by_oid (oid);
+	}
+    }
+  return obres;
+}				/* end rps_loader_json_to_object */
+
 RpsValue_t
 rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 {
