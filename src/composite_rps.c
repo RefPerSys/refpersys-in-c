@@ -218,3 +218,15 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
   va_end (arglist);
   return clos;
 }				/* end rps_closure_meta_make */
+
+
+/* loading mutable set of objects */
+void
+rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
+	       int spix)
+{
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  RPS_FATAL ("unimplemented rpsldpy_setob spix#%d jv\n..%s",
+	     spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+}	/* end rpsldpy_setob */
