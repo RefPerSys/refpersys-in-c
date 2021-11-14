@@ -77,7 +77,7 @@ rps_register_symbol (const char *name)
     kavl_find_rpsynod (rps_symbol_node_root, &pseudonode, NULL);
   if (!nod)
     {
-      nod = RPS_ALLOC_ZEROED (sizeof (nod));
+      nod = RPS_ALLOC_ZEROED (sizeof (struct internal_symbol_node_rps_st));
       symb = RPS_ALLOC_ZONE (sizeof (RpsSymbol_t), -RpsPyt_Symbol);
       symb->symb_name = namestr;
       nod->synodrps_symbol = symb;
@@ -133,3 +133,6 @@ rpsldpy_symbol (RpsObject_t * obj, RpsLoader_t * ld,
   pysymb->payl_owner = obj;
   obj->ob_payload = pysymb;
 }				/* end rpsldpy_symbol */
+
+
+/*************** end of file symbol_rps.c ***********/

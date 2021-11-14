@@ -137,7 +137,8 @@ rps_object_reserve_components (RpsObject_t * obj, unsigned nbcomp)
   if ((oldnbcomp + 2) >= oldcompsize)
     {
       unsigned newcompsize = rps_prime_above (oldnbcomp + oldnbcomp / 3 + 3);
-      RPS_ASSERT (newcompsize < RPS_MAX_NB_OBJECT_COMPONENTS);
+      RPS_ASSERT (newcompsize > 0
+		  && newcompsize < RPS_MAX_NB_OBJECT_COMPONENTS);
       RpsValue_t **newcomparr =
 	RPS_ALLOC_ZEROED (sizeof (RpsObject_t *) * newcompsize);
       for (unsigned ix = 0; ix < oldnbcomp; ix++)
@@ -181,7 +182,7 @@ rps_alloc_empty_attr_table (unsigned size)
   RPS_ASSERT (primix >= 0 && primix < 256);
   tb =
     RPS_ALLOC_ZONE (sizeof (RpsAttrTable_t) +
-		    primsiz * sizeof (struct rps_attrentry_st),
+		    (primsiz * sizeof (struct rps_attrentry_st)),
 		    -RpsPyt_AttrTable);
   tb->zm_xtra = primix;
   tb->zm_length = 0;
@@ -357,7 +358,7 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 	{
 	  RpsAttrTable_t *new_tbl =
 	    RPS_ALLOC_ZONE (sizeof (RpsAttrTable_t) +
-			    newprimsiz * sizeof (struct rps_attrentry_st),
+			    (newprimsiz * sizeof (struct rps_attrentry_st)),
 			    -RpsPyt_AttrTable);
 	  new_tbl->zm_xtra = newprimix;
 	  new_tbl->zm_length = 0;

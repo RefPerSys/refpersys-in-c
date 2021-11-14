@@ -151,7 +151,7 @@ rps_compute_json_two_hash (int depth, const json_t * js, long *pl1, long *pl2)
     {
     case JSON_OBJECT:
       {
-	size_t jsz = json_object_size (js);
+	size_t jsz = json_object_size (js) + 1;
 	const char **arrkey = RPS_ALLOC_ZEROED (jsz * sizeof (const char *));
 	int cnt = 0;
 	{
@@ -337,7 +337,7 @@ rps_alloc_string (const char *str)
   int slen = strlen (str);
   if (!g_utf8_validate (str, slen, NULL))
     RPS_FATAL ("bad non-UTF string of %d char to rps_alloc_string", slen);
-  int rndslen = ((slen + 2) | 3) + 1;	// round allocation length to multiple of four
+  int rndslen = ((slen + 3) | 7) + 1;	// round-up allocation length to multiple of eight bytes
   res = RPS_ALLOC_ZONE (sizeof (RpsString_t) + rndslen, RPS_TYPE_STRING);
   res->zv_hash = rps_hash_cstr (str);
   memcpy (res->cstr, str, slen);

@@ -183,6 +183,7 @@ rps_load_parse_manifest (RpsLoader_t * ld)
   if (json_is_array (jsglobroot))
     {
       unsigned nbgr = json_array_size (jsglobroot);
+      RPS_ASSERT (nbgr > 0);
       ld->ld_nbglobroot = 0;
       ld->ld_globrootarr = RPS_ALLOC_ZEROED (nbgr * sizeof (RpsObject_t *));
       rps_initialize_objects_for_loading (ld, totnbob);

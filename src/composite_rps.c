@@ -113,6 +113,7 @@ rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr)
   if (set->set_elem[nbel] != arrcpy[nbcomp - 1] && arrcpy[nbcomp - 1])
     set->set_elem[nbel++] = arrcpy[nbcomp - 1];
   free (arrcpy);
+  RPS_ASSERT (card == nbel);
   return set;
 }				/* end rps_alloc_set_sized */
 
