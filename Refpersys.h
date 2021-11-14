@@ -195,6 +195,7 @@ enum
   RpsPyt_StringBuf,		/* mutable string buffer */
   RpsPyt_Symbol,		/* symbol */
   RpsPyt_ClassInfo,		/* class */
+  RpsPyt_MutableSetOb,		/* mutable set of objects */
   RpsPyt__LAST
 };
 
@@ -511,6 +512,22 @@ struct RpsPayl_ClassInfo_st
   RPSFIELDS_PAYLOAD_CLASSINFO;
 };
 typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
+
+/****************************************************************
+ * Mutable ordered set of objects payload
+ ****************************************************************/
+#define RPSFIELDS_PAYLOAD_MUTABLESETOB			\
+  RPSFIELDS_OWNED_PAYLOAD;			\
+  uintptr_t set_data[6]
+
+/*internally we use "kavl.h" */
+
+///// for RpsPyt_MutableSetOb
+struct RpsPayl_MutableSetOb_st
+{
+  RPSFIELDS_PAYLOAD_MUTABLESETOB;
+};
+typedef struct RpsPayl_MutableSetOb_st RpsMutableSetOb_t;
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);

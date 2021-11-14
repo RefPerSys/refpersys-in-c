@@ -28,6 +28,8 @@
 
 #include "Refpersys.h"
 
+#include "kavl.h"
+
 const RpsTupleOb_t *
 rps_alloc_tuple_sized (unsigned arity, RpsObject_t ** arr)
 {
@@ -219,6 +221,32 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
   return clos;
 }				/* end rps_closure_meta_make */
 
+struct internal_mutable_set_ob_node_st
+{
+  RpsObject_t *setob_elem;
+    KAVL_HEAD (struct internal_mutable_set_ob_node_st) setobrps_head;
+};
+
+static int
+rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_st
+			     *left,
+			     const struct internal_mutable_set_ob_node_st
+			     *right)
+{
+  RPS_ASSERT (left);
+  RPS_ASSERT (right);
+  RpsObject_t *obleft = left->setob_elem;
+  RpsObject_t *obright = right->setob_elem;
+  RPS_ASSERT (obleft != NULL && obleft->zm_type == RPS_TYPE_OBJECT);
+  RPS_ASSERT (obright != NULL && obright->zm_type == RPS_TYPE_OBJECT);
+  if (obleft == obright)
+    return 0;
+  return rps_oid_cmp (obleft->ob_id, obright->ob_id);
+}				/* end rps_mutable_set_ob_node_cmp */
+
+KAVL_INIT (rpsmusetob, struct internal_mutable_set_ob_node_st, setobrps_head,
+	   rps_mutable_set_ob_node_cmp);
+
 
 /* loading mutable set of objects */
 void
@@ -227,6 +255,18 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 {
   RPS_ASSERT (obj != NULL);
   RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  json_t *jssetob = json_object_get (jv, "setob");
+  if (jssetob && json_is_array (jssetob))
+    {
+      int card = (int) json_array_size (jssetob);
+      for (int ix = 0; ix < card; ix++)
+	{
+	  json_t *jcurelem = json_array_get (jssetob, ix);
+	  if (json_is_string (jcurelem))
+	    {
+	    }
+	}
+    }
   RPS_FATAL ("unimplemented rpsldpy_setob spix#%d jv\n..%s",
 	     spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
-}	/* end rpsldpy_setob */
+}				/* end rpsldpy_setob */
