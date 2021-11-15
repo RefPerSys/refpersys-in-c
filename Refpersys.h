@@ -59,6 +59,7 @@
 #include <stdint.h>
 #include <stdatomic.h>
 #include <stdbool.h>
+#include <stdalign.h>
 #include <math.h>
 #include <limits.h>
 
@@ -513,14 +514,20 @@ struct RpsPayl_ClassInfo_st
 };
 typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
 
+
+
+
+
+
 /****************************************************************
- * Mutable ordered set of objects payload
+ * Mutable ordered set of objects payload for -RpsPyt_MutableSetOb
  ****************************************************************/
 #define RPSFIELDS_PAYLOAD_MUTABLESETOB			\
   RPSFIELDS_OWNED_PAYLOAD;			\
-  uintptr_t set_data[6]
+  uintptr_t muset_data[6]
 
-/*internally we use "kavl.h" */
+/* Internally we use "kavl.h"; see struct
+  internal_mutable_set_ob_node_st inside file src/composite_rps.c */
 
 ///// for RpsPyt_MutableSetOb
 struct RpsPayl_MutableSetOb_st
