@@ -248,13 +248,27 @@ KAVL_INIT (rpsmusetob, struct internal_mutable_set_ob_node_st, setobrps_head,
 	   rps_mutable_set_ob_node_cmp);
 
 
+static inline struct internal_mutable_set_ob_node_st *
+rps_payl_muset_data (RpsMutableSetOb_t * payl)
+{
+  RPS_ASSERT (payl && payl->zm_type == -RpsPyt_MutableSetOb);
+  return (struct internal_mutable_set_ob_node_st *) (payl->muset_data);
+}				/* end rps_payl_muset_data */
+
 /* loading mutable set of objects */
 void
 rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	       int spix)
 {
+  RpsMutableSetOb_t *paylsetob = NULL;
   RPS_ASSERT (obj != NULL);
   RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  RPS_ASSERT (sizeof (struct internal_mutable_set_ob_node_st)
+	      <= sizeof (paylsetob->muset_data));
+  RPS_ASSERT (alignof (struct internal_mutable_set_ob_node_st)
+	      <= alignof (paylsetob->muset_data));
+  paylsetob = RPS_ALLOC_ZONE (sizeof (RpsMutableSetOb_t),
+			      -RpsPyt_MutableSetOb);
   json_t *jssetob = json_object_get (jv, "setob");
   if (jssetob && json_is_array (jssetob))
     {
@@ -264,9 +278,17 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	  json_t *jcurelem = json_array_get (jssetob, ix);
 	  if (json_is_string (jcurelem))
 	    {
+	      RpsObject_t *elemob
+		= rps_load_create_object_from_json_id (ld, jcurelem);
+#warning missing code in rpsldpy_setob to add elem to the payload
+	      /* Inspiration should be taken from existing code in rps_register_symbol file symbol_rps.c */
 	    }
 	}
     }
   RPS_FATAL ("unimplemented rpsldpy_setob spix#%d jv\n..%s",
 	     spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rpsldpy_setob */
+
+
+
+/***************** end of file composite_rps.c from refpersys.org **********/
