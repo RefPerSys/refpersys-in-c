@@ -197,6 +197,8 @@ enum
   RpsPyt_Symbol,		/* symbol */
   RpsPyt_ClassInfo,		/* class */
   RpsPyt_MutableSetOb,		/* mutable set of objects */
+  RpsPyt_Tasklet,
+  RpsPyt_Agenda,
   RpsPyt__LAST
 };
 
@@ -525,7 +527,7 @@ typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
 /****************************************************************
  * Mutable ordered set of objects payload for -RpsPyt_MutableSetOb
  ****************************************************************/
-#define RPSFIELDS_PAYLOAD_MUTABLESETOB			\
+#define RPSFIELDS_PAYLOAD_MUTABLESETOB		\
   RPSFIELDS_OWNED_PAYLOAD;			\
   uintptr_t muset_data[6]
 
@@ -548,6 +550,42 @@ extern void rps_object_mutable_set_remove (RpsObject_t * obset,
 					   RpsValue_t val);
 /// build the set inside a mutable set
 extern RpsSetOb_t *rps_object_mutable_set_reify (RpsObject_t * obset);
+
+
+/****************************************************************
+ * Tasklet payload for -RpsPyt_Tasklet
+ ****************************************************************/
+#define RPSFIELDS_PAYLOAD_TASKLET		\
+  RPSFIELDS_OWNED_PAYLOAD;			\
+  double tasklet_obsoltime;			\
+  RpsClosure_t* tasklet_closure;		\
+  bool tasklet_transient
+
+struct RpsPayl_Tasklet_st {
+  RPSFIELDS_PAYLOAD_TASKLET;
+};
+typedef struct RpsPayl_Tasklet_st RpsTasklet_t;
+
+/****************************************************************
+ * Agenda payload for -RpsPyt_Agenda
+ ****************************************************************/
+#define RPSFIELDS_PAYLOAD_AGENDA		\
+  RPSFIELDS_OWNED_PAYLOAD;			\
+
+enum RpsAgendaPrio_en {
+    AgPrio_Idle= -1,
+    AgPrio__None= 0,
+    AgPrio_Low,
+    AgPrio_Normal,
+    AgPrio_High,
+    AgPrio__LAST
+};
+struct RpsPayl_Agenda_st {
+  RPSFIELDS_PAYLOAD_AGENDA;
+  RpsObject_t* agenda_que[AgPro__LAST];
+};
+typedef struct RpsPayl_Agenda_st RpsAgenda_t;
+
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_abort (void) __attribute__((noreturn));
