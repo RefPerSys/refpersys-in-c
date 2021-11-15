@@ -39,7 +39,7 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
   rps_oid_to_cbuf (obj->ob_id, idbuf);
   RPS_ASSERT (rps_is_valid_filling_loader (ld));
   RPS_ASSERT (json_is_object (jv));
-  RPS_ASSERT (spix > 0);
+  RPS_ASSERT (spix >= 0);
 #warning rpsldpy_agenda unimplemented
   RPS_FATAL ("unimplemented rpsldpy_agenda obj %s spix#%d\n..jv=%s",
 	     idbuf, spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
