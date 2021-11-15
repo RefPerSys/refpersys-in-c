@@ -324,6 +324,8 @@ struct RpsZoneTupleOb_st
   RPSFIELDS_TUPLEOB;
 };
 typedef struct RpsZoneTupleOb_st RpsTupleOb_t;	/* for RPS_TYPE_TUPLE */
+unsigned rps_vtuple_size (const RpsTupleOb_t * tup);
+RpsObject_t *rps_vtuple_nth (const RpsTupleOb_t * tup, int rk);
 const RpsTupleOb_t *rps_alloc_vtuple (unsigned arity, /*objects */ ...);
 const RpsTupleOb_t *rps_alloc_tuple_sized (unsigned arity,
 					   RpsObject_t ** arr);
@@ -336,7 +338,7 @@ const RpsTupleOb_t *rps_load_tuple (const json_t * js, RpsLoader_t * ld);
  ****************************************************************/
 #define RPSFIELDS_SETOB \
   RPSFIELDS_ZONED_VALUE; \
-  RpsObject_t* set_elem[]	/* zv_size is the number of elements, and they are ordered by oid */
+  const RpsObject_t* set_elem[]	/* zv_size is the number of elements, and they are ordered by oid */
 
 struct RpsZoneSetOb_st
 {
@@ -344,7 +346,8 @@ struct RpsZoneSetOb_st
 };
 typedef struct RpsZoneSetOb_st RpsSetOb_t;	/* for RPS_TYPE_SET */
 const RpsSetOb_t *rps_alloc_vset (unsigned card, /*objects */ ...);
-const RpsSetOb_t *rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr);
+const RpsSetOb_t *rps_alloc_set_sized (unsigned nbcomp,
+				       const RpsObject_t ** arr);
 const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 
 
@@ -536,6 +539,15 @@ struct RpsPayl_MutableSetOb_st
 };
 typedef struct RpsPayl_MutableSetOb_st RpsMutableSetOb_t;
 
+/// initialize the payload to an empty mutable set
+extern void rps_object_mutable_set_initialize (RpsObject_t *);
+/// add an object, all objects of a tuple, a set.... into a mutable set
+extern void rps_object_mutable_set_add (RpsObject_t * obset, RpsValue_t val);
+/// remove an object, all object of a tuple, a set.... into a mutable set
+extern void rps_object_mutable_set_remove (RpsObject_t * obset,
+					   RpsValue_t val);
+/// build the set inside a mutable set
+extern RpsSetOb_t *rps_object_mutable_set_reify (RpsObject_t * obset);
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_abort (void) __attribute__((noreturn));

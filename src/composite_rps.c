@@ -89,9 +89,33 @@ rps_alloc_vtuple (unsigned arity, ...)
   return tup;
 }				/* end rps_alloc_vtuple */
 
+unsigned
+rps_vtuple_size (const RpsTupleOb_t * tup)
+{
+  if (tup == NULL || rps_value_type (tup) != RPS_TYPE_TUPLE)
+    return 0;
+  return tup->zm_length;
+}				/* end rps_vtuple_size */
+
+RpsObject_t *
+rps_vtuple_nth (const RpsTupleOb_t * tup, int rk)
+{
+  if (tup == NULL || rps_value_type (tup) != RPS_TYPE_TUPLE)
+    return NULL;
+  unsigned sz = tup->zm_length;
+  if (rk < 0)
+    rk += (int) sz;
+  if (rk >= 0 && rk < sz)
+    return tup->tuple_comp[rk];
+  return NULL;
+}				/* end rps_vtuple_nth */
+
+
+
+
 
 const RpsSetOb_t *
-rps_alloc_set_sized (unsigned nbcomp, RpsObject_t ** arr)
+rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
 {
   RpsSetOb_t *set = NULL;
   if (!arr && nbcomp > 0)
@@ -285,12 +309,93 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	    RPS_ALLOC_ZEROED (sizeof
 			      (struct internal_mutable_set_ob_node_st));
 	  newnod->setob_elem = elemob;
-	  kavl_insert_rpsmusetob (musetdata, newnod, NULL);
-	}
+	  kavl_insert_rpsmusetob (&musetdata, newnod, NULL);
+	};
+      paylsetob->zm_length = card;
     }
   rps_object_put_payload (obj, paylsetob);
 }				/* end rpsldpy_setob */
 
 
+void
+rps_object_mutable_set_initialize (RpsObject_t * obj)
+{
+  RpsMutableSetOb_t *paylsetob = NULL;
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  RPS_ASSERT (sizeof (struct internal_mutable_set_ob_node_st)
+	      <= sizeof (paylsetob->muset_data));
+  RPS_ASSERT (alignof (struct internal_mutable_set_ob_node_st)
+	      <= alignof (paylsetob->muset_data));
+  paylsetob = RPS_ALLOC_ZONE (sizeof (RpsMutableSetOb_t),
+			      -RpsPyt_MutableSetOb);
+  rps_object_put_payload (obj, paylsetob);
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end rps_object_mutable_set_initialize */
+
+static void
+rps_mutable_set_add1 (RpsMutableSetOb_t * payl, const RpsObject_t * ob)
+{
+  RPS_ASSERT (payl->zm_type == -RpsPyt_MutableSetOb);
+  RPS_ASSERT (ob && rps_is_valid_object ((RpsObject_t *) ob));
+  struct internal_mutable_set_ob_node_st *musetdata =
+    rps_payl_muset_data (payl);
+  RPS_ASSERT (musetdata != NULL);
+  struct internal_mutable_set_ob_node_st *newnod =
+    RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_st));
+  newnod->setob_elem = ob;
+  struct internal_mutable_set_ob_node_st *oldnod =
+    kavl_insert_rpsmusetob (&musetdata, newnod, NULL);
+  if (oldnod != newnod)
+    return;
+  payl->zm_length++;
+}				/* end rps_mutable_set_add1 */
+
+void
+rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
+{
+  RpsMutableSetOb_t *paylsetob = NULL;
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_object (obj));
+  if (!val || val == RPS_NULL_VALUE || (val & 1))
+    return;
+  enum RpsType vtyp = rps_value_type (val);
+  pthread_mutex_lock (&obj->ob_mtx);
+  if (!obj->ob_payload)
+    goto end;
+  if (((RpsMutableSetOb_t *) (obj->ob_payload))->zm_type ==
+      -RpsPyt_MutableSetOb)
+    paylsetob = (RpsMutableSetOb_t *) (obj->ob_payload);
+  else
+    goto end;
+  switch (vtyp)
+    {
+    case RPS_TYPE_TUPLE:
+      {
+	const RpsTupleOb_t *tup = val;
+	unsigned sz = tup->zm_length;
+	for (int ix = 0; ix < (int) sz; ix++)
+	  if (tup->tuple_comp[ix] != NULL)
+	    rps_mutable_set_add1 (paylsetob, tup->tuple_comp[ix]);
+      }
+      break;
+    case RPS_TYPE_SET:
+      {
+	const RpsSetOb_t *set = val;
+	unsigned sz = set->zm_length;
+	for (int ix = 0; ix < (int) sz; ix++)
+	  rps_mutable_set_add1 (paylsetob, set->set_elem[ix]);
+      }
+      break;
+    case RPS_TYPE_OBJECT:
+      rps_mutable_set_add1 (paylsetob, (RpsObject_t *) val);
+      break;
+    default:
+      goto end;
+    }
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end rps_object_mutable_set_add */
 
 /***************** end of file composite_rps.c from refpersys.org **********/
