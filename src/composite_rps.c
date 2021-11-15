@@ -276,17 +276,19 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
       for (int ix = 0; ix < card; ix++)
 	{
 	  json_t *jcurelem = json_array_get (jssetob, ix);
-	  if (json_is_string (jcurelem))
-	    {
-	      RpsObject_t *elemob
-		= rps_load_create_object_from_json_id (ld, jcurelem);
-#warning missing code in rpsldpy_setob to add elem to the payload
-	      /* Inspiration should be taken from existing code in rps_register_symbol file symbol_rps.c */
-	    }
+	  RpsObject_t *elemob = rps_loader_json_to_object (ld, jcurelem);
+	  RPS_ASSERT (elemob != NULL);
+	  struct internal_mutable_set_ob_node_st *musetdata =
+	    rps_payl_muset_data (paylsetob);
+	  RPS_ASSERT (musetdata != NULL);
+	  struct internal_mutable_set_ob_node_st *newnod =
+	    RPS_ALLOC_ZEROED (sizeof
+			      (struct internal_mutable_set_ob_node_st));
+	  newnod->setob_elem = elemob;
+	  kavl_insert_rpsmusetob (musetdata, newnod, NULL);
 	}
     }
-  RPS_FATAL ("unimplemented rpsldpy_setob spix#%d jv\n..%s",
-	     spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+  rps_object_put_payload (obj, paylsetob);
 }				/* end rpsldpy_setob */
 
 
