@@ -197,8 +197,9 @@ enum
   RpsPyt_Symbol,		/* symbol */
   RpsPyt_ClassInfo,		/* class */
   RpsPyt_MutableSetOb,		/* mutable set of objects */
-  RpsPyt_Tasklet,
-  RpsPyt_Agenda,
+  RpsPyt_DequeOb,			/* double ended queue of objects */
+  RpsPyt_Tasklet,		/* tasklet in agenda */
+  RpsPyt_Agenda,		/* the agenda */
   RpsPyt__LAST
 };
 
@@ -550,6 +551,26 @@ extern void rps_object_mutable_set_remove (RpsObject_t * obset,
 					   RpsValue_t val);
 /// build the set inside a mutable set
 extern RpsSetOb_t *rps_object_mutable_set_reify (RpsObject_t * obset);
+
+/****************************************************************
+ * Double-ended queue/linked-list payload for -RpsPyt_DequeOb
+ ****************************************************************/
+struct rps_dequeob_link_st;
+#define RPSFIELDS_PAYLOAD_DEQUE			\
+  RPSFIELDS_OWNED_PAYLOAD;			\
+  struct rps_dequeob_link_st *deqob_first;		\
+  struct rps_dequeob_link_st *deqob_last
+
+#define RPS_DEQUE_CHUNKSIZE 6
+struct rps_dequeob_link_st {
+  RpsObject* dequeob_chunk[RPS_DEQUE_CHUNKSIZE];
+  struct rps_dequeob_link_st* dequeob_prev;
+    struct rps_dequeob_link_st* dequeob_next
+};
+struct RpsPayl_DequeOb_st {
+  RPSFIELDS_PAYLOAD_DEQUE;
+};
+typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
 
 
 /****************************************************************
