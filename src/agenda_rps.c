@@ -46,7 +46,7 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	      idbuf, count,
 	      spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
   RpsAgenda_t*agenpayl //
-    = RPS_ALLOC_ZONE(RpsPyt_Agenda, sizeof(RpsAgenda_t));
+    = RPS_ALLOC_ZONE(sizeof(RpsAgenda_t), -RpsPyt_Agenda);
   rps_object_put_payload(obj, agenpayl);
 #warning rpsldpy_agenda incomplete
   printf ("incomplete rpsldpy_agenda obj %s spix#%d (%s:%d) \n..jv=%s\n",

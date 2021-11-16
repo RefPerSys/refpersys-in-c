@@ -558,7 +558,7 @@ extern RpsSetOb_t *rps_object_mutable_set_reify (RpsObject_t * obset);
 struct rps_dequeob_link_st;
 #define RPSFIELDS_PAYLOAD_DEQUE			\
   RPSFIELDS_OWNED_PAYLOAD;			\
-  struct rps_dequeob_link_st *deqob_first;		\
+  struct rps_dequeob_link_st *deqob_first;	\
   struct rps_dequeob_link_st *deqob_last
 
 #define RPS_DEQUE_CHUNKSIZE 6
