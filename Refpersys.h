@@ -563,7 +563,7 @@ struct rps_dequeob_link_st;
 
 #define RPS_DEQUE_CHUNKSIZE 6
 struct rps_dequeob_link_st {
-  RpsObject* dequeob_chunk[RPS_DEQUE_CHUNKSIZE];
+  RpsObject_t* dequeob_chunk[RPS_DEQUE_CHUNKSIZE];
   struct rps_dequeob_link_st* dequeob_prev;
     struct rps_dequeob_link_st* dequeob_next
 };
@@ -603,7 +603,7 @@ enum RpsAgendaPrio_en {
 };
 struct RpsPayl_Agenda_st {
   RPSFIELDS_PAYLOAD_AGENDA;
-  RpsObject_t* agenda_que[AgPro__LAST];
+  RpsObject_t* agenda_que[AgPrio__LAST];
 };
 typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 

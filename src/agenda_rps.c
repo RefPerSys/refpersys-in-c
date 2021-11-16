@@ -40,7 +40,16 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
   RPS_ASSERT (rps_is_valid_filling_loader (ld));
   RPS_ASSERT (json_is_object (jv));
   RPS_ASSERT (spix >= 0);
-#warning rpsldpy_agenda unimplemented
-  RPS_FATAL ("unimplemented rpsldpy_agenda obj %s spix#%d\n..jv=%s",
-	     idbuf, spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+  static int count;
+  if (count++ > 0)
+    RPS_FATAL("rpsldpy_agenda obj %s already called %d times spix#%d\n..jv=%s",
+	      idbuf, count,
+	      spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+  RpsAgenda_t*agenpayl //
+    = RPS_ALLOC_ZONE(RpsPyt_Agenda, sizeof(RpsAgenda_t));
+  rps_object_put_payload(obj, agenpayl);
+#warning rpsldpy_agenda incomplete
+  printf ("incomplete rpsldpy_agenda obj %s spix#%d (%s:%d) \n..jv=%s\n",
+	  idbuf, spix, __FILE__, __LINE__,
+	  json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rpsldpy_agenda */
