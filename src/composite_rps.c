@@ -293,6 +293,10 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	      <= alignof (paylsetob->muset_data));
   paylsetob = RPS_ALLOC_ZONE (sizeof (RpsMutableSetOb_t),
 			      -RpsPyt_MutableSetOb);
+  struct internal_mutable_set_ob_node_st *musetdata =
+    rps_payl_muset_data (paylsetob);
+  struct internal_mutable_set_ob_node_st *firstmusetdata = musetdata;
+  RPS_ASSERT (musetdata != NULL);
   json_t *jssetob = json_object_get (jv, "setob");
   if (jssetob && json_is_array (jssetob))
     {
@@ -302,8 +306,6 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	  json_t *jcurelem = json_array_get (jssetob, ix);
 	  RpsObject_t *elemob = rps_loader_json_to_object (ld, jcurelem);
 	  RPS_ASSERT (elemob != NULL);
-	  struct internal_mutable_set_ob_node_st *musetdata =
-	    rps_payl_muset_data (paylsetob);
 	  RPS_ASSERT (musetdata != NULL);
 	  struct internal_mutable_set_ob_node_st *newnod =
 	    RPS_ALLOC_ZEROED (sizeof
@@ -311,6 +313,7 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	  newnod->setob_elem = elemob;
 	  kavl_insert_rpsmusetob (&musetdata, newnod, NULL);
 	};
+      *firstmusetdata = *musetdata;
       paylsetob->zm_length = card;
     }
   rps_object_put_payload (obj, paylsetob);
