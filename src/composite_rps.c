@@ -261,10 +261,14 @@ rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_st
   RPS_ASSERT (right);
   RpsObject_t *obleft = left->setob_elem;
   RpsObject_t *obright = right->setob_elem;
-  RPS_ASSERT (obleft != NULL && obleft->zm_type == RPS_TYPE_OBJECT);
-  RPS_ASSERT (obright != NULL && obright->zm_type == RPS_TYPE_OBJECT);
   if (obleft == obright)
     return 0;
+  if (obleft == NULL)
+    return -1;
+  if (obright == NULL)
+    return 1;
+  RPS_ASSERT (obleft != NULL && obleft->zm_type == RPS_TYPE_OBJECT);
+  RPS_ASSERT (obright != NULL && obright->zm_type == RPS_TYPE_OBJECT);
   return rps_oid_cmp (obleft->ob_id, obright->ob_id);
 }				/* end rps_mutable_set_ob_node_cmp */
 
