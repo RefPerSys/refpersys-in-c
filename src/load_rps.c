@@ -540,12 +540,63 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
     }
   else if (json_is_object (jv))
     {
+      json_t *jsvtype = json_object_get (jv, "vtype");
+      if (!jsvtype || !json_is_string (jsvtype))
+	RPS_FATAL ("rps_loader_json_to_value missing vtype \n... json %s",
+		   json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+      const char *strvtyp = json_string_value (jsvtype);
+      if (!strcmp (strvtyp, "closure"))
+	{
+	  json_t *jsenv = json_object_get (jv, "env");
+	  json_t *jsfn = json_object_get (jv, "fn");
+	  json_t *jsmeta = json_object_get (jv, "meta");
+	  if (!json_is_array (jsenv) || !json_is_string (jsfn))
+	    goto corruptedjson;
+	  RpsValue_t vmeta =
+	    jsmeta ? rps_loader_json_to_value (ld, jsmeta) : RPS_NULL_VALUE;
+	  RpsObject_t *obfn = rps_loader_json_to_object (ld, jsfn);
+	  RPS_ASSERT (obfn != NULL);
+	  unsigned envsiz = json_array_size (jsenv);
+	  if (envsiz < 15)
+	    {
+	      RpsValue_t envarrv[16];
+	      memset (envarrv, 0, sizeof (envarrv));
+	      for (unsigned vix = 0; vix < envsiz; vix++)
+		{
+		  envarrv[vix] =	//
+		    rps_loader_json_to_value (ld,
+					      json_array_get (jsenv, vix));
+		}
+	      return (RpsValue_t) rps_closure_meta_make (obfn, vmeta,
+							 envsiz, envarrv);
+	    }
+	  else
+	    {
+	      RpsValue_t *envdynarr =
+		RPS_ALLOC_ZEROED ((envsiz + 1) * sizeof (RpsValue_t));
+	      for (unsigned vix = 0; vix < envsiz; vix++)
+		{
+		  envdynarr[vix] =	//
+		    rps_loader_json_to_value (ld,
+					      json_array_get (jsenv, vix));
+		}
+	      RpsClosure_t *clos =
+		rps_closure_meta_make (obfn, vmeta, envsiz, envdynarr);
+	      free (envdynarr);
+	      return (RpsValue_t) clos;
+	    }
+	}
+      else
 #warning incomplete rps_loader_json_to_value
-      RPS_FATAL ("incomplete rps_loader_json_to_value \n... json %s",
+	RPS_FATAL ("incomplete rps_loader_json_to_value \n... json %s",
+		   json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+    corruptedjson:
+      RPS_FATAL ("rps_loader_json_to_value corrupted ...\n... json %s",
 		 json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
     }
-  RPS_FATAL ("rps_loader_json_to_value unexpected ...\n... json %s",
-	     json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+  else
+    RPS_FATAL ("rps_loader_json_to_value unexpected ...\n... json %s",
+	       json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rps_loader_json_to_value */
 
 void
