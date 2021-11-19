@@ -197,7 +197,7 @@ enum
   RpsPyt_Symbol,		/* symbol */
   RpsPyt_ClassInfo,		/* class */
   RpsPyt_MutableSetOb,		/* mutable set of objects */
-  RpsPyt_DequeOb,			/* double ended queue of objects */
+  RpsPyt_DequeOb,		/* double ended queue of objects */
   RpsPyt_Tasklet,		/* tasklet in agenda */
   RpsPyt_Agenda,		/* the agenda */
   RpsPyt__LAST
@@ -562,12 +562,14 @@ struct rps_dequeob_link_st;
   struct rps_dequeob_link_st *deqob_last
 
 #define RPS_DEQUE_CHUNKSIZE 6
-struct rps_dequeob_link_st {
-  RpsObject_t* dequeob_chunk[RPS_DEQUE_CHUNKSIZE];
-  struct rps_dequeob_link_st* dequeob_prev;
-    struct rps_dequeob_link_st* dequeob_next
+struct rps_dequeob_link_st
+{
+  RpsObject_t *dequeob_chunk[RPS_DEQUE_CHUNKSIZE];
+  struct rps_dequeob_link_st *dequeob_prev;
+  struct rps_dequeob_link_st *dequeob_next;
 };
-struct RpsPayl_DequeOb_st {
+struct RpsPayl_DequeOb_st
+{
   RPSFIELDS_PAYLOAD_DEQUE;
 };
 typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
@@ -582,7 +584,8 @@ typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
   RpsClosure_t* tasklet_closure;		\
   bool tasklet_transient
 
-struct RpsPayl_Tasklet_st {
+struct RpsPayl_Tasklet_st
+{
   RPSFIELDS_PAYLOAD_TASKLET;
 };
 typedef struct RpsPayl_Tasklet_st RpsTasklet_t;
@@ -593,17 +596,19 @@ typedef struct RpsPayl_Tasklet_st RpsTasklet_t;
 #define RPSFIELDS_PAYLOAD_AGENDA		\
   RPSFIELDS_OWNED_PAYLOAD;			\
 
-enum RpsAgendaPrio_en {
-    AgPrio_Idle= -1,
-    AgPrio__None= 0,
-    AgPrio_Low,
-    AgPrio_Normal,
-    AgPrio_High,
-    AgPrio__LAST
+enum RpsAgendaPrio_en
+{
+  AgPrio_Idle = -1,
+  AgPrio__None = 0,
+  AgPrio_Low,
+  AgPrio_Normal,
+  AgPrio_High,
+  AgPrio__LAST
 };
-struct RpsPayl_Agenda_st {
+struct RpsPayl_Agenda_st
+{
   RPSFIELDS_PAYLOAD_AGENDA;
-  RpsObject_t* agenda_que[AgPrio__LAST];
+  RpsObject_t *agenda_que[AgPrio__LAST];
 };
 typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 
