@@ -42,12 +42,12 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
   RPS_ASSERT (spix >= 0);
   static int count;
   if (count++ > 0)
-    RPS_FATAL("rpsldpy_agenda obj %s already called %d times spix#%d\n..jv=%s",
-	      idbuf, count,
-	      spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
-  RpsAgenda_t*agenpayl //
-    = RPS_ALLOC_ZONE(sizeof(RpsAgenda_t), -RpsPyt_Agenda);
-  rps_object_put_payload(obj, agenpayl);
+    RPS_FATAL
+      ("rpsldpy_agenda obj %s already called %d times spix#%d\n..jv=%s",
+       idbuf, count, spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+  RpsAgenda_t *agenpayl		//
+    = RPS_ALLOC_ZONE (sizeof (RpsAgenda_t), -RpsPyt_Agenda);
+  rps_object_put_payload (obj, agenpayl);
 #warning rpsldpy_agenda incomplete
   printf ("incomplete rpsldpy_agenda obj %s spix#%d (%s:%d) \n..jv=%s\n",
 	  idbuf, spix, __FILE__, __LINE__,
