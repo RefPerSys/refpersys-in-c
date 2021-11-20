@@ -316,17 +316,19 @@ rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
     RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_rps_st));
   newnod->setobnodrps_obelem = ob;
   struct internal_mutable_set_ob_node_rps_st *removednod =
-    kavl_erase_rpsmusetob(&paylmset->muset_root, newnod, NULL);
-  if (removednod) {
-    free (removednod);
-    free (newnod);
-    paylmset->zm_length--;
-    return true;
-  }
-  else {
-    free (newnod);
-    return false;
-  };
+    kavl_erase_rpsmusetob (&paylmset->muset_root, newnod, NULL);
+  if (removednod)
+    {
+      free (removednod);
+      free (newnod);
+      paylmset->zm_length--;
+      return true;
+    }
+  else
+    {
+      free (newnod);
+      return false;
+    };
 }				/* end rps_paylsetob_remove_element */
 
 
@@ -416,6 +418,54 @@ rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_object_mutable_set_add */
+
+
+void
+rps_object_mutable_set_remove (RpsObject_t * obj, RpsValue_t val)
+{
+  RpsMutableSetOb_t *paylsetob = NULL;
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_object (obj));
+  if (!val || val == RPS_NULL_VALUE || (val & 1))
+    return;
+  enum RpsType vtyp = rps_value_type (val);
+  pthread_mutex_lock (&obj->ob_mtx);
+  if (!obj->ob_payload)
+    goto end;
+  if (((RpsMutableSetOb_t *) (obj->ob_payload))->zm_type ==
+      -RpsPyt_MutableSetOb)
+    paylsetob = (RpsMutableSetOb_t *) (obj->ob_payload);
+  else
+    goto end;
+  switch (vtyp)
+    {
+    case RPS_TYPE_TUPLE:
+      {
+	const RpsTupleOb_t *tup = (const RpsTupleOb_t *) val;
+	unsigned sz = tup->zm_length;
+	for (int ix = 0; ix < (int) sz; ix++)
+	  if (tup->tuple_comp[ix] != NULL)
+	    (void) rps_paylsetob_remove_element (paylsetob,
+						 tup->tuple_comp[ix]);
+      }
+      break;
+    case RPS_TYPE_SET:
+      {
+	const RpsSetOb_t *set = (const RpsSetOb_t *) val;
+	unsigned sz = set->zm_length;
+	for (int ix = 0; ix < (int) sz; ix++)
+	  (void) rps_paylsetob_remove_element (paylsetob, set->set_elem[ix]);
+      }
+      break;
+    case RPS_TYPE_OBJECT:
+      (void) rps_paylsetob_remove_element (paylsetob, (RpsObject_t *) val);
+      break;
+    default:
+      goto end;
+    }
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end rps_object_mutable_set_remove */
 
 
 
