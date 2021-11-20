@@ -30,7 +30,10 @@
 #include "Refpersys.h"
 /* for mallopt: */
 #include <malloc.h>
-
+/* for KLIB,  Adelson-Velsky and Landis generic balanced trees from
+    http://attractivechaos.github.io/klib/ see also
+    https://en.wikipedia.org/wiki/AVL_tree */
+#include "kavl.h"
 /********* global variables ********/
 bool rps_running_in_batch;
 bool rps_showing_version;
@@ -179,6 +182,13 @@ rps_show_types_info (void)
   EXPLAIN_TYPE (RpsObject_t);
   EXPLAIN_TYPE (RpsOid);
   EXPLAIN_TYPE (RpsAttrTable_t);
+  {
+    extern int rps_internal_symbol_node_size (void);
+    extern int rps_internal_symbol_node_align (void);
+    printf(TYPEFMT_rps " %5d %5d\n", "rps_internal_symbol_node",
+	   rps_internal_symbol_node_size (),
+	   rps_internal_symbol_node_align ());
+  }
 #undef EXPLAIN_TYPE4
 #undef EXPLAIN_TYPE3
 #undef EXPLAIN_TYPE
