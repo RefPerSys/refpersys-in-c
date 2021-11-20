@@ -27,28 +27,6 @@
 
 #include "Refpersys.h"
 
-/*  Adelson-Velsky and Landis generic balanced trees from
-    http://attractivechaos.github.io/klib/ see also
-    https://en.wikipedia.org/wiki/AVL_tree */
-#include "kavl.h"
-
-struct internal_symbol_node_rps_st
-{
-  RpsSymbol_t *synodrps_symbol;
-    KAVL_HEAD (struct internal_symbol_node_rps_st) synodrps_head;
-};
-
-int
-rps_internal_symbol_node_size (void)
-{
-  return sizeof (struct internal_symbol_node_rps_st);
-}				/* end rps_internal_symbol_node_size */
-
-int
-rps_internal_symbol_node_align (void)
-{
-  return alignof (struct internal_symbol_node_rps_st);
-}				/* end rps_internal_symbol_node_align */
 
 static int
 rps_symbol_node_cmp (const struct internal_symbol_node_rps_st *left,
