@@ -205,6 +205,8 @@ enum
   RpsPyt_DequeOb,		/* double ended queue of objects */
   RpsPyt_Tasklet,		/* tasklet in agenda */
   RpsPyt_Agenda,		/* the agenda */
+  RpsPyt_StringDict,		/* string dictionary associating names
+				   to values */
   RpsPyt__LAST
 };
 
@@ -591,6 +593,31 @@ struct RpsPayl_DequeOb_st
   RPSFIELDS_PAYLOAD_DEQUE;
 };
 typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
+
+
+/****************************************************************
+ * String dictionnary payload for -RpsPyt_StringDict
+ ****************************************************************/
+/* Internally we use "kavl.h" */
+struct internal_string_dict_node_rps_st
+{
+  const RpsString_t *strdicnodrps_name;
+  const RpsValue_t strdicnodrps_val;
+    KAVL_HEAD (struct internal_mutable_set_ob_node_rps_st) strdicnodrps_head;
+};
+#define RPSFIELDS_PAYLOAD_STRINGDICTOB			\
+  RPSFIELDS_OWNED_PAYLOAD;				\
+  unsigned strdict_size;				\
+  struct internal_string_dict_node_rps_st*strdict_root
+
+
+///// for RpsPyt_StringDict
+struct RpsPayl_StringDictOb_st
+{
+  RPSFIELDS_PAYLOAD_STRINGDICTOB;
+};
+typedef struct RpsPayl_StringDictOb_st RpsStringDictOb_st;
+
 
 
 /****************************************************************
