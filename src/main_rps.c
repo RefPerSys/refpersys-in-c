@@ -177,17 +177,29 @@ rps_show_types_info (void)
   EXPLAIN_TYPE (char);
   EXPLAIN_TYPE (bool);
   EXPLAIN_TYPE (void *);
+  EXPLAIN_TYPE (struct RpsZonedMemory_st);
+  EXPLAIN_TYPE (struct RpsZonedValue_st);
+  EXPLAIN_TYPE (struct rps_owned_payload_st);
+  EXPLAIN_TYPE (struct RpsPayl_AttrTable_st);
   EXPLAIN_TYPE (pthread_mutex_t);
   EXPLAIN_TYPE (pthread_cond_t);
   EXPLAIN_TYPE (RpsObject_t);
   EXPLAIN_TYPE (RpsOid);
   EXPLAIN_TYPE (RpsAttrTable_t);
+  EXPLAIN_TYPE (RpsSetOb_t);
+  EXPLAIN_TYPE (RpsString_t);
+  EXPLAIN_TYPE (RpsDouble_t);
+  EXPLAIN_TYPE (RpsJson_t);
+  EXPLAIN_TYPE (RpsTupleOb_t);
+  EXPLAIN_TYPE (RpsGtkWidget_t);
+  EXPLAIN_TYPE (RpsClosure_t);
+  EXPLAIN_TYPE (RpsSymbol_t);
   {
     extern int rps_internal_symbol_node_size (void);
     extern int rps_internal_symbol_node_align (void);
-    printf(TYPEFMT_rps " %5d %5d\n", "rps_internal_symbol_node",
-	   rps_internal_symbol_node_size (),
-	   rps_internal_symbol_node_align ());
+    printf (TYPEFMT_rps " %5d %5d\n", "rps_internal_symbol_node",
+	    rps_internal_symbol_node_size (),
+	    rps_internal_symbol_node_align ());
   }
 #undef EXPLAIN_TYPE4
 #undef EXPLAIN_TYPE3
@@ -441,7 +453,10 @@ main (int argc, char **argv)
       exit (EXIT_SUCCESS);
     };
   if (rps_showing_types)
-    rps_show_types_info ();
+    {
+      rps_show_types_info ();
+      exit (EXIT_SUCCESS);
+    };
   rps_initialize_objects_machinery ();
   rps_check_all_objects_buckets_are_valid ();
   if (!rps_load_directory)
