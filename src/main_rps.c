@@ -138,8 +138,8 @@ rps_show_types_info (void)
   printf ("\n *** types information %s:%d gitid %s *** \n",
 	  __FILE__, __LINE__, _rps_git_short_id);
   printf
-    (" RPS_OID_BUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
-     RPS_OID_BUFLEN, RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
+    (" RPS_OID_BUFLEN=%d, RPS_OID_HI_NBDIGITS=%d, RPS_NBDIGITS_OID_LO=%d\n",
+     RPS_OID_BUFLEN, RPS_OID_HI_NBDIGITS, RPS_NBDIGITS_OID_LO);
   printf ("sizeof \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS",
 	  sizeof ("_0cSUtWqTYdZ00mjeNS"));
   printf ("strlen \"%s\" = %zd\n", "_0cSUtWqTYdZ00mjeNS",
@@ -241,7 +241,7 @@ rps_show_types_info (void)
     printf
       ("\"%s\" : strlen=%ld, size=%zd, RPS_OID_BUFLEN=%d, RPS_NBDIGITS_OID_HI=%d, RPS_NBDIGITS_OID_LO=%d\n",
        idstr1, strlen (idstr1), sizeof (idstr1), RPS_OID_BUFLEN,
-       RPS_NBDIGITS_OID_HI, RPS_NBDIGITS_OID_LO);
+       RPS_OID_HI_NBDIGITS, RPS_NBDIGITS_OID_LO);
     RpsOid id1 = rps_cstr_to_oid (idstr1, &end);
     assert (end && *end == 0);
     char idbuf1[32];

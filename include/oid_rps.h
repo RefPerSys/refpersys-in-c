@@ -55,7 +55,8 @@ typedef struct _RpsOid
 #define RPS_OID_HI_MAX \
 ((uint64_t)10 * 62 * (62 * 62 * 62) * (62 * 62 * 62) * (62 * 62 * 62))
 
-#define RPS_NBDIGITS_OID_HI 11
+#define RPS_OID_HI_NBDIGITS 11
+
 #define RPS_DELTA_OID_HI (RPS_OID_HI_MAX - RPS_ID_HI_MIN)
 #define RPS_MIN_OID_LO (62*62*62)
 #define RPS_MAX_OID_LO /* about 3.52161e+12 */ \
