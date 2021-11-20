@@ -103,5 +103,9 @@ src/%_rps.i: src/%_rps.c
 	$(CC) $(CPPFLAGS) -C -E $^ -o $@%
 	sed '1,$$s:^#\(.*\)://\1:g' $@% > $@
 
+
+## object files depend on common header file
+src/%_rps.o: src/%_rps.c Refpersys.h kavl.h
+
 refpersys: objects $(RPS_TSTAMP).o
 	$(LINK.c) $(LDFLAGS) $(RPS_C_OBJECTS) $(RPS_TSTAMP).o $(LDLIBES) -o $@
