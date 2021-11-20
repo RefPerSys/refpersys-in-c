@@ -419,6 +419,42 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_object_mutable_set_add */
 
+const RpsSetOb_t *
+rps_object_mutable_set_reify (RpsObject_t * obj)
+{
+  RpsSetOb_t *vset = NULL;
+  RpsMutableSetOb_t *paylsetob = NULL;
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  if (!obj->ob_payload)
+    goto end;
+  if (((RpsMutableSetOb_t *) (obj->ob_payload))->zm_type ==
+      -RpsPyt_MutableSetOb)
+    paylsetob = (RpsMutableSetOb_t *) (obj->ob_payload);
+  else
+    goto end;
+  unsigned card = paylsetob->zm_length;
+  const RpsObject_t **arrob =
+    RPS_ALLOC_ZEROED ((card + 1) * sizeof (RpsObject_t *));
+  struct kavl_itr_rpsmusetob iter = { };
+  int ix = 0;
+  kavl_itr_first_rpsmusetob (paylsetob->muset_root, &iter);
+  while (ix < (int) card)
+    {
+      arrob[ix++] = kavl_at (&iter)->setobnodrps_obelem;
+      if (!kavl_itr_next_rpsmusetob (&iter))
+	break;
+    };
+  RPS_ASSERT (ix == card);
+  // this is inefficient, since sorting an already sorted array, but
+  // we don't care, since we hope to generate better C code....
+  vset = rps_alloc_set_sized (card, arrob);
+  free (arrob);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return vset;
+}				/* end rps_object_mutable_set_reify */
 
 void
 rps_object_mutable_set_remove (RpsObject_t * obj, RpsValue_t val)

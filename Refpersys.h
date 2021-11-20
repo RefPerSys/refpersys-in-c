@@ -568,7 +568,7 @@ extern void rps_object_mutable_set_add (RpsObject_t * obset, RpsValue_t val);
 extern void rps_object_mutable_set_remove (RpsObject_t * obset,
 					   RpsValue_t val);
 /// build the set inside a mutable set
-extern RpsSetOb_t *rps_object_mutable_set_reify (RpsObject_t * obset);
+extern const RpsSetOb_t *rps_object_mutable_set_reify (RpsObject_t * obset);
 
 /****************************************************************
  * Double-ended queue/linked-list payload for -RpsPyt_DequeOb
