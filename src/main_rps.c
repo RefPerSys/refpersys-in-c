@@ -196,7 +196,7 @@ rps_show_types_info (void)
   EXPLAIN_TYPE (RpsSymbol_t);
   EXPLAIN_TYPE (RpsMutableSetOb_t);
   EXPLAIN_TYPE (struct internal_symbol_node_rps_st);
-  EXPLAIN_TYPE (struct rps_internal_mutable_set_ob_node_st);
+  EXPLAIN_TYPE (struct internal_mutable_set_ob_node_rps_st);
 #undef EXPLAIN_TYPE4
 #undef EXPLAIN_TYPE3
 #undef EXPLAIN_TYPE

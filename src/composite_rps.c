@@ -245,22 +245,22 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
   return clos;
 }				/* end rps_closure_meta_make */
 
-struct rps_internal_mutable_set_ob_node_st
-{
-  RpsObject_t *setob_elem;
-    KAVL_HEAD (struct rps_internal_mutable_set_ob_node_st) setobrps_head;
-};
+
+
+
+
+/**** mutable set payload support *****/
 
 static int
-rps_mutable_set_ob_node_cmp (const struct rps_internal_mutable_set_ob_node_st
+rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_rps_st
 			     *left,
-			     const struct rps_internal_mutable_set_ob_node_st
+			     const struct internal_mutable_set_ob_node_rps_st
 			     *right)
 {
   RPS_ASSERT (left);
   RPS_ASSERT (right);
-  RpsObject_t *obleft = left->setob_elem;
-  RpsObject_t *obright = right->setob_elem;
+  RpsObject_t *obleft = left->setobnodrps_obelem;
+  RpsObject_t *obright = right->setobnodrps_obelem;
   if (obleft == obright)
     return 0;
   if (obleft == NULL)
@@ -272,8 +272,8 @@ rps_mutable_set_ob_node_cmp (const struct rps_internal_mutable_set_ob_node_st
   return rps_oid_cmp (obleft->ob_id, obright->ob_id);
 }				/* end rps_mutable_set_ob_node_cmp */
 
-KAVL_INIT (rpsmusetob, struct rps_internal_mutable_set_ob_node_st,
-	   setobrps_head, rps_mutable_set_ob_node_cmp);
+KAVL_INIT (rpsmusetob, struct internal_mutable_set_ob_node_rps_st,
+	   setobnodrps_head, rps_mutable_set_ob_node_cmp);
 
 
 /* This function returns true if `ob` was genuinely added into
@@ -285,10 +285,10 @@ rps_paylsetob_add_element (RpsMutableSetOb_t * paylmset,
 {
   RPS_ASSERT (paylmset != NULL && paylmset->zm_type == -RpsPyt_MutableSetOb);
   RPS_ASSERT (ob != NULL && rps_is_valid_object (ob));
-  struct rps_internal_mutable_set_ob_node_st *newnod =
-    RPS_ALLOC_ZEROED (sizeof (struct rps_internal_mutable_set_ob_node_st));
-  newnod->setob_elem = ob;
-  struct rps_internal_mutable_set_ob_node_st *addednod =
+  struct internal_mutable_set_ob_node_rps_st *newnod =
+    RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_rps_st));
+  newnod->setobnodrps_obelem = ob;
+  struct internal_mutable_set_ob_node_rps_st *addednod =
     kavl_insert_rpsmusetob (&paylmset->muset_root, newnod, NULL);
   if (addednod == newnod)
     {
