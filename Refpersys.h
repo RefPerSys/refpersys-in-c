@@ -540,6 +540,7 @@ typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
 /****************************************************************
  * Mutable ordered set of objects payload for -RpsPyt_MutableSetOb
  ****************************************************************/
+/* Internally we use "kavl.h" */
 struct internal_mutable_set_ob_node_rps_st
 {
   const RpsObject_t *setobnodrps_obelem;
@@ -551,8 +552,6 @@ struct internal_mutable_set_ob_node_rps_st
   unsigned muset_card; \
   struct internal_mutable_set_ob_node_rps_st* muset_root
 
-/* Internally we use "kavl.h"; see struct
-  internal_mutable_set_ob_node_st inside file src/composite_rps.c */
 
 ///// for RpsPyt_MutableSetOb
 struct RpsPayl_MutableSetOb_st
@@ -565,7 +564,7 @@ typedef struct RpsPayl_MutableSetOb_st RpsMutableSetOb_t;
 extern void rps_object_mutable_set_initialize (RpsObject_t *);
 /// add an object, all objects of a tuple, a set.... into a mutable set
 extern void rps_object_mutable_set_add (RpsObject_t * obset, RpsValue_t val);
-/// remove an object, all object of a tuple, a set.... into a mutable set
+/// remove an object, all objects of a tuple, a set.... into a mutable set
 extern void rps_object_mutable_set_remove (RpsObject_t * obset,
 					   RpsValue_t val);
 /// build the set inside a mutable set

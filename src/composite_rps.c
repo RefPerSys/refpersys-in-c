@@ -312,8 +312,21 @@ rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
 {
   RPS_ASSERT (paylmset != NULL && paylmset->zm_type == -RpsPyt_MutableSetOb);
   RPS_ASSERT (ob != NULL && rps_is_valid_object ((RpsObject_t *) ob));
-#warning rps_paylsetob_remove_element unimplemented
-  RPS_FATAL ("unimplemented rps_paylsetob_remove_element");
+  struct internal_mutable_set_ob_node_rps_st *newnod =
+    RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_rps_st));
+  newnod->setobnodrps_obelem = ob;
+  struct internal_mutable_set_ob_node_rps_st *removednod =
+    kavl_erase_rpsmusetob(&paylmset->muset_root, newnod, NULL);
+  if (removednod) {
+    free (removednod);
+    free (newnod);
+    paylmset->zm_length--;
+    return true;
+  }
+  else {
+    free (newnod);
+    return false;
+  };
 }				/* end rps_paylsetob_remove_element */
 
 
