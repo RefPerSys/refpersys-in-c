@@ -84,6 +84,11 @@
 /// libjansson JSON library https://digip.org/jansson/
 #include "jansson.h"
 
+/*  Adelson-Velsky and Landis generic balanced trees from
+    http://attractivechaos.github.io/klib/ see also
+    https://en.wikipedia.org/wiki/AVL_tree */
+#include "kavl.h"
+
 /// global variables
 extern bool rps_running_in_batch;	/* no user interface */
 extern bool rps_showing_version;
@@ -485,6 +490,13 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 /****************************************************************
  * Owned symbol payload
  ****************************************************************/
+typedef struct RpsPayl_Symbol_st RpsSymbol_t;
+struct internal_symbol_node_rps_st
+{
+  RpsSymbol_t *synodrps_symbol;
+    KAVL_HEAD (struct internal_symbol_node_rps_st) synodrps_head;
+};
+
 #define RPSFIELDS_PAYLOAD_SYMBOL		\
   RPSFIELDS_OWNED_PAYLOAD;			\
   const RpsString_t* symb_name;			\
@@ -528,9 +540,16 @@ typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
 /****************************************************************
  * Mutable ordered set of objects payload for -RpsPyt_MutableSetOb
  ****************************************************************/
+struct internal_mutable_set_ob_node_rps_st
+{
+  const RpsObject_t *setobnodrps_obelem;
+    KAVL_HEAD (struct internal_mutable_set_ob_node_rps_st) setobnodrps_head;
+};
+
 #define RPSFIELDS_PAYLOAD_MUTABLESETOB		\
   RPSFIELDS_OWNED_PAYLOAD;			\
-  uintptr_t muset_data[6]
+  unsigned muset_card; \
+  struct internal_mutable_set_ob_node_rps_st* muset_root
 
 /* Internally we use "kavl.h"; see struct
   internal_mutable_set_ob_node_st inside file src/composite_rps.c */
