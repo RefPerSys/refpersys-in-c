@@ -188,7 +188,7 @@ rps_show_types_info (void)
   /// seven random oid-s for testing....
   for (int cnt = 0; cnt < 7; cnt++)
     {
-      RpsOid oidr = rps_random_valid_oid ();
+      RpsOid oidr = rps_oid_random ();
       char idrbuf[32];
       memset (idrbuf, 0, sizeof (idrbuf));
       rps_oid_to_cbuf (oidr, idrbuf);

@@ -117,7 +117,7 @@ rps_oid_greater_than_equal (RpsOid lhs, RpsOid rhs)
 
 
 // compute a random and valid oid
-extern RpsOid rps_random_valid_oid (void);
+extern RpsOid rps_oid_random (void);
 
 #endif /* __REFPERSYS_INCLUDE_OID_RPS_H_INCLUDED__ */
 

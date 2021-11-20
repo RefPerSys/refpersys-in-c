@@ -181,7 +181,7 @@ rps_oid_bucket_num (const RpsOid oid)
 }				/* end rps_oid_bucket_num */
 
 RpsOid
-rps_random_valid_oid (void)
+rps_oid_random (void)
 {
   RpsOid roid = { 0, 0 };
   do
@@ -193,6 +193,6 @@ rps_random_valid_oid (void)
     }
   while (!rps_oid_is_valid (roid));
   return roid;
-}				/* end rps_random_valid_oid */
+}				/* end rps_oid_random */
 
 /******************* end of file oid_rps.c *****************/
