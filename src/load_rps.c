@@ -580,7 +580,7 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 		    rps_loader_json_to_value (ld,
 					      json_array_get (jsenv, vix));
 		}
-	      RpsClosure_t *clos =
+	      const RpsClosure_t *clos =
 		rps_closure_meta_make (obfn, vmeta, envsiz, envdynarr);
 	      free (envdynarr);
 	      return (RpsValue_t) clos;

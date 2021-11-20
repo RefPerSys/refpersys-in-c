@@ -92,7 +92,7 @@ rps_alloc_vtuple (unsigned arity, ...)
 unsigned
 rps_vtuple_size (const RpsTupleOb_t * tup)
 {
-  if (tup == NULL || rps_value_type (tup) != RPS_TYPE_TUPLE)
+  if (tup == NULL || rps_value_type ((RpsValue_t) tup) != RPS_TYPE_TUPLE)
     return 0;
   return tup->zm_length;
 }				/* end rps_vtuple_size */
@@ -100,7 +100,7 @@ rps_vtuple_size (const RpsTupleOb_t * tup)
 RpsObject_t *
 rps_vtuple_nth (const RpsTupleOb_t * tup, int rk)
 {
-  if (tup == NULL || rps_value_type (tup) != RPS_TYPE_TUPLE)
+  if (tup == NULL || rps_value_type ((RpsValue_t) tup) != RPS_TYPE_TUPLE)
     return NULL;
   unsigned sz = tup->zm_length;
   if (rk < 0)
@@ -146,7 +146,7 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
 const RpsSetOb_t *
 rps_alloc_vset (unsigned card, /*objects */ ...)
 {
-  RpsSetOb_t *set = NULL;
+  const RpsSetOb_t *set = NULL;
   va_list arglist;
   va_start (arglist, card);
   RpsObject_t **arrcpy =
@@ -156,7 +156,7 @@ rps_alloc_vset (unsigned card, /*objects */ ...)
       arrcpy[ix] = va_arg (arglist, RpsObject_t *);
     }
   va_end (arglist);
-  set = rps_alloc_set_sized (card, arrcpy);
+  set = rps_alloc_set_sized (card, (const RpsObject_t **) arrcpy);
   free (arrcpy);
   return set;
 }				/* end rps_alloc_vset */
@@ -188,7 +188,7 @@ const RpsClosure_t *
 rps_closure_make (RpsObject_t * conn, unsigned arity, ...)
 {
   va_list arglist;
-  RpsClosure_t *clos = NULL;
+  const RpsClosure_t *clos = NULL;
   if (!conn)
     return NULL;
   va_start (arglist, arity);
@@ -219,7 +219,7 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
 		       ...)
 {
   va_list arglist;
-  RpsClosure_t *clos = NULL;
+  const RpsClosure_t *clos = NULL;
   if (!conn)
     return NULL;
   va_start (arglist, arity);
@@ -351,7 +351,7 @@ rps_mutable_set_add1 (RpsMutableSetOb_t * payl, const RpsObject_t * ob)
   RPS_ASSERT (musetdata != NULL);
   struct internal_mutable_set_ob_node_st *newnod =
     RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_st));
-  newnod->setob_elem = ob;
+  newnod->setob_elem = (RpsObject_t *) ob;
   struct internal_mutable_set_ob_node_st *oldnod =
     kavl_insert_rpsmusetob (&musetdata, newnod, NULL);
   if (oldnod != newnod)
@@ -380,7 +380,7 @@ rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
     {
     case RPS_TYPE_TUPLE:
       {
-	const RpsTupleOb_t *tup = val;
+	const RpsTupleOb_t *tup = (const RpsTupleOb_t *) val;
 	unsigned sz = tup->zm_length;
 	for (int ix = 0; ix < (int) sz; ix++)
 	  if (tup->tuple_comp[ix] != NULL)
@@ -389,7 +389,7 @@ rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
       break;
     case RPS_TYPE_SET:
       {
-	const RpsSetOb_t *set = val;
+	const RpsSetOb_t *set = (const RpsSetOb_t *) val;
 	unsigned sz = set->zm_length;
 	for (int ix = 0; ix < (int) sz; ix++)
 	  rps_mutable_set_add1 (paylsetob, set->set_elem[ix]);
@@ -404,5 +404,24 @@ rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_object_mutable_set_add */
+
+
+
+
+
+/* loading a payload associating strings to values */
+void
+rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
+			   const json_t * jv, int spix)
+{
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  char idbuf[32];
+  memset (idbuf, 0, sizeof (idbuf));
+  rps_oid_to_cbuf (obj->ob_id, idbuf);
+#warning rpsldpy_string_dictionary unimplemented
+  RPS_FATAL ("unimplemented rpsldpy_string_dictionary %s spix#%d jv...\n%s\n",
+	     idbuf, spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+}				/* end rpsldpy_string_dictionary */
 
 /***************** end of file composite_rps.c from refpersys.org **********/
