@@ -245,16 +245,16 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
   return clos;
 }				/* end rps_closure_meta_make */
 
-struct internal_mutable_set_ob_node_st
+struct rps_internal_mutable_set_ob_node_st
 {
   RpsObject_t *setob_elem;
-    KAVL_HEAD (struct internal_mutable_set_ob_node_st) setobrps_head;
+    KAVL_HEAD (struct rps_internal_mutable_set_ob_node_st) setobrps_head;
 };
 
 static int
-rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_st
+rps_mutable_set_ob_node_cmp (const struct rps_internal_mutable_set_ob_node_st
 			     *left,
-			     const struct internal_mutable_set_ob_node_st
+			     const struct rps_internal_mutable_set_ob_node_st
 			     *right)
 {
   RPS_ASSERT (left);
@@ -272,16 +272,50 @@ rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_st
   return rps_oid_cmp (obleft->ob_id, obright->ob_id);
 }				/* end rps_mutable_set_ob_node_cmp */
 
-KAVL_INIT (rpsmusetob, struct internal_mutable_set_ob_node_st, setobrps_head,
-	   rps_mutable_set_ob_node_cmp);
+KAVL_INIT (rpsmusetob, struct rps_internal_mutable_set_ob_node_st,
+	   setobrps_head, rps_mutable_set_ob_node_cmp);
 
 
-static inline struct internal_mutable_set_ob_node_st *
-rps_payl_muset_data (RpsMutableSetOb_t * payl)
+/* This function returns true if `ob` was genuinely added into
+   `paylmset`, and false otherwise, e.g. because it was already
+   element of the mutable set `paylmset`. */
+bool
+rps_paylsetob_add_element (RpsMutableSetOb_t * paylmset,
+			   const RpsObject_t * ob)
 {
-  RPS_ASSERT (payl && payl->zm_type == -RpsPyt_MutableSetOb);
-  return (struct internal_mutable_set_ob_node_st *) (payl->muset_data);
-}				/* end rps_payl_muset_data */
+  RPS_ASSERT (paylmset != NULL && paylmset->zm_type == -RpsPyt_MutableSetOb);
+  RPS_ASSERT (ob != NULL && rps_is_valid_object (ob));
+  struct rps_internal_mutable_set_ob_node_st *newnod =
+    RPS_ALLOC_ZEROED (sizeof (struct rps_internal_mutable_set_ob_node_st));
+  newnod->setob_elem = ob;
+  struct rps_internal_mutable_set_ob_node_st *addednod =
+    kavl_insert_rpsmusetob (&paylmset->muset_root, newnod, NULL);
+  if (addednod == newnod)
+    {
+      paylmset->zm_length++;
+      return true;
+    }
+  else
+    {
+      free (newnod);
+      return false;
+    }
+}				/* end rps_paylsetob_add_element */
+
+
+/* This function returns true if `ob` was genuinely removed into
+   `paylmset`, and false otherwise, e.g. because it was not an element
+   of the mutable set `paylmset`. */
+bool
+rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
+			      const RpsObject_t * ob)
+{
+  RPS_ASSERT (paylmset != NULL && paylmset->zm_type == -RpsPyt_MutableSetOb);
+  RPS_ASSERT (ob != NULL && rps_is_valid_object ((RpsObject_t *) ob));
+#warning rps_paylsetob_remove_element unimplemented
+  RPS_FATAL ("unimplemented rps_paylsetob_remove_element");
+}				/* end rps_paylsetob_remove_element */
+
 
 /* loading mutable set of objects */
 void
@@ -291,16 +325,8 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
   RpsMutableSetOb_t *paylsetob = NULL;
   RPS_ASSERT (obj != NULL);
   RPS_ASSERT (rps_is_valid_filling_loader (ld));
-  RPS_ASSERT (sizeof (struct internal_mutable_set_ob_node_st)
-	      <= sizeof (paylsetob->muset_data));
-  RPS_ASSERT (alignof (struct internal_mutable_set_ob_node_st)
-	      <= alignof (paylsetob->muset_data));
   paylsetob = RPS_ALLOC_ZONE (sizeof (RpsMutableSetOb_t),
 			      -RpsPyt_MutableSetOb);
-  struct internal_mutable_set_ob_node_st *musetdata =
-    rps_payl_muset_data (paylsetob);
-  struct internal_mutable_set_ob_node_st *firstmusetdata = musetdata;
-  RPS_ASSERT (musetdata != NULL);
   json_t *jssetob = json_object_get (jv, "setob");
   if (jssetob && json_is_array (jssetob))
     {
@@ -310,15 +336,10 @@ rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	  json_t *jcurelem = json_array_get (jssetob, ix);
 	  RpsObject_t *elemob = rps_loader_json_to_object (ld, jcurelem);
 	  RPS_ASSERT (elemob != NULL);
-	  RPS_ASSERT (musetdata != NULL);
-	  struct internal_mutable_set_ob_node_st *newnod =
-	    RPS_ALLOC_ZEROED (sizeof
-			      (struct internal_mutable_set_ob_node_st));
-	  newnod->setob_elem = elemob;
-	  kavl_insert_rpsmusetob (&musetdata, newnod, NULL);
+	  if (!rps_paylsetob_add_element (paylsetob, elemob))
+	    RPS_FATAL ("corrupted already element element#%d for json %s",
+		       ix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 	};
-      *firstmusetdata = *musetdata;
-      paylsetob->zm_length = card;
     }
   rps_object_put_payload (obj, paylsetob);
 }				/* end rpsldpy_setob */
@@ -331,33 +352,11 @@ rps_object_mutable_set_initialize (RpsObject_t * obj)
   RPS_ASSERT (obj != NULL);
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
-  RPS_ASSERT (sizeof (struct internal_mutable_set_ob_node_st)
-	      <= sizeof (paylsetob->muset_data));
-  RPS_ASSERT (alignof (struct internal_mutable_set_ob_node_st)
-	      <= alignof (paylsetob->muset_data));
   paylsetob = RPS_ALLOC_ZONE (sizeof (RpsMutableSetOb_t),
 			      -RpsPyt_MutableSetOb);
   rps_object_put_payload (obj, paylsetob);
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_object_mutable_set_initialize */
-
-static void
-rps_mutable_set_add1 (RpsMutableSetOb_t * payl, const RpsObject_t * ob)
-{
-  RPS_ASSERT (payl->zm_type == -RpsPyt_MutableSetOb);
-  RPS_ASSERT (ob && rps_is_valid_object ((RpsObject_t *) ob));
-  struct internal_mutable_set_ob_node_st *musetdata =
-    rps_payl_muset_data (payl);
-  RPS_ASSERT (musetdata != NULL);
-  struct internal_mutable_set_ob_node_st *newnod =
-    RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_st));
-  newnod->setob_elem = (RpsObject_t *) ob;
-  struct internal_mutable_set_ob_node_st *oldnod =
-    kavl_insert_rpsmusetob (&musetdata, newnod, NULL);
-  if (oldnod != newnod)
-    return;
-  payl->zm_length++;
-}				/* end rps_mutable_set_add1 */
 
 void
 rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
@@ -384,7 +383,7 @@ rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
 	unsigned sz = tup->zm_length;
 	for (int ix = 0; ix < (int) sz; ix++)
 	  if (tup->tuple_comp[ix] != NULL)
-	    rps_mutable_set_add1 (paylsetob, tup->tuple_comp[ix]);
+	    (void) rps_paylsetob_add_element (paylsetob, tup->tuple_comp[ix]);
       }
       break;
     case RPS_TYPE_SET:
@@ -392,11 +391,11 @@ rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
 	const RpsSetOb_t *set = (const RpsSetOb_t *) val;
 	unsigned sz = set->zm_length;
 	for (int ix = 0; ix < (int) sz; ix++)
-	  rps_mutable_set_add1 (paylsetob, set->set_elem[ix]);
+	  (void) rps_paylsetob_add_element (paylsetob, set->set_elem[ix]);
       }
       break;
     case RPS_TYPE_OBJECT:
-      rps_mutable_set_add1 (paylsetob, (RpsObject_t *) val);
+      (void) rps_paylsetob_add_element (paylsetob, (RpsObject_t *) val);
       break;
     default:
       goto end;
