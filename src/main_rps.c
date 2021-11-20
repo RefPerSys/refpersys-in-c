@@ -273,6 +273,7 @@ rps_show_types_info (void)
 	    idstr1, id1.id_hi, id1.id_lo, rps_oid_hash (id1), idbuf1);
   }
   fflush (NULL);
+  exit (EXIT_SUCCESS);
 }				/* end rps_show_types_info */
 
 
@@ -455,7 +456,6 @@ main (int argc, char **argv)
   if (rps_showing_types)
     {
       rps_show_types_info ();
-      exit (EXIT_SUCCESS);
     };
   rps_initialize_objects_machinery ();
   rps_check_all_objects_buckets_are_valid ();
