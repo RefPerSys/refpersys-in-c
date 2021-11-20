@@ -194,13 +194,9 @@ rps_show_types_info (void)
   EXPLAIN_TYPE (RpsGtkWidget_t);
   EXPLAIN_TYPE (RpsClosure_t);
   EXPLAIN_TYPE (RpsSymbol_t);
-  {
-    extern int rps_internal_symbol_node_size (void);
-    extern int rps_internal_symbol_node_align (void);
-    printf (TYPEFMT_rps " %5d %5d\n", "rps_internal_symbol_node",
-	    rps_internal_symbol_node_size (),
-	    rps_internal_symbol_node_align ());
-  }
+  EXPLAIN_TYPE (RpsMutableSetOb_t);
+  EXPLAIN_TYPE (struct internal_symbol_node_rps_st);
+  EXPLAIN_TYPE (struct rps_internal_mutable_set_ob_node_st);
 #undef EXPLAIN_TYPE4
 #undef EXPLAIN_TYPE3
 #undef EXPLAIN_TYPE
