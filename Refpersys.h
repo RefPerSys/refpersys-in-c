@@ -602,7 +602,7 @@ typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
 struct internal_string_dict_node_rps_st
 {
   const RpsString_t *strdicnodrps_name;
-  const RpsValue_t strdicnodrps_val;
+  RpsValue_t strdicnodrps_val;
     KAVL_HEAD (struct internal_string_dict_node_rps_st) strdicnodrps_head;
 };
 #define RPSFIELDS_PAYLOAD_STRINGDICTOB			\
@@ -620,9 +620,16 @@ typedef struct RpsPayl_StringDictOb_st RpsStringDictOb_t;
 
 /// initialize the payload to an empty string dictionary
 extern void rps_object_string_dictionary_initialize (RpsObject_t *);
-extern RpsValue_t rps_object_string_dictionary_cstr_find (RpsObject_t*obstrdict, const char*cstr);
-extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t*obstrdict, const RpsString_t*strv);
-void rps_object_string_dictionary_put(RpsObject_t*obstrdict,const RpsString_t*strv, const RpsValue_t val);
+extern RpsValue_t rps_object_string_dictionary_cstr_find (RpsObject_t *
+							  obstrdict,
+							  const char *cstr);
+extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t *
+							 obstrdict,
+							 const RpsString_t *
+							 strv);
+void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
+				       const RpsString_t * strv,
+				       const RpsValue_t val);
 
 /****************************************************************
  * Tasklet payload for -RpsPyt_Tasklet

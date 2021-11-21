@@ -261,8 +261,8 @@ rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_rps_st
   RPS_ASSERT (right);
   if (left == right)
     return 0;
-  RpsObject_t *obleft = left->setobnodrps_obelem;
-  RpsObject_t *obright = right->setobnodrps_obelem;
+  const RpsObject_t *obleft = left->setobnodrps_obelem;
+  const RpsObject_t *obright = right->setobnodrps_obelem;
   if (obleft == obright)
     return 0;
   if (obleft == NULL)
@@ -286,7 +286,7 @@ rps_paylsetob_add_element (RpsMutableSetOb_t * paylmset,
 			   const RpsObject_t * ob)
 {
   RPS_ASSERT (paylmset != NULL && paylmset->zm_type == -RpsPyt_MutableSetOb);
-  RPS_ASSERT (ob != NULL && rps_is_valid_object (ob));
+  RPS_ASSERT (ob != NULL && rps_is_valid_object ((RpsObject_t *) ob));
   struct internal_mutable_set_ob_node_rps_st *newnod =
     RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_rps_st));
   newnod->setobnodrps_obelem = ob;
@@ -424,7 +424,7 @@ end:
 const RpsSetOb_t *
 rps_object_mutable_set_reify (RpsObject_t * obj)
 {
-  RpsSetOb_t *vset = NULL;
+  const RpsSetOb_t *vset = NULL;
   RpsMutableSetOb_t *paylsetob = NULL;
   RPS_ASSERT (obj != NULL);
   RPS_ASSERT (rps_is_valid_object (obj));
@@ -536,14 +536,59 @@ KAVL_INIT (strdicnodrps, struct internal_string_dict_node_rps_st,
 
 
 void
-rps_object_string_dictionary_initialize(RpsObject_t*ob)
+rps_object_string_dictionary_initialize (RpsObject_t * ob)
 {
-  RPS_ASSERT(rps_is_valid_object(ob));
-  RpsStringDictOb_t*paylstr
-    = RPS_ALLOC_ZONE (sizeof (RpsStringDictOb_t),
-		      -RpsPyt_StringDict);
-  rps_object_put_payload (ob, paylstr);
-} /* end rps_object_string_dictionary_initialize */
+  RPS_ASSERT (rps_is_valid_object (ob));
+  RpsStringDictOb_t *paylstrdic = RPS_ALLOC_ZONE (sizeof (RpsStringDictOb_t),
+						  -RpsPyt_StringDict);
+  rps_object_put_payload (ob, paylstrdic);
+}				/* end rps_object_string_dictionary_initialize */
+
+
+void
+rps_payl_string_dictionary_add_cstr (RpsStringDictOb_t * paylstrdic,
+				     const char *cstr, const RpsValue_t val)
+{
+  RPS_ASSERT (paylstrdic && paylstrdic->zm_type == -RpsPyt_StringDict);
+  RPS_ASSERT (cstr && g_utf8_validate (cstr, -1, NULL));
+  RPS_ASSERT (val != RPS_NULL_VALUE);
+  const RpsString_t *strv = rps_alloc_string (cstr);
+  struct internal_string_dict_node_rps_st *newnod =
+    RPS_ALLOC_ZEROED (sizeof (struct internal_string_dict_node_rps_st));
+  newnod->strdicnodrps_name = strv;
+  struct internal_string_dict_node_rps_st *addednod =
+    kavl_insert_strdicnodrps (&paylstrdic->strdict_root, newnod, NULL);
+  if (addednod == newnod)
+    {
+      paylstrdic->zm_length++;
+      newnod->strdicnodrps_val = val;
+    }
+  else
+    addednod->strdicnodrps_val = val;
+}				/* end rps_payl_string_dictionary_add_cstr */
+
+
+void
+rps_payl_string_dictionary_add_valstr (RpsStringDictOb_t * paylstrdic,
+				       const RpsString_t * strv,
+				       const RpsValue_t val)
+{
+  RPS_ASSERT (paylstrdic && paylstrdic->zm_type == -RpsPyt_StringDict);
+  RPS_ASSERT (strv && strv->zm_type == RPS_TYPE_STRING);
+  RPS_ASSERT (val != RPS_NULL_VALUE);
+  struct internal_string_dict_node_rps_st *newnod =
+    RPS_ALLOC_ZEROED (sizeof (struct internal_string_dict_node_rps_st));
+  newnod->strdicnodrps_name = strv;
+  struct internal_string_dict_node_rps_st *addednod =
+    kavl_insert_strdicnodrps (&paylstrdic->strdict_root, newnod, NULL);
+  if (addednod == newnod)
+    {
+      paylstrdic->zm_length++;
+      newnod->strdicnodrps_val = val;
+    }
+  else
+    addednod->strdicnodrps_val = val;
+}				/* end rps_payl_string_dictionary_add_valstr */
 
 
 /* loading a payload associating strings to values */
@@ -556,7 +601,12 @@ rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
   char idbuf[32];
   memset (idbuf, 0, sizeof (idbuf));
   rps_oid_to_cbuf (obj->ob_id, idbuf);
-#warning rpsldpy_string_dictionary unimplemented
+  pthread_mutex_lock (&obj->ob_mtx);
+  rps_object_string_dictionary_initialize (obj);
+  RpsStringDictOb_t *paylstrdic = (RpsStringDictOb_t *) (obj->ob_payload);
+  RPS_ASSERT (paylstrdic && paylstrdic->zm_type == -RpsPyt_StringDict);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
   RPS_FATAL ("unimplemented rpsldpy_string_dictionary %s spix#%d jv...\n%s\n",
 	     idbuf, spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rpsldpy_string_dictionary */
