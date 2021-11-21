@@ -616,7 +616,7 @@ struct RpsPayl_StringDictOb_st
 {
   RPSFIELDS_PAYLOAD_STRINGDICTOB;
 };
-typedef struct RpsPayl_StringDictOb_st RpsStringDictOb_st;
+typedef struct RpsPayl_StringDictOb_st RpsStringDictOb_t;
 
 /// initialize the payload to an empty string dictionary
 extern void rps_object_string_dictionary_initialize (RpsObject_t *);
