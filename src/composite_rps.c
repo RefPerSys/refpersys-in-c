@@ -605,10 +605,28 @@ rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
   rps_object_string_dictionary_initialize (obj);
   RpsStringDictOb_t *paylstrdic = (RpsStringDictOb_t *) (obj->ob_payload);
   RPS_ASSERT (paylstrdic && paylstrdic->zm_type == -RpsPyt_StringDict);
+  json_t *jsdict = json_object_get (jv, "dictionary");
+  if (jsdict && json_is_array (jsdict))
+    {
+      unsigned nbent = json_array_size (jsdict);
+      for (int ix = 0; ix < (int) nbent; ix++)
+	{
+	  json_t *jent = json_array_get (jsdict, ix);
+	  if (!json_is_object (jent))
+	    continue;
+	  json_t *jstr = json_object_get (jent, "str");
+	  if (json_is_string (jstr))
+	    continue;
+	  json_t *jval = json_object_get (jent, "val");
+	  if (!jval)
+	    continue;
+	  const char *str = json_string_value (jstr);
+	  RpsValue_t curval = rps_loader_json_to_value (ld, jval);
+	  rps_payl_string_dictionary_add_cstr (paylstrdic, str, curval);
+	}
+    }
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
-  RPS_FATAL ("unimplemented rpsldpy_string_dictionary %s spix#%d jv...\n%s\n",
-	     idbuf, spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rpsldpy_string_dictionary */
 
 /***************** end of file composite_rps.c from refpersys.org **********/
