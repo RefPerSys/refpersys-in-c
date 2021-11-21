@@ -629,4 +629,24 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rpsldpy_string_dictionary */
 
+
+/* loading a payload for space */
+void
+rpsldpy_space (RpsObject_t * obj, RpsLoader_t * ld,
+	       const json_t * jv, int spix)
+{
+  RPS_ASSERT (obj != NULL);
+  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  char idbuf[32];
+  memset (idbuf, 0, sizeof (idbuf));
+  rps_oid_to_cbuf (obj->ob_id, idbuf);
+  pthread_mutex_lock (&obj->ob_mtx);
+#warning rpsldpy_space unimplemented
+  RPS_FATAL ("unimplemented rpsldpy_space obj %s spix#%d\n.. json: %s", idbuf,
+	     spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end rpsldpy_space */
+
+
 /***************** end of file composite_rps.c from refpersys.org **********/

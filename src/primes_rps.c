@@ -117,7 +117,7 @@ rps_prime_above (int64_t n)
   for (int ix = lo; ix < hi; ix++)
     if (rps_primes_tab[ix] > n)
       return rps_primes_tab[ix];
-  fprintf(stderr, "rps_prime_above %ld failure\n", (long)n);
+  fprintf (stderr, "rps_prime_above %ld failure\n", (long) n);
   fflush (stderr);
   if (rps_backtrace_common_state)
     {
@@ -146,7 +146,7 @@ rps_prime_below (int64_t n)
   for (int ix = hi; ix >= lo; ix--)
     if (rps_primes_tab[ix] < n)
       return rps_primes_tab[ix];
-  fprintf(stderr, "rps_prime_below %ld failure\n", (long)n);
+  fprintf (stderr, "rps_prime_below %ld failure\n", (long) n);
   fflush (stderr);
   if (rps_backtrace_common_state)
     {
