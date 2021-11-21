@@ -268,6 +268,8 @@ rps_show_types_info (void)
     printf ("idstr1=%s id1:{id_hi=%ld,id_lo=%ld} hash %u idbuf1=%s\n",
 	    idstr1, id1.id_hi, id1.id_lo, rps_oid_hash (id1), idbuf1);
   }
+  printf ("prime above thirteen = %ld\n", rps_prime_above (13));
+  printf ("prime below fiveteen = %ld\n", rps_prime_below (15));
   fflush (NULL);
   exit (EXIT_SUCCESS);
 }				/* end rps_show_types_info */
