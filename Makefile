@@ -80,7 +80,7 @@ all:
 	sync
 
 clean:
-	$(RM) *.o */*.o */*.i *.orig *~ *% refpersys gmon.out core* vgcore*
+	$(RM) *.o */*.o */*.i *.orig *~ *% refpersys gmon.out core* vgcore* gmon.out
 
 indent:
 	for f in $(RPS_C_SOURCES) ; do \
