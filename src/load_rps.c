@@ -32,6 +32,8 @@
 
 #include "Refpersys.h"
 
+#include "malloc.h"		/*for mallopt */
+
 #define RPS_LOADER_MAGIC 0x156e62d5	/*359555797 */
 
 
@@ -378,6 +380,7 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
   long objcount = 0;
   while (objcount < nbobjects)
     {
+
       if (feof (spfil))
 	RPS_FATAL
 	  ("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
@@ -803,6 +806,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	  {
 	    obidbuf[0] = '_';
 	    curobid = rps_cstr_to_oid (obidbuf, NULL);
+	    mallopt (M_CHECK_ACTION, 03);
 	  }
 	if (rps_oid_is_valid (curobid))
 	  {
