@@ -106,6 +106,7 @@ src/%_rps.i: src/%_rps.c
 
 ## object files depend on common header file
 src/%_rps.o: src/%_rps.c Refpersys.h kavl.h
+	$(CC) $(CPPFLAGS) $^ -o $@
 
 refpersys: objects $(RPS_TSTAMP).o
 	$(LINK.c) $(LDFLAGS) $(RPS_C_OBJECTS) $(RPS_TSTAMP).o $(LDLIBES) -o $@
