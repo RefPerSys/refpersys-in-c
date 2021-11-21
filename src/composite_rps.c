@@ -449,8 +449,9 @@ rps_object_mutable_set_reify (RpsObject_t * obj)
 	break;
     };
   RPS_ASSERT (ix == card);
-  // this is inefficient, since sorting an already sorted array, but
-  // we don't care, since we hope to generate better C code....
+  // this is inefficient, since sorting a second time an already
+  // sorted array, but we don't care, since we hope to generate better
+  // C code....
   vset = rps_alloc_set_sized (card, arrob);
   free (arrob);
 end:
@@ -532,6 +533,18 @@ rps_string_dict_node_cmp (const struct internal_string_dict_node_rps_st *left,
 
 KAVL_INIT (strdicnodrps, struct internal_string_dict_node_rps_st,
 	   strdicnodrps_head, rps_string_dict_node_cmp);
+
+
+void
+rps_object_string_dictionary_initialize(RpsObject_t*ob)
+{
+  RPS_ASSERT(rps_is_valid_object(ob));
+  RpsStringDictOb_t*paylstr
+    = RPS_ALLOC_ZONE (sizeof (RpsStringDictOb_t),
+		      -RpsPyt_StringDict);
+  rps_object_put_payload (ob, paylstr);
+} /* end rps_object_string_dictionary_initialize */
+
 
 /* loading a payload associating strings to values */
 void
