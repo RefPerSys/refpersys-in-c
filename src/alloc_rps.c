@@ -34,6 +34,7 @@
    more fancy and faster allocation scheme - generational copying GC
    techniques.... */
 
+#define RPS_MAX_ALLOCSIZE (1L<<24)
 
 /// allocate a zeroed memory zone
 void *
@@ -42,6 +43,10 @@ alloc0_at_rps (size_t sz, const char *file, int lineno)
   /* It could happen that our GC will forbid allocation during
      GC-marking time.... We may need a condition variable later here. */
 #warning we probably want some synchronization in alloc0_at_rps
+  if (sz < sizeof (void *))
+    sz = sizeof (void *);
+  if (sz > RPS_MAX_ALLOCSIZE)
+    RPS_FATAL_AT (file, lineno, "too big allocation %zd from %s:%d", sz);
   void *z = malloc (sz);
   if (!z)
     RPS_FATAL_AT (file, lineno, "failed to allocate %zd bytes (%m).", sz);
@@ -58,6 +63,7 @@ alloczone_at_rps (size_t bytsz, int8_t type, const char *file, int lineno)
   if (type == 0)
     RPS_FATAL_AT (file, lineno,
 		  "invalid zero type for memory zone of %zd bytes", bytsz);
+  RPS_ASSERT (bytsz >= sizeof (struct RpsZonedMemory_st));
   struct RpsZonedMemory_st *zm =
     (struct RpsZonedMemory_st *) alloc0_at_rps (bytsz, file, lineno);
   atomic_init (&zm->zm_gcmark, 0);
