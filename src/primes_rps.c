@@ -28,7 +28,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
-#include <stdint.h>
+#include "Refpersys.h"
 
 
 // A zero-terminated array of primes, gotten with something similar to :
@@ -84,7 +84,7 @@ rps_index_of_prime (int64_t n)
   if (n == 2)
     return 0;
   int lo = 0, hi = rps_nb_primes_in_tab;
-  while (lo + 6 < hi)
+  while (lo + 7 < hi)
     {
       int md = (lo + hi) / 2;
       if (rps_primes_tab[md] > n)
@@ -104,7 +104,7 @@ int64_t
 rps_prime_above (int64_t n)
 {
   int lo = 0, hi = rps_nb_primes_in_tab;
-  while (lo + 6 < hi)
+  while (lo + 7 < hi)
     {
       int md = (lo + hi) / 2;
       if (rps_primes_tab[md] > n)
@@ -112,9 +112,18 @@ rps_prime_above (int64_t n)
       else
 	lo = md;
     };
+  if (hi < rps_nb_primes_in_tab - 1)
+    hi++;
   for (int ix = lo; ix < hi; ix++)
     if (rps_primes_tab[ix] > n)
       return rps_primes_tab[ix];
+  fprintf(stderr, "rps_prime_above %ld failure\n", (long)n);
+  fflush (stderr);
+  if (rps_backtrace_common_state)
+    {
+      rps_backtrace_print (rps_backtrace_common_state, 1, stderr);
+    }
+  fflush (stderr);
   return 0;
 }				/* end rps_prime_above */
 
@@ -124,7 +133,7 @@ rps_prime_below (int64_t n)
   int lo = 0, hi = rps_nb_primes_in_tab;
   if (n <= 2)
     return 0;
-  while (lo + 6 < hi)
+  while (lo + 7 < hi)
     {
       int md = (lo + hi) / 2;
       if (rps_primes_tab[md] > n)
@@ -132,9 +141,18 @@ rps_prime_below (int64_t n)
       else
 	lo = md;
     };
-  for (int ix = lo; ix < hi; ix++)
+  if (hi < rps_nb_primes_in_tab - 1)
+    hi++;
+  for (int ix = hi; ix >= lo; ix--)
     if (rps_primes_tab[ix] < n)
       return rps_primes_tab[ix];
+  fprintf(stderr, "rps_prime_below %ld failure\n", (long)n);
+  fflush (stderr);
+  if (rps_backtrace_common_state)
+    {
+      rps_backtrace_print (rps_backtrace_common_state, 1, stderr);
+    }
+  fflush (stderr);
   return 0;
 }				/* end rps_prime_below */
 
