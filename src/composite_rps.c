@@ -641,9 +641,11 @@ rpsldpy_space (RpsObject_t * obj, RpsLoader_t * ld,
   memset (idbuf, 0, sizeof (idbuf));
   rps_oid_to_cbuf (obj->ob_id, idbuf);
   pthread_mutex_lock (&obj->ob_mtx);
-#warning rpsldpy_space unimplemented
-  RPS_FATAL ("unimplemented rpsldpy_space obj %s spix#%d\n.. json: %s", idbuf,
-	     spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+  RpsSpace_t *paylspace = RPS_ALLOC_ZONE (sizeof (RpsSpace_t), -RpsPyt_Space);
+  json_t *jsspdata = json_object_get (jv, "space_data");
+  if (jsspdata)
+    paylspace->space_data = rps_loader_json_to_value (ld, jsspdata);
+  rps_object_put_payload (obj, paylspace);
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rpsldpy_space */

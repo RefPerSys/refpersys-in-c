@@ -207,6 +207,7 @@ enum
   RpsPyt_Agenda,		/* the agenda */
   RpsPyt_StringDict,		/* string dictionary associating names
 				   to values */
+  RpsPyt_Space,			/* space payload */
   RpsPyt__LAST
 };
 
@@ -630,6 +631,24 @@ extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t *
 void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
 				       const RpsString_t * strv,
 				       const RpsValue_t val);
+
+
+
+/****************************************************************
+ * Tasklet payload for -RpsPyt_Space
+ ****************************************************************/
+#define RPSFIELDS_PAYLOAD_SPACE			\
+  RPSFIELDS_OWNED_PAYLOAD;			\
+  RpsValue_t space_data
+
+
+///// for RpsPyt_Space
+struct RpsPayl_Space_st
+{
+  RPSFIELDS_PAYLOAD_SPACE;
+};
+typedef struct RpsPayl_Space_st RpsSpace_t;
+
 
 /****************************************************************
  * Tasklet payload for -RpsPyt_Tasklet
