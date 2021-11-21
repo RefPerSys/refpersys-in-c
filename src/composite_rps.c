@@ -259,6 +259,8 @@ rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_rps_st
 {
   RPS_ASSERT (left);
   RPS_ASSERT (right);
+  if (left == right)
+    return 0;
   RpsObject_t *obleft = left->setobnodrps_obelem;
   RpsObject_t *obright = right->setobnodrps_obelem;
   if (obleft == obright)
@@ -506,6 +508,30 @@ end:
 
 
 
+
+/*****************************************************************
+ * string dictionnary payload
+ ****************************************************************/
+
+static int
+rps_string_dict_node_cmp (const struct internal_string_dict_node_rps_st *left,
+			  const struct internal_string_dict_node_rps_st
+			  *right)
+{
+
+  RPS_ASSERT (left);
+  RPS_ASSERT (right);
+  if (left == right)
+    return 0;
+  const RpsString_t *strleft = left->strdicnodrps_name;
+  const RpsString_t *strright = right->strdicnodrps_name;
+  if (strleft == strright)
+    return 0;
+  return strcmp (strleft->cstr, strright->cstr);
+}				/* end rps_string_dict_node_cmp */
+
+KAVL_INIT (strdicnodrps, struct internal_string_dict_node_rps_st,
+	   strdicnodrps_head, rps_string_dict_node_cmp);
 
 /* loading a payload associating strings to values */
 void

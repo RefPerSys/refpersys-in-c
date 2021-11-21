@@ -596,14 +596,14 @@ typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
 
 
 /****************************************************************
- * String dictionnary payload for -RpsPyt_StringDict
+ * String dictionary payload for -RpsPyt_StringDict
  ****************************************************************/
 /* Internally we use "kavl.h" */
 struct internal_string_dict_node_rps_st
 {
   const RpsString_t *strdicnodrps_name;
   const RpsValue_t strdicnodrps_val;
-    KAVL_HEAD (struct internal_mutable_set_ob_node_rps_st) strdicnodrps_head;
+    KAVL_HEAD (struct internal_string_dict_node_rps_st) strdicnodrps_head;
 };
 #define RPSFIELDS_PAYLOAD_STRINGDICTOB			\
   RPSFIELDS_OWNED_PAYLOAD;				\
