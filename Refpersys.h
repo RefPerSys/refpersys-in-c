@@ -668,9 +668,6 @@ typedef struct RpsPayl_Tasklet_st RpsTasklet_t;
 /****************************************************************
  * Agenda payload for -RpsPyt_Agenda
  ****************************************************************/
-#define RPSFIELDS_PAYLOAD_AGENDA		\
-  RPSFIELDS_OWNED_PAYLOAD;			\
-
 enum RpsAgendaPrio_en
 {
   AgPrio_Idle = -1,
@@ -680,10 +677,13 @@ enum RpsAgendaPrio_en
   AgPrio_High,
   AgPrio__LAST
 };
+#define RPSFIELDS_PAYLOAD_AGENDA		\
+  RPSFIELDS_OWNED_PAYLOAD;			\
+  RpsObject_t *agenda_que[AgPrio__LAST]
+
 struct RpsPayl_Agenda_st
 {
   RPSFIELDS_PAYLOAD_AGENDA;
-  RpsObject_t *agenda_que[AgPrio__LAST];
 };
 typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 

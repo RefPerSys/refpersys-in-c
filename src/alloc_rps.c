@@ -46,7 +46,7 @@ alloc0_at_rps (size_t sz, const char *file, int lineno)
   if (sz < sizeof (void *))
     sz = sizeof (void *);
   if (sz > RPS_MAX_ALLOCSIZE)
-    RPS_FATAL_AT (file, lineno, "too big allocation %zd from %s:%d", sz);
+    RPS_FATAL_AT (file, lineno, "too big allocation %zd", sz);
   void *z = malloc (sz);
   if (!z)
     RPS_FATAL_AT (file, lineno, "failed to allocate %zd bytes (%m).", sz);

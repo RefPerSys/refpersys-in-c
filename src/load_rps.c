@@ -54,6 +54,8 @@ struct RpsPayl_Loader_st
   enum rps_loaderstate_en ld_state;
   FILE *ld_manifest_file;
   json_t *ld_json_manifest;
+  double ld_start_elapsedtime;
+  double ld_start_processcputime;
   unsigned ld_nbglobroot;
   RpsObject_t **ld_globrootarr;
   unsigned ld_nbconstob;
@@ -261,6 +263,8 @@ rps_load_initial_heap (void)
   RpsLoader_t *loader = RPS_ALLOC_ZONE (sizeof (RpsLoader_t), -RpsPyt_Loader);
   loader->ld_magic = RPS_LOADER_MAGIC;
   loader->ld_state = RPSLOADING_PARSE_MANIFEST_PASS;
+  loader->ld_start_elapsedtime = rps_clocktime (CLOCK_REALTIME);
+  loader->ld_start_processcputime = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID);
   printf ("rps_load_initial_heap directory %s\n", rps_load_directory);
   rps_load_parse_manifest (loader);
   rps_check_all_objects_buckets_are_valid ();
@@ -297,9 +301,19 @@ rps_load_initial_heap (void)
       rps_load_second_pass (loader, spix, spaceid);
       rps_check_all_objects_buckets_are_valid ();
     };
-#warning rps_load_initial_heap needs to be completed
-  RPS_FATAL ("incomplete rps_load_initial_heap load directory %s",
-	     rps_load_directory);
+  double elapsedtime =  rps_clocktime (CLOCK_REALTIME) - loader->ld_start_elapsedtime;
+  double processcputime = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID) - loader->ld_start_processcputime;
+  long totnbob = loader->ld_totalobjectnb;
+  memset(loader, 0, sizeof(*loader));
+  free(loader), loader = NULL;
+  printf ("*REFPERSYS* loaded %ld objects in %d spaces in %.3f elapsed %.3f cpu seconds (git %s)\n"
+	  ".. %.3f elapsed %.3f cpu µs/obj\n",
+	  totnbob, nbspace,
+	  elapsedtime,
+	  processcputime,
+	  _rps_git_short_id,
+	  (1.0e6*elapsedtime)/totnbob,
+	  (1.0e6*processcputime)/totnbob);
 }				/* end rps_load_initial_heap */
 
 
@@ -696,6 +710,7 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
       }
   }
   pthread_mutex_unlock (&obj->ob_mtx);
+  ld->ld_totalobjectnb++;
 }				/* end rps_loader_fill_object_second_pass */
 
 
@@ -781,10 +796,10 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
       if (objcount % 8 == 0)
 	{
 	  rps_check_all_objects_buckets_are_valid ();
-	  if (objcount % 16 == 0)
-	    printf
-	      ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
-	       spix, objcount, filepath, lincnt, __FILE__, __LINE__);
+	  // if (objcount % 16 == 0)
+	  //  printf
+	  //    ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
+	  //     spix, objcount, filepath, lincnt, __FILE__, __LINE__);
 	};
       memset (linbuf, 0, linsz);
       linoff = ftell (spfil);
@@ -850,8 +865,8 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 		 json_string_value (jsoid), obidbuf);
 	    RpsObject_t *curob = rps_find_object_by_oid (curobid);
 	    RPS_ASSERT (curob != NULL);
-	    printf ("before ldfillobj2ndpass obidbuf=%s lincnt=%d (%s:%d)\n",
-		    obidbuf, lincnt, __FILE__, __LINE__);
+	    //printf ("before ldfillobj2ndpass obidbuf=%s lincnt=%d (%s:%d)\n",
+	    //	    obidbuf, lincnt, __FILE__, __LINE__);
 	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject);
 	    objcount++;
 	    json_decref (jsobject);
@@ -861,9 +876,6 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	  }
       }
     }
-#warning unimplemented rps_load_second_pass
-  RPS_FATAL ("unimplemented rps_load_second_pass space #%d file %s:%d", spix,
-	     filepath, lincnt);
 }				/* end rps_load_second_pass */
 
 /************************ end of file load_rps.c *****************/
