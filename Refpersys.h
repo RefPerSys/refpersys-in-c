@@ -618,7 +618,11 @@ struct RpsPayl_StringDictOb_st
 };
 typedef struct RpsPayl_StringDictOb_st RpsStringDictOb_st;
 
-
+/// initialize the payload to an empty string dictionary
+extern void rps_object_string_dictionary_initialize (RpsObject_t *);
+extern RpsValue_t rps_object_string_dictionary_cstr_find (RpsObject_t*obstrdict, const char*cstr);
+extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t*obstrdict, const RpsString_t*strv);
+void rps_object_string_dictionary_put(RpsObject_t*obstrdict,const RpsString_t*strv, const RpsValue_t val);
 
 /****************************************************************
  * Tasklet payload for -RpsPyt_Tasklet
