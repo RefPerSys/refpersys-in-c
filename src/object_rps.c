@@ -138,9 +138,11 @@ rps_object_reserve_components (RpsObject_t * obj, unsigned nbcomp)
     {
       unsigned newcompsize = rps_prime_above (nbcomp + oldnbcomp / 3
 					      + nbcomp / 8 + 3);
-      RPS_ASSERT (newcompsize > 0
-		  && newcompsize < RPS_MAX_NB_OBJECT_COMPONENTS
-		  && newcompsize > nbcomp);
+      RPS_ASSERTPRINTF (newcompsize > 0
+			&& newcompsize < RPS_MAX_NB_OBJECT_COMPONENTS
+			&& newcompsize > nbcomp,
+			"nbcomp=%u newcompsize=%u oldcompsize=%u",
+			nbcomp, newcompsize, oldcompsize);
       RpsValue_t *newcomparr =
 	RPS_ALLOC_ZEROED (sizeof (RpsValue_t) * newcompsize);
       for (unsigned ix = 0; ix < oldnbcomp; ix++)
