@@ -54,13 +54,12 @@ void
 rps_dump_heap (void)
 {
   /* The dumper probably needs to contain a big hash table of visited
-  objects; a first pass is scanning the heap, starting from global
-  roots including the agenda. During the dump only one pthread should
-  be running, every other pthread should be blocked. The agenda should
-  be "idle".
-  */
-  RPS_FATAL ("unimplemented rps_dump_heap to %s",
-  rps_dump_directory);
-} /* end rps_dump_heap */
+     objects; a first pass is scanning the heap, starting from global
+     roots including the agenda. During the dump only one pthread should
+     be running, every other pthread should be blocked. The agenda should
+     be "idle".
+   */
+  RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
+}				/* end rps_dump_heap */
 
 #warning a lot of dumping routines are missing here

@@ -412,6 +412,11 @@ struct RpsZoneObject_st
   RPSFIELDS_OBJECT;
 };
 
+struct internal_rootob_node_rps_st
+{
+  RpsObject_t *rootobrps_obj;
+    KAVL_HEAD (struct internal__rootob_node_rps_st) rootobrps_head;
+};
 extern void rps_initialize_objects_machinery (void);
 extern void rps_initialize_objects_for_loading (RpsLoader_t * ld,
 						unsigned nbglobroot);
@@ -427,7 +432,8 @@ extern RpsValue_t rps_get_object_attribute (RpsObject_t * ob,
 extern void rps_check_all_objects_buckets_are_valid (void);
 extern void rps_object_reserve_components (RpsObject_t * obj,
 					   unsigned nbcomp);
-
+extern void rps_add_global_root_object (RpsObject_t * obj);
+extern void rps_remove_global_root_object (RpsObject_t * obj);
 
 
 

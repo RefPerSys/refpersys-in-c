@@ -474,6 +474,30 @@ main (int argc, char **argv)
     rps_dump_heap ();
 }				/* end of main function */
 
+pthread_mutex_t rps_rootob_mtx = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+RpsMutableSetOb_t rps_rootob_mutset = {.zm_type = -RpsPyt_MutableSetOb };
 
+
+void
+rps_add_global_root_object (RpsObject_t * obj)
+{
+  if (!obj)
+    return;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&rps_rootob_mtx);
+  rps_paylsetob_add_element (&rps_rootob_mutset, obj);
+  pthread_mutex_unlock (&rps_rootob_mtx);
+}				/* end rps_add_global_root_object  */
+
+void
+rps_remove_global_root_object (RpsObject_t * obj)
+{
+  if (!obj)
+    return;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&rps_rootob_mtx);
+  rps_paylsetob_remove_element (&rps_rootob_mutset, obj);
+  pthread_mutex_unlock (&rps_rootob_mtx);
+}				/* end rps_remove_global_root_object */
 
 /************** end of file main_rps.c ****************/
