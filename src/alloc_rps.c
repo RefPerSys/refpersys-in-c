@@ -36,7 +36,9 @@
 
 #define RPS_MAX_ALLOCSIZE (1L<<24)
 
-/// allocate a zeroed memory zone
+/// allocate a zeroed memory zone; these should be manually freed, and
+/// are almost always allocated thru the RPS_ALLOC_ZEROED macro defined
+/// in header file Refpersys.h
 void *
 alloc0_at_rps (size_t sz, const char *file, int lineno)
 {
@@ -52,22 +54,38 @@ alloc0_at_rps (size_t sz, const char *file, int lineno)
     RPS_FATAL_AT (file, lineno, "failed to allocate %zd bytes (%m).", sz);
   memset (z, 0, sz);
   return z;
-}				/* end alloc_at_rps */
+}				/* end alloc0_at_rps */
 
 
+#define RPS_NB_ZONED_CHAINS 61
+struct RpsZonedMemory_st *rps_zoned_chainarr[RPS_NB_ZONED_CHAINS];
+pthread_mutex_t rps_zoned_mtxarr[RPS_NB_ZONED_CHAINS];
+
+
+/// allocate a garbage collected and dynamically typed memory zone;
+/// these should never be manually freed outside of our GC, and are
+/// almost always allocated thru the RPS_ALLOC_ZONE macro defined in
+/// header file Refpersys.h
 void *
 alloczone_at_rps (size_t bytsz, int8_t type, const char *file, int lineno)
 {
+  RPS_ASSERT (file != NULL && lineno > 0);
   if (bytsz > RPS_MAX_ZONE_SIZE)
     RPS_FATAL_AT (file, lineno, "too big memory zone %zd requested", bytsz);
   if (type == 0)
     RPS_FATAL_AT (file, lineno,
 		  "invalid zero type for memory zone of %zd bytes", bytsz);
   RPS_ASSERT (bytsz >= sizeof (struct RpsZonedMemory_st));
+  unsigned h =
+    (rps_hash_cstr (file) + bytsz + type + lineno) % RPS_NB_ZONED_CHAINS;
+  pthread_mutex_lock (&rps_zoned_mtxarr[h]);
   struct RpsZonedMemory_st *zm =
     (struct RpsZonedMemory_st *) alloc0_at_rps (bytsz, file, lineno);
   atomic_init (&zm->zm_gcmark, 0);
   zm->zm_type = type;
+  atomic_init (&zm->zm_gclink, rps_zoned_chainarr[h]);
+  rps_zoned_chainarr[h] = zm;
+  pthread_mutex_unlock (&rps_zoned_mtxarr[h]);
   return (void *) zm;
 }				/* end alloczone_at_rps */
 
