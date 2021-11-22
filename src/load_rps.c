@@ -301,19 +301,19 @@ rps_load_initial_heap (void)
       rps_load_second_pass (loader, spix, spaceid);
       rps_check_all_objects_buckets_are_valid ();
     };
-  double elapsedtime =  rps_clocktime (CLOCK_REALTIME) - loader->ld_start_elapsedtime;
-  double processcputime = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID) - loader->ld_start_processcputime;
+  double elapsedtime =
+    rps_clocktime (CLOCK_REALTIME) - loader->ld_start_elapsedtime;
+  double processcputime =
+    rps_clocktime (CLOCK_PROCESS_CPUTIME_ID) -
+    loader->ld_start_processcputime;
   long totnbob = loader->ld_totalobjectnb;
-  memset(loader, 0, sizeof(*loader));
-  free(loader), loader = NULL;
-  printf ("*REFPERSYS* loaded %ld objects in %d spaces in %.3f elapsed %.3f cpu seconds (git %s)\n"
-	  ".. %.3f elapsed %.3f cpu µs/obj\n",
-	  totnbob, nbspace,
-	  elapsedtime,
-	  processcputime,
-	  _rps_git_short_id,
-	  (1.0e6*elapsedtime)/totnbob,
-	  (1.0e6*processcputime)/totnbob);
+  memset (loader, 0, sizeof (*loader));
+  free (loader), loader = NULL;
+  printf
+    ("*REFPERSYS* loaded %ld objects in %d spaces in %.3f elapsed %.3f cpu seconds (git %s)\n"
+     ".. %.3f elapsed %.3f cpu µs/obj\n", totnbob, nbspace, elapsedtime,
+     processcputime, _rps_git_short_id, (1.0e6 * elapsedtime) / totnbob,
+     (1.0e6 * processcputime) / totnbob);
 }				/* end rps_load_initial_heap */
 
 
@@ -866,7 +866,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    RpsObject_t *curob = rps_find_object_by_oid (curobid);
 	    RPS_ASSERT (curob != NULL);
 	    //printf ("before ldfillobj2ndpass obidbuf=%s lincnt=%d (%s:%d)\n",
-	    //	    obidbuf, lincnt, __FILE__, __LINE__);
+	    //      obidbuf, lincnt, __FILE__, __LINE__);
 	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject);
 	    objcount++;
 	    json_decref (jsobject);

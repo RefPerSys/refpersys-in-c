@@ -50,4 +50,10 @@ rps_is_valid_dumper (RpsDumper_t * du)
     return false;
 }				/* end rps_is_valid_dumper */
 
+void
+rps_dump_heap (void)
+{
+  RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
+}				/* end rps_dump_heap */
+
 #warning a lot of dumping routines are missing here

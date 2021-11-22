@@ -97,6 +97,7 @@ extern struct backtrace_state *rps_backtrace_common_state;
 extern const char *rps_progname;	/* argv[0] of main */
 extern void *rps_dlhandle;	/* global dlopen handle */
 extern const char *rps_load_directory;
+extern const char *rps_dump_directory;
 
 /// global variables declared in generated __timestamp.c file:
 extern const char _rps_git_id[];
@@ -689,6 +690,7 @@ typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
+extern void rps_dump_heap (void);	/// dump into rps_dump_directory
 extern void rps_abort (void) __attribute__((noreturn));
 extern void rps_backtrace_print (struct backtrace_state *state, int skip,
 				 FILE * f);

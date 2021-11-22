@@ -50,6 +50,7 @@ struct backtrace_state *rps_backtrace_common_state;
 const char *rps_progname;
 void *rps_dlhandle;
 const char *rps_load_directory;
+const char *rps_dump_directory;
 GOptionEntry rps_gopt_entries[] = {
   {"load-directory", 'L', 0, G_OPTION_ARG_FILENAME, &rps_load_directory,
    "load persistent heap from directory DIR", "DIR"},
@@ -59,6 +60,8 @@ GOptionEntry rps_gopt_entries[] = {
    "show version information and default options", NULL},
   {"show-types", 0, 0, G_OPTION_ARG_NONE, &rps_showing_types,
    "show type information", NULL},
+  {"dump", 'D', 0, G_OPTION_ARG_FILENAME, &rps_dump_directory,
+   "dump heap into directory DIR", "DIR"},
   {NULL}
 };
 
@@ -113,8 +116,9 @@ rps_show_version_info (int argc, char **argv)
   printf ("\t GNU libc version: %s (see www.gnu.org/software/libc)\n",
 	  gnu_get_libc_version ());
 #if JANSSON_VERSION_HEX > 0x020d00
-  printf ("\t Jansson library runtime version: %s (see digip.org/jansson/)\n",
-	  jansson_version_str ());
+  printf
+    ("\t Jansson library runtime version: %s (see digip.org/jansson/)\n",
+     jansson_version_str ());
 #else
   printf ("\t Jansson library version: %s (see digip.org/jansson/)\n",
 	  JANSSON_VERSION);
@@ -210,9 +214,10 @@ rps_show_types_info (void)
       char idrbuf[32];
       memset (idrbuf, 0, sizeof (idrbuf));
       rps_oid_to_cbuf (oidr, idrbuf);
-      printf ("random id#%d {id_hi=%018ld,id_lo=%018ld} %s h%#08x (%s:%d)\n",
-	      cnt, oidr.id_hi, oidr.id_lo, idrbuf,
-	      rps_oid_hash (oidr), __FILE__, __LINE__);
+      printf
+	("random id#%d {id_hi=%018ld,id_lo=%018ld} %s h%#08x (%s:%d)\n",
+	 cnt, oidr.id_hi, oidr.id_lo, idrbuf, rps_oid_hash (oidr), __FILE__,
+	 __LINE__);
       const char *end = NULL;
       RpsOid oidrbis = rps_cstr_to_oid (idrbuf, &end);
       char idbisbuf[32];
@@ -367,8 +372,8 @@ rps_backtrace_print (struct backtrace_state *state, int skip, FILE * f)
 
   data.state = state;
   data.f = f;
-  backtrace_full (state, skip + 1, rps_printbt_callback, rps_errorbt_callback,
-		  (void *) &data);
+  backtrace_full (state, skip + 1, rps_printbt_callback,
+		  rps_errorbt_callback, (void *) &data);
 }				/* end backtrace_print_BM */
 
 void
@@ -459,15 +464,14 @@ main (int argc, char **argv)
   rps_check_all_objects_buckets_are_valid ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
-
-
   if (rps_terminal_is_escaped)
     {
       rps_terminal_has_stderr = isatty (STDERR_FILENO);
       rps_terminal_has_stdout = isatty (STDOUT_FILENO);
     }
-
   rps_load_initial_heap ();
+  if (rps_dump_directory)
+    rps_dump_heap ();
 }				/* end of main function */
 
 
