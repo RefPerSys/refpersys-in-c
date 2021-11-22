@@ -416,6 +416,9 @@ rps_abort (void)
   abort ();
 }				/* end rps_abort */
 
+
+
+
 int
 main (int argc, char **argv)
 {
@@ -439,6 +442,7 @@ main (int argc, char **argv)
 	       rps_progname, dlerror ());
       exit (EXIT_FAILURE);
     };
+  rps_allocation_initialize();
   curl_global_init (CURL_GLOBAL_ALL);
   GError *argperr = NULL;
   rps_with_gui =
@@ -470,9 +474,13 @@ main (int argc, char **argv)
       rps_terminal_has_stdout = isatty (STDOUT_FILENO);
     }
   rps_load_initial_heap ();
+  if (rps_with_gui) {
+  }
   if (rps_dump_directory)
     rps_dump_heap ();
 }				/* end of main function */
+
+
 
 pthread_mutex_t rps_rootob_mtx = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 RpsMutableSetOb_t rps_rootob_mutset = {.zm_type = -RpsPyt_MutableSetOb };

@@ -60,7 +60,14 @@ alloc0_at_rps (size_t sz, const char *file, int lineno)
 #define RPS_NB_ZONED_CHAINS 61
 struct RpsZonedMemory_st *rps_zoned_chainarr[RPS_NB_ZONED_CHAINS];
 pthread_mutex_t rps_zoned_mtxarr[RPS_NB_ZONED_CHAINS];
+pthread_cond_t rps_zoned_condarr[RPS_NB_ZONED_CHAINS];
 
+
+void				/* called by RPS_BLOCK_ZONE_ALLOCATION */
+block_zone_allocation_at_rps(const char*file, int lineno)
+{
+  RPS_ASSERT (file != NULL && lineno > 0);
+} /* end block_zone_allocation_at_rps */
 
 /// allocate a garbage collected and dynamically typed memory zone;
 /// these should never be manually freed outside of our GC, and are
@@ -88,5 +95,20 @@ alloczone_at_rps (size_t bytsz, int8_t type, const char *file, int lineno)
   pthread_mutex_unlock (&rps_zoned_mtxarr[h]);
   return (void *) zm;
 }				/* end alloczone_at_rps */
+
+
+/// initialization routine, to be called once and early in main.
+void
+rps_allocation_initialize(void)
+{
+  pthread_mutexattr_t mtxat;
+  memset (&mtxat, 0, sizeof(mtxat));
+  pthread_mutexattr_init(&mtxat);
+  pthread_mutexattr_settype(&mtxat,PTHREAD_MUTEX_ERRORCHECK_NP);
+  for (int i=0; i<RPS_NB_ZONED_CHAINS; i++) {
+    pthread_mutex_init(&rps_zoned_mtxarr[i], &mtxat);
+    pthread_cond_init(&rps_zoned_condarr[i], NULL);
+  }
+} /* end rps_allocation_initialize */
 
 /* end of file alloc_rps.c */
