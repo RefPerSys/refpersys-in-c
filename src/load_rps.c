@@ -307,8 +307,7 @@ rps_load_initial_heap (void)
     rps_clocktime (CLOCK_PROCESS_CPUTIME_ID) -
     loader->ld_start_processcputime;
   long totnbob = loader->ld_totalobjectnb;
-  memset (loader, 0, sizeof (*loader));
-  free (loader), loader = NULL;
+  // we don't free the loader, it will be later garbage collected!
   printf
     ("*REFPERSYS* loaded %ld objects in %d spaces in %.3f elapsed %.3f cpu seconds (git %s)\n"
      ".. %.3f elapsed %.3f cpu µs/obj\n", totnbob, nbspace, elapsedtime,

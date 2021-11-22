@@ -307,7 +307,7 @@ rps_attr_table_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
   // the test below should always succeed!
   if (!rps_attr_table_entry_put (new_tbl, obattr, val))
     RPS_FATAL ("corruption in rps_attr_table_put for new_tbl @%p", new_tbl);
-  free (old_tbl);
+  /// we don't free the old_tbl, it will be garbage collected...
   return new_tbl;
 }				/* end rps_attr_table_put */
 
@@ -371,7 +371,7 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 	  for (int ix = pos + 1; ix < oldtbllen; ix++)
 	    new_tbl->attr_entries[ix] = old_tbl->attr_entries[ix - 1];
 	  new_tbl->zm_length = oldtbllen - 1;
-	  free (old_tbl);
+	  //// we don't free the old_tbl, it will be later garbage collected
 	  return new_tbl;
 	}
     };

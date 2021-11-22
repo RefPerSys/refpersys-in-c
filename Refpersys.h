@@ -226,7 +226,8 @@ enum
   int8_t zm_type; /* the type of that zone - value (>0) or payload (<0) */ \
   atomic_uchar zm_gcmark; /* the garbage collector mark */ 		\
   uint16_t zm_xtra;	  /* some short extra data */			\
-  uint32_t zm_length		/* the size of variable-sized data */
+  uint32_t zm_length;		/* the size of variable-sized data */   \
+  atomic volatile void* zm_gclink	/* a pointer for our naive GC */
 
 
 struct RpsZonedMemory_st
