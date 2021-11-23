@@ -684,6 +684,9 @@ rps_object_deque_get_first (RpsObject_t * obj)
   if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
+  if (!firstlink)
+    goto end;
+  RPS_ASSERT (firstlink->dequeob_prev == NULL);
   for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
     {
       resob = firstlink->dequeob_chunk[i];
@@ -697,6 +700,48 @@ end:
 }				/* end rps_object_deque_get_first */
 
 RpsObject_t *
+rps_object_deque_pop_first (RpsObject_t * obj)
+{
+  RpsObject_t *resob = NULL;
+  if (!obj)
+    return NULL;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
+  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+    goto end;
+  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
+  if (!firstlink)
+    goto end;
+  RPS_ASSERT (payldeq->zm_length > 0);
+  RPS_ASSERT (firstlink->dequeob_prev == NULL);
+  for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
+    {
+      resob = firstlink->dequeob_chunk[i];
+      if (resob)
+	{
+	  firstlink->dequeob_chunk[i] = NULL;
+	  payldeq->zm_length--;
+	  if (i == RPS_DEQUE_CHUNKSIZE - 1)
+	    {
+	      payldeq->deqob_first = firstlink->dequeob_next;
+	      if (!payldeq->deqob_first)
+		{
+		  RPS_ASSERT (payldeq->deqob_last == firstlink);
+		  payldeq->deqob_last = NULL;
+		}
+	      free (firstlink);
+	    }
+	  break;
+	}
+    }
+  RPS_ASSERT (resob != NULL);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return resob;
+}				/* end rps_object_deque_pop_first */
+
+RpsObject_t *
 rps_object_deque_get_last (RpsObject_t * obj)
 {
   RpsObject_t *resob = NULL;
@@ -708,6 +753,9 @@ rps_object_deque_get_last (RpsObject_t * obj)
   if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
+  if (!lastlink)
+    goto end;
+  RPS_ASSERT (lastlink->dequeob_next == NULL);
   for (int i = RPS_DEQUE_CHUNKSIZE - 1; i >= 0; i--)
     {
       resob = lastlink->dequeob_chunk[i];
@@ -719,5 +767,44 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
   return resob;
 }				/* end rps_object_deque_get_last */
+
+RpsObject_t *
+rps_object_deque_pop_last (RpsObject_t * obj)
+{
+  RpsObject_t *resob = NULL;
+  if (!obj)
+    return NULL;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
+  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+    goto end;
+  struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
+  if (!lastlink)
+    goto end;
+  RPS_ASSERT (lastlink->dequeob_next == NULL);
+  for (int i = RPS_DEQUE_CHUNKSIZE - 1; i >= 0; i--)
+    {
+      resob = lastlink->dequeob_chunk[i];
+      if (resob)
+	{
+	  if (i == 0)
+	    {
+	      payldeq->deqob_last = lastlink->dequeob_prev;
+	      if (!payldeq->deqob_last)
+		{
+		  RPS_ASSERT (payldeq->deqob_first == lastlink);
+		  payldeq->deqob_first = NULL;
+		}
+	      free (lastlink);
+	    }
+	  break;
+	}
+    }
+  RPS_ASSERT (resob != NULL);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return resob;
+}				/* end rps_object_deque_pop_last */
 
 /***************** end of file composite_rps.c from refpersys.org **********/
