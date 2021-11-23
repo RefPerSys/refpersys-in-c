@@ -61,13 +61,30 @@ alloc0_at_rps (size_t sz, const char *file, int lineno)
 struct RpsZonedMemory_st *rps_zoned_chainarr[RPS_NB_ZONED_CHAINS];
 pthread_mutex_t rps_zoned_mtxarr[RPS_NB_ZONED_CHAINS];
 pthread_cond_t rps_zoned_condarr[RPS_NB_ZONED_CHAINS];
+volatile atomic_bool rps_zoned_alloc_blocked;
 
+#define RPS_ALLOC_WAIT_MILLISEC 25	/*amount of time we wait for zoned alloc to be unblocked */
 
+// we need to use condvar, etc...
+#warning some pthread code is missing in routine below
+
+/* We sometimes need to block every zone allocation, e.g. to let the
+   garbage collector run....  See comment about pthreads in
+   agenda_rps.c */
 void				/* called by RPS_BLOCK_ZONE_ALLOCATION */
-block_zone_allocation_at_rps(const char*file, int lineno)
+block_zone_allocation_at_rps (const char *file, int lineno)
 {
   RPS_ASSERT (file != NULL && lineno > 0);
-} /* end block_zone_allocation_at_rps */
+  atomic_store (&rps_zoned_alloc_blocked, TRUE);
+}				/* end block_zone_allocation_at_rps */
+
+
+void
+permit_zone_allocation_at_rps (const char *file, int lineno)
+{
+  RPS_ASSERT (file != NULL && lineno > 0);
+  atomic_store (&rps_zoned_alloc_blocked, FALSE);
+}				/* end permit_zone_allocation_at_rps */
 
 /// allocate a garbage collected and dynamically typed memory zone;
 /// these should never be manually freed outside of our GC, and are
@@ -86,6 +103,19 @@ alloczone_at_rps (size_t bytsz, int8_t type, const char *file, int lineno)
   unsigned h =
     (rps_hash_cstr (file) + bytsz + type + lineno) % RPS_NB_ZONED_CHAINS;
   pthread_mutex_lock (&rps_zoned_mtxarr[h]);
+  while (atomic_load (&rps_zoned_alloc_blocked))
+    {
+      struct timespec ts = { 0, 0 };
+      clock_gettime (CLOCK_REALTIME, &ts);
+      ts.tv_nsec += RPS_ALLOC_WAIT_MILLISEC * (1000 * 1000);
+      while (ts.tv_nsec > (1000 * 1000 * 1000))
+	{
+	  ts.tv_sec++;
+	  ts.tv_nsec -= (1000 * 1000 * 1000);
+	};
+      pthread_cond_timedwait (&rps_zoned_condarr[h], &rps_zoned_mtxarr[h],
+			      &ts);
+    }
   struct RpsZonedMemory_st *zm =
     (struct RpsZonedMemory_st *) alloc0_at_rps (bytsz, file, lineno);
   atomic_init (&zm->zm_gcmark, 0);
@@ -99,16 +129,17 @@ alloczone_at_rps (size_t bytsz, int8_t type, const char *file, int lineno)
 
 /// initialization routine, to be called once and early in main.
 void
-rps_allocation_initialize(void)
+rps_allocation_initialize (void)
 {
   pthread_mutexattr_t mtxat;
-  memset (&mtxat, 0, sizeof(mtxat));
-  pthread_mutexattr_init(&mtxat);
-  pthread_mutexattr_settype(&mtxat,PTHREAD_MUTEX_ERRORCHECK_NP);
-  for (int i=0; i<RPS_NB_ZONED_CHAINS; i++) {
-    pthread_mutex_init(&rps_zoned_mtxarr[i], &mtxat);
-    pthread_cond_init(&rps_zoned_condarr[i], NULL);
-  }
-} /* end rps_allocation_initialize */
+  memset (&mtxat, 0, sizeof (mtxat));
+  pthread_mutexattr_init (&mtxat);
+  pthread_mutexattr_settype (&mtxat, PTHREAD_MUTEX_ERRORCHECK_NP);
+  for (int i = 0; i < RPS_NB_ZONED_CHAINS; i++)
+    {
+      pthread_mutex_init (&rps_zoned_mtxarr[i], &mtxat);
+      pthread_cond_init (&rps_zoned_condarr[i], NULL);
+    }
+}				/* end rps_allocation_initialize */
 
 /* end of file alloc_rps.c */
