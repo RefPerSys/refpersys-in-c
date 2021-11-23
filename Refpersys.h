@@ -63,6 +63,9 @@
 #include <math.h>
 #include <limits.h>
 
+
+// See also the important comment about pthreads in file agenda_rps.c
+
 // man7.org/linux/man-pages/man3/gnu_get_libc_version.3.html
 #include <gnu/libc-version.h>
 
@@ -689,6 +692,7 @@ enum RpsAgendaPrio_en
   RPSFIELDS_OWNED_PAYLOAD;			\
   RpsObject_t *agenda_que[AgPrio__LAST]
 
+//// there is an important comment about pthreads in src/agenda_rps.c file.
 struct RpsPayl_Agenda_st
 {
   RPSFIELDS_PAYLOAD_AGENDA;
@@ -722,7 +726,7 @@ extern void rps_fatal_stop_at (const char *fil, int lineno)
 
 #include "include/assert_rps.h"
 
-extern void rps_allocation_initialize(void); /* early initialization */
+extern void rps_allocation_initialize (void);	/* early initialization */
 
 extern void *alloc0_at_rps (size_t sz, const char *fil, int lineno);
 #define RPS_ALLOC_ZEROED(Sz) alloc0_at_rps((Sz),__FILE__,__LINE__)
@@ -733,8 +737,10 @@ extern void *alloczone_at_rps (size_t bytsz, int8_t type,
 #define RPS_MAX_ZONE_SIZE (size_t)(1L<<24)
 
 // block every zone allocation, to be able to start the garbage collector
-extern void block_zone_allocation_at_rps(const char*file, int lineno);
+extern void block_zone_allocation_at_rps (const char *file, int lineno);
 #define RPS_BLOCK_ZONE_ALLOCATION() block_zone_allocation_at_rps(__FILE__,__LINE__)
+extern void permit_zone_allocation_at_rps (const char *file, int lineno);
+#define RPS_PERMIT_ZONE_ALLOCATION() permit_zone_allocation_at_rps(__FILE__,__LINE__)
 
 extern pid_t rps_gettid (void);
 extern double rps_clocktime (clockid_t);
