@@ -28,6 +28,39 @@
 
 #include "Refpersys.h"
 
+/// Read the important comment about pthreads below....
+
+
+/*****************************************************************
+ *            ABOUT PTHREADS IN RefPerSys
+ *
+ * We have a fixed amount of pthreads in RefPerSys, and their number
+ * is called the number of jobs NJ, and should be settable by some
+ * program option, e.g. --jobs=4; that number of jobs should be more
+ * than two and less than twenty and less than one more than the
+ * number of cores in the CPU.
+ *
+ * + The main thread, which is loading the heap, and later running the
+ * GTK event loop. That main thread can use RPS_ALLOC_ZONE. The GTK
+ * event loop accept some GTK updating requests on some pipe from
+ * agenda threads.  So we should use one pipe(7) to accept "requests"
+ * from agenda threads which wants to display or draw some GTK widget.
+ *
+ * + Perhaps extra hidden GTK related threads.  These cannot use
+ * RPS_ALLOC_ZONE at all.  These threads are not known to RefPerSys,
+ * and are supposed to be idle most of the time; they are started and
+ * stopped by some internal GTK code.  It might be possible that some
+ * versions of GTK are using hidden threads for the clipboard or for
+ * large copy/paste into GtkTextView etc...  The reader is requested to
+ * dive into the source code of GTK.
+ *
+ * + The NJ agenda threads.  These threads can use RPS_ALLOC_ZONE but
+ * cannot use any GTK routines directly. For any GTK updating
+ * requests, an agenda thread should write on the pipe(7) used by the
+ * main thread and known by GTK.
+ *****************************************************************/
+
+
 void
 rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 		int spix)
