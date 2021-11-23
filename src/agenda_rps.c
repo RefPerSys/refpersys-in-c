@@ -87,12 +87,78 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	  json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rpsldpy_agenda */
 
+struct rps_agenda_thread_descr_st
+{
+  int agth_index;
+  pthread_t agth_pthread;
+  char agth_thname[16];
+  RpsObject_t *agth_curtasklet;
+  void *agth_bottomstack;
+} rps_agenda_threadarr[RPS_MAX_NB_THREADS + 2];
 
+pthread_attr_t rps_agenda_attrthread;
 
 void
-rps_run_agenda(int nbthreads)
+rps_stop_agenda (void)
 {
-  #warning rps_run_agenda unimplemented
-  RPS_FATAL("unimplemented rps_run_agenda %d threads", nbthreads);
-} /* end rps_run_agenda */
+}				/* end rps_stop_agenda */
 
+void *
+rps_thread_routine (void *ptr)
+{
+  volatile intptr_t botstack[4] = { 0, 0, 0, 0 };
+  RPS_ASSERT (ptr > rps_agenda_threadarr
+	      && ptr <= rps_agenda_threadarr + RPS_MAX_NB_THREADS);
+  struct rps_agenda_thread_descr_st *d = ptr;
+  d->agth_index = d - rps_agenda_threadarr;
+  d->agth_pthread = pthread_self ();
+  snprintf (d->agth_thname, sizeof (d->agth_thname), "rpsagth#%d",
+	    d->agth_index);
+  pthread_setname_np (pthread_self (), d->agth_thname);
+  d->agth_bottomstack = &botstack;
+  usleep (5000 + d->agth_index * 3333);
+  printf ("thread#%d:%ld..(%s:%d)\n", d->agth_index, (long) pthread_self (),
+	  __FILE__, __LINE__);
+  usleep (100 + d->agth_index * 333);
+  /******
+   * TODO: each thread routine should loop while the agenda is active:
+   *
+   * + if a GC is needed (and this happens rarely), wait till every
+   * other thread is non-active and capable of garbage collection.
+   * The garbage collection should probably be running only in the
+   * main thread, but this has to be designed....
+   *
+   * + choose one tasklet to run in the_agenda and remove it
+   *
+   * + execute that tasklet, hopefully in a dozen of milliseconds
+   *****/
+#warning incomplete rps_thread_routine
+  RPS_FATAL ("incomplete rps_thread_routine %d", d->agth_index);
+}				/* end rps_thread_routine */
+
+void
+rps_run_agenda (int nbthreads)
+{
+  static size_t agthread_stacksize = (6 * 1024 * 1024);
+#warning rps_run_agenda unimplemented
+  if (nbthreads < RPS_MIN_NB_THREADS || nbthreads > RPS_MAX_NB_THREADS)
+    RPS_FATAL ("rps_run_agenda with invalid nbthreads %d", nbthreads);
+  pthread_attr_init (&rps_agenda_attrthread);
+  pthread_attr_setstacksize (&rps_agenda_attrthread, agthread_stacksize);
+  pthread_attr_setguardsize (&rps_agenda_attrthread, 1024 * 1024);
+  pthread_attr_setdetachstate (&rps_agenda_attrthread,
+			       PTHREAD_CREATE_JOINABLE);
+  printf ("rps_run_agenda nbthreads=%d\n", nbthreads);
+  fflush (NULL);
+  for (int ix = 1; ix <= nbthreads; ix++)
+    {
+      pthread_t curth = (pthread_t) (0);
+      int err =
+	pthread_create (&curth, &rps_agenda_attrthread, rps_thread_routine,
+			(void *) (rps_agenda_threadarr + ix));
+      if (err)
+	RPS_FATAL ("failed to create agenda thread#%d / %d : err#%d (%s)", ix,
+		   nbthreads, err, strerror (err));
+    }
+  RPS_FATAL ("unimplemented rps_run_agenda %d threads", nbthreads);
+}				/* end rps_run_agenda */

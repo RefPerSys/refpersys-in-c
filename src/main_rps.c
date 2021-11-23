@@ -51,6 +51,7 @@ const char *rps_progname;
 void *rps_dlhandle;
 const char *rps_load_directory;
 const char *rps_dump_directory;
+int rps_nb_threads;
 GOptionEntry rps_gopt_entries[] = {
   {"load-directory", 'L', 0, G_OPTION_ARG_FILENAME, &rps_load_directory,
    "load persistent heap from directory DIR", "DIR"},
@@ -466,12 +467,13 @@ main (int argc, char **argv)
     {
       rps_show_types_info ();
     };
-  if (rps_nb_threads > 0) {
-    if (rps_nb_threads < RPS_MIN_NB_THREADS)
-      rps_nb_threads = RPS_MIN_NB_THREADS;
-    else if (rps_nb_threads > RPS_MAX_NB_THREADS)
-      rps_nb_threads = RPS_MAX_NB_THREADS;
-  }
+  if (rps_nb_threads > 0)
+    {
+      if (rps_nb_threads < RPS_MIN_NB_THREADS)
+	rps_nb_threads = RPS_MIN_NB_THREADS;
+      else if (rps_nb_threads > RPS_MAX_NB_THREADS)
+	rps_nb_threads = RPS_MAX_NB_THREADS;
+    }
   rps_initialize_objects_machinery ();
   rps_check_all_objects_buckets_are_valid ();
   if (!rps_load_directory)
@@ -483,7 +485,7 @@ main (int argc, char **argv)
     }
   rps_load_initial_heap ();
   if (rps_nb_threads > 0)
-    rps_run_agenda(rps_nb_threads);
+    rps_run_agenda (rps_nb_threads);
   if (rps_with_gui)
     {
 #warning missing code here, should create Gtk window and run the agenda...

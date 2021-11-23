@@ -710,7 +710,7 @@ struct RpsPayl_Agenda_st
 };
 typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 
-void rps_run_agenda(int nbthreads);
+void rps_run_agenda (int nbthreads);
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_dump_heap (void);	/// dump into rps_dump_directory
