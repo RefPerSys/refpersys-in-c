@@ -38,6 +38,7 @@ struct RpsPayl_Dumper_st
 {
   RPSFIELDS_ZONED_VALUE;
   unsigned du_magic;		/* always RPS_DUMPER_MAGIC */
+  RpsMutableSetOb_t *du_dumpedset;
 };
 
 
