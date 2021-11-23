@@ -442,7 +442,7 @@ main (int argc, char **argv)
 	       rps_progname, dlerror ());
       exit (EXIT_FAILURE);
     };
-  rps_allocation_initialize();
+  rps_allocation_initialize ();
   curl_global_init (CURL_GLOBAL_ALL);
   GError *argperr = NULL;
   rps_with_gui =
@@ -474,8 +474,10 @@ main (int argc, char **argv)
       rps_terminal_has_stdout = isatty (STDOUT_FILENO);
     }
   rps_load_initial_heap ();
-  if (rps_with_gui) {
-  }
+  if (rps_with_gui)
+    {
+#warning missing code here, should create Gtk window and run the agenda...
+    }
   if (rps_dump_directory)
     rps_dump_heap ();
 }				/* end of main function */
