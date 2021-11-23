@@ -605,7 +605,10 @@ struct RpsPayl_DequeOb_st
   RPSFIELDS_PAYLOAD_DEQUE;
 };
 typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
-
+/// initialize the payload to an empty double ended queue
+extern void rps_object_deque_ob_initialize (RpsObject_t *);
+extern RpsObject_t *rps_object_deque_get_first (RpsObject_t *);
+extern RpsObject_t *rps_object_deque_get_last (RpsObject_t *);
 
 /****************************************************************
  * String dictionary payload for -RpsPyt_StringDict

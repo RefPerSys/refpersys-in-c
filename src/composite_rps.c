@@ -651,4 +651,73 @@ end:
 }				/* end rpsldpy_space */
 
 
+/****************************************************************
+ * Double-ended queue/linked-list payload for -RpsPyt_DequeOb
+ ****************************************************************/
+void
+rps_object_deque_ob_initialize (RpsObject_t * obj)
+{
+  if (!obj)
+    return;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  char idbuf[32];
+  memset (idbuf, 0, sizeof (idbuf));
+  rps_oid_to_cbuf (obj->ob_id, idbuf);
+  pthread_mutex_lock (&obj->ob_mtx);
+  RpsDequeOb_t *payldeq =
+    RPS_ALLOC_ZONE (sizeof (RpsDequeOb_t), -RpsPyt_DequeOb);
+  rps_object_put_payload (obj, payldeq);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end of rps_object_deque_ob_initialize */
+
+
+RpsObject_t *
+rps_object_deque_get_first (RpsObject_t * obj)
+{
+  RpsObject_t *resob = NULL;
+  if (!obj)
+    return NULL;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
+  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+    goto end;
+  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
+  for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
+    {
+      resob = firstlink->dequeob_chunk[i];
+      if (resob)
+	break;
+    }
+  RPS_ASSERT (resob != NULL);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return resob;
+}				/* end rps_object_deque_get_first */
+
+RpsObject_t *
+rps_object_deque_get_last (RpsObject_t * obj)
+{
+  RpsObject_t *resob = NULL;
+  if (!obj)
+    return NULL;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
+  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+    goto end;
+  struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
+  for (int i = RPS_DEQUE_CHUNKSIZE - 1; i >= 0; i--)
+    {
+      resob = lastlink->dequeob_chunk[i];
+      if (resob)
+	break;
+    }
+  RPS_ASSERT (resob != NULL);
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return resob;
+}				/* end rps_object_deque_get_last */
+
 /***************** end of file composite_rps.c from refpersys.org **********/
