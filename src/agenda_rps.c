@@ -86,3 +86,13 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	  idbuf, spix, __FILE__, __LINE__,
 	  json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rpsldpy_agenda */
+
+
+
+void
+rps_run_agenda(int nbthreads)
+{
+  #warning rps_run_agenda unimplemented
+  RPS_FATAL("unimplemented rps_run_agenda %d threads", nbthreads);
+} /* end rps_run_agenda */
+

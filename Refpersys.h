@@ -96,6 +96,12 @@
 extern bool rps_running_in_batch;	/* no user interface */
 extern bool rps_showing_version;
 extern bool rps_with_gui;
+
+/// number of agenda threads
+#define RPS_MIN_NB_THREADS 2
+#define RPS_MAX_NB_THREADS 16
+extern int rps_nb_threads;
+
 extern struct backtrace_state *rps_backtrace_common_state;
 extern const char *rps_progname;	/* argv[0] of main */
 extern void *rps_dlhandle;	/* global dlopen handle */
@@ -704,6 +710,7 @@ struct RpsPayl_Agenda_st
 };
 typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 
+void rps_run_agenda(int nbthreads);
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_dump_heap (void);	/// dump into rps_dump_directory
