@@ -78,13 +78,21 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
     RPS_FATAL
       ("rpsldpy_agenda obj %s already called %d times spix#%d\n..jv=%s",
        idbuf, count, spix, json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+  json_t *jpriolow = json_object_get (jv, "priority_low");
+  json_t *jprionormal = json_object_get (jv, "priority_normal");
+  json_t *jpriohigh = json_object_get (jv, "priority_high");
   RpsAgenda_t *agenpayl		//
     = RPS_ALLOC_ZONE (sizeof (RpsAgenda_t), -RpsPyt_Agenda);
+  RpsObject_t *obpriolow = rps_loader_json_to_object (ld, jpriolow);
+  if (obpriolow)
+    agenpayl->agenda_que[AgPrio_Low] = obpriolow;
+  RpsObject_t *obprionormal = rps_loader_json_to_object (ld, jprionormal);
+  if (obprionormal)
+    agenpayl->agenda_que[AgPrio_Normal] = obprionormal;
+  RpsObject_t *obpriohigh = rps_loader_json_to_object (ld, jpriohigh);
+  if (obpriohigh)
+    agenpayl->agenda_que[AgPrio_Normal] = obpriohigh;
   rps_object_put_payload (obj, agenpayl);
-#warning rpsldpy_agenda incomplete
-  printf ("incomplete rpsldpy_agenda obj %s spix#%d (%s:%d) \n..jv=%s\n",
-	  idbuf, spix, __FILE__, __LINE__,
-	  json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rpsldpy_agenda */
 
 struct rps_agenda_thread_descr_st
