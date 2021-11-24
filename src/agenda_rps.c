@@ -83,13 +83,16 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
   json_t *jpriohigh = json_object_get (jv, "priority_high");
   RpsAgenda_t *agenpayl		//
     = RPS_ALLOC_ZONE (sizeof (RpsAgenda_t), -RpsPyt_Agenda);
-  RpsObject_t *obpriolow = rps_loader_json_to_object (ld, jpriolow);
+  RpsObject_t *obpriolow =	//
+    jpriolow ? (rps_loader_json_to_object (ld, jpriolow)) : NULL;
   if (obpriolow)
     agenpayl->agenda_que[AgPrio_Low] = obpriolow;
-  RpsObject_t *obprionormal = rps_loader_json_to_object (ld, jprionormal);
+  RpsObject_t *obprionormal =	//
+    jprionormal ? (rps_loader_json_to_object (ld, jprionormal)) : NULL;
   if (obprionormal)
     agenpayl->agenda_que[AgPrio_Normal] = obprionormal;
-  RpsObject_t *obpriohigh = rps_loader_json_to_object (ld, jpriohigh);
+  RpsObject_t *obpriohigh =	//
+    jpriohigh ? (rps_loader_json_to_object (ld, jpriohigh)) : NULL;
   if (obpriohigh)
     agenpayl->agenda_que[AgPrio_Normal] = obpriohigh;
   rps_object_put_payload (obj, agenpayl);
