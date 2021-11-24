@@ -36,7 +36,7 @@
  *
  * We have a fixed amount of pthreads in RefPerSys, and their number
  * is called the number of jobs NJ, and should be settable by some
- * program option, e.g. --jobs=4; that number of jobs should be more
+ * program option, e.g. --nb-threads=4; that number of jobs should be more
  * than two and less than twenty and less than one more than the
  * number of cores in the CPU.
  *
@@ -98,28 +98,43 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
   rps_object_put_payload (obj, agenpayl);
 }				/* end rpsldpy_agenda */
 
+
+enum rps_agenda_thread_state_en
+{
+  RpsAgTh__None,
+  RpsAgTh_Idle,
+  RpsAgTh_Running,
+  RpsAgTh_WantGC,
+  RpsAgTh_WantDump,
+};
+
+volatile atomic_bool rps_agenda_running;
 struct rps_agenda_thread_descr_st
 {
-  int agth_index;
+  int16_t agth_index;
+  volatile enum rps_agenda_thread_state_en agth_state;
   pthread_t agth_pthread;
   char agth_thname[16];
   RpsObject_t *agth_curtasklet;
   void *agth_bottomstack;
+  volatile atomic_ulong agth_loop_counter;
 } rps_agenda_threadarr[RPS_MAX_NB_THREADS + 2];
 
 pthread_attr_t rps_agenda_attrthread;
+pthread_cond_t rps_agenda_changed_cond = PTHREAD_COND_INITIALIZER;
 
 void
 rps_stop_agenda (void)
 {
+#warning rps_stop_agenda should be coded
 }				/* end rps_stop_agenda */
 
 void *
 rps_thread_routine (void *ptr)
 {
   volatile intptr_t botstack[4] = { 0, 0, 0, 0 };
-  RPS_ASSERT (ptr > rps_agenda_threadarr
-	      && ptr <= rps_agenda_threadarr + RPS_MAX_NB_THREADS);
+  RPS_ASSERT (ptr > (void *) rps_agenda_threadarr
+	      && ptr <= (void *) (rps_agenda_threadarr + RPS_MAX_NB_THREADS));
   struct rps_agenda_thread_descr_st *d = ptr;
   d->agth_index = d - rps_agenda_threadarr;
   d->agth_pthread = pthread_self ();
@@ -143,8 +158,13 @@ rps_thread_routine (void *ptr)
    *
    * + execute that tasklet, hopefully in a dozen of milliseconds
    *****/
+  while (atomic_load (&rps_agenda_running))
+    {
+      uint64_t count = atomic_fetch_add (&d->agth_loop_counter, 1) + 1;
+      usleep (100 + d->agth_index * 333);
 #warning incomplete rps_thread_routine
-  RPS_FATAL ("incomplete rps_thread_routine %d", d->agth_index);
+      RPS_FATAL ("incomplete rps_thread_routine %d", d->agth_index);
+    };				/* end while rps_agenda_running */
 }				/* end rps_thread_routine */
 
 void

@@ -710,6 +710,8 @@ struct RpsPayl_Agenda_st
 };
 typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 
+#define RPS_THE_AGENDA_OBJECT RPS_ROOT_OB(_1aGtWm38Vw701jDhZn)	//"the_agenda"∈agenda
+
 void rps_run_agenda (int nbthreads);
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
