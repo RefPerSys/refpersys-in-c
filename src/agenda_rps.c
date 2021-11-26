@@ -127,6 +127,8 @@ pthread_cond_t rps_agenda_changed_cond = PTHREAD_COND_INITIALIZER;
 void
 rps_stop_agenda (void)
 {
+  atomic_store (&rps_agenda_running, false);
+  pthread_cond_broadcast (&rps_agenda_changed_cond);
 #warning rps_stop_agenda should be coded
 }				/* end rps_stop_agenda */
 
@@ -186,8 +188,10 @@ rps_thread_routine (void *ptr)
 	};			/* end for enum RpsAgendaPrio_en prio... */
       if (obtasklet == NULL)
 	{
-#warning should probably broadcast some cond.var. in incomplete rps_thread_routine
-	  RPS_FATAL ("unimplemented rps_thread_routine when no obtasklet");
+	  struct timespec ts = { 0, 0 };
+	  clock_gettime (CLOCK_REALTIME, &ts);
+	  ts.tv_sec += 1;
+	  pthread_cond_wait (&rps_agenda_changed_cond, &ts);
 	}
       pthread_mutex_unlock (&RPS_THE_AGENDA_OBJECT->ob_mtx);
       if (obtasklet != NULL)
