@@ -663,7 +663,7 @@ void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
 
 
 /****************************************************************
- * Tasklet payload for -RpsPyt_Space
+ * Space payload for -RpsPyt_Space
  ****************************************************************/
 #define RPSFIELDS_PAYLOAD_SPACE			\
   RPSFIELDS_OWNED_PAYLOAD;			\
