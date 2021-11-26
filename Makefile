@@ -56,7 +56,7 @@ INDENT= indent
 # Generated timestamp file prefix
 RPS_TSTAMP:=generated/__timestamp
 
-.PHONY: all clean objects indent redump load
+.PHONY: all clean objects indent redump load tarball
 .SECONDARY: $(RPS_TSTAMP).c
 
 # the GCC compiler (at least GCC 9, preferably GCC 11, see gcc.gnu.org ....)
@@ -97,6 +97,8 @@ $(RPS_TSTAMP).c: | Makefile tools/generate-timestamp.sh
 	printf 'const char _rps_git_short_id[] = "%s";\n' "$(RPS_SHORTGIT_ID)" >> $@-tmp
 	$(MV) --backup $@-tmp $@
 
+tarball:
+	git archive --prefix=refpersys-in-c-$(RPS_SHORTGIT_ID)/ --output=/tmp/refpersys-in-c.tar.gz HEAD
 
 ## preprocessed form
 src/%_rps.i: src/%_rps.c
