@@ -426,7 +426,7 @@ int
 main (int argc, char **argv)
 {
   rps_progname = argv[0];
-#warning temporary call to mallopt. Should be removed once loading completes.
+#warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
   rps_main_thread_handle = pthread_self ();
   pthread_setname_np (rps_main_thread_handle, "rps-main");
