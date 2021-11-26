@@ -201,6 +201,14 @@ rps_thread_routine (void *ptr)
 	  pthread_mutex_lock (&obtasklet->ob_mtx);
 #warning should check and run the obtasklet in incomplete rps_thread_routine
 	  RPS_FATAL ("unimplemented rps_thread_routine when found obtasklet");
+	  RpsTasklet_t* payltasklet = obtasklet->ob_payload;
+	  if (payltasklet && payltasklet->zm_type == -RpsPyt_Tasklet) {
+	    RpsClosure_t* clos = payltasklet->tasklet_closure;
+	    double obsoltime = payltasklet->tasklet_obsoltime;
+	    if (obsoltime <= rps_clocktime(CLOCK_REALTIME)) {
+#warning rps_thread_routine should apply clos...
+	    }
+	  }
 	  pthread_mutex_unlock (&obtasklet->ob_mtx);
 	}
 #warning incomplete rps_thread_routine
