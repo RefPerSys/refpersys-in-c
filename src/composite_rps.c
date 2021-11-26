@@ -741,6 +741,68 @@ end:
   return resob;
 }				/* end rps_object_deque_pop_first */
 
+bool
+rps_object_deque_push_first (RpsObject_t * obq, RpsObject_t * obelem)
+{
+  bool pushed = false;
+  if (!obq)
+    return false;
+  if (!obelem)
+    return false;
+  RPS_ASSERT (rps_is_valid_object (obq));
+  RPS_ASSERT (rps_is_valid_object (obelem));
+  pthread_mutex_lock (&obq->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obq->ob_payload;
+  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+    goto end;
+  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
+  if (!firstlink)
+    {
+      RPS_ASSERT (payldeq->zm_length == 0);
+      struct rps_dequeob_link_st *newlink =	//
+	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
+      newlink->dequeob_chunk[0] = obelem;
+      payldeq->deqob_first = payldeq->deqob_last = newlink;
+      payldeq->zm_length = 1;
+      pushed = true;
+      goto end;
+    }
+  int firstlcnt = 0;
+  RpsObject_t *chunkarr[RPS_DEQUE_CHUNKSIZE];
+  for (int ix = 0; ix < RPS_DEQUE_CHUNKSIZE; ix++)
+    if (firstlink->dequeob_chunk[ix] != 0)
+      chunkarr[firstlcnt++] = firstlink->dequeob_chunk[ix];
+  if (firstlcnt == RPS_DEQUE_CHUNKSIZE)
+    {
+      // the chunk is full, we need to allocate a new one
+      struct rps_dequeob_link_st *newlink =	//
+	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
+      newlink->dequeob_chunk[0] = obelem;
+      struct rps_dequeob_link_st *oldfirstlink = payldeq->deqob_first;
+      RPS_ASSERT (oldfirstlink->dequeob_prev == NULL);
+      oldfirstlink->dequeob_prev = newlink;
+      newlink->dequeob_next = oldfirstlink;
+      payldeq->deqob_first = newlink;
+      payldeq->zm_length++;
+      pushed = true;
+      goto end;
+    }
+  else
+    {
+      firstlink->dequeob_chunk[0] = obelem;
+      memcpy (firstlink->dequeob_chunk + 1, chunkarr,
+	      firstlcnt * sizeof (RpsObject_t *));
+      pushed = true;
+      goto end;
+    }
+end:
+  pthread_mutex_unlock (&obq->ob_mtx);
+  return pushed;
+}				/* end rps_object_deque_push_first */
+
+
+
+
 RpsObject_t *
 rps_object_deque_get_last (RpsObject_t * obj)
 {

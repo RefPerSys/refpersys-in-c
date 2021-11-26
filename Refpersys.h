@@ -613,11 +613,17 @@ struct RpsPayl_DequeOb_st
 typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
 /// initialize the payload to an empty double ended queue
 extern void rps_object_deque_ob_initialize (RpsObject_t *);
-extern RpsObject_t *rps_object_deque_get_first (RpsObject_t *);
-extern RpsObject_t *rps_object_deque_pop_first (RpsObject_t *);
-extern RpsObject_t *rps_object_deque_get_last (RpsObject_t *);
-extern RpsObject_t *rps_object_deque_pop_last (RpsObject_t *);
-
+/// The get functions are accessors; the pop functions are shinking
+/// the queue.  The push functions are growing it and return false on
+/// failure.
+extern RpsObject_t *rps_object_deque_get_first (RpsObject_t * obq);
+extern RpsObject_t *rps_object_deque_pop_first (RpsObject_t * obq);
+extern bool rps_object_deque_push_first (RpsObject_t * obq,
+					 RpsObject_t * obelem);
+extern RpsObject_t *rps_object_deque_get_last (RpsObject_t * obq);
+extern RpsObject_t *rps_object_deque_pop_last (RpsObject_t * obq);
+extern bool rps_object_deque_push_last (RpsObject_t * obq,
+					RpsObject_t * obelem);
 /****************************************************************
  * String dictionary payload for -RpsPyt_StringDict
  ****************************************************************/

@@ -96,7 +96,7 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
   if (obpriohigh)
     agenpayl->agenda_que[AgPrio_Normal] = obpriohigh;
   rps_object_put_payload (obj, agenpayl);
-  RPS_ASSERT(obj == RPS_THE_AGENDA_OBJECT);
+  RPS_ASSERT (obj == RPS_THE_AGENDA_OBJECT);
 }				/* end rpsldpy_agenda */
 
 
@@ -159,7 +159,7 @@ rps_thread_routine (void *ptr)
    *
    * + execute that tasklet, hopefully in a dozen of milliseconds
    *****/
-  RpsObject_t* obtasklet = NULL;
+  RpsObject_t *obtasklet = NULL;
   while (atomic_load (&rps_agenda_running))
     {
       obtasklet = NULL;
@@ -169,32 +169,36 @@ rps_thread_routine (void *ptr)
       /// (100µs and the 333µs factor) should be lowered.
       if ((count - 1) % 64 == 0)
 	usleep (100 + d->agth_index * 333);
-      pthread_mutex_lock(&RPS_THE_AGENDA_OBJECT->ob_mtx);
-      RpsAgenda_t* paylagenda = RPS_THE_AGENDA_OBJECT->ob_payload;
-      RPS_ASSERT(paylagenda != NULL && paylagenda->zm_type == -RpsPyt_Agenda);
-      for (enum RpsAgendaPrio_en prio=AgPrio_High; prio >= AgPrio_Low; prio--) {
-	RpsObject_t* obque = paylagenda->agenda_que[prio];
-	if (!obque)
-	  continue;
-	RPS_ASSERT(rps_is_valid_object(obque));
-	obtasklet = rps_object_deque_pop_first(obque);
-	if (obtasklet != NULL)
-	  break;
-      };			/* end for enum RpsAgendaPrio_en prio... */
+      pthread_mutex_lock (&RPS_THE_AGENDA_OBJECT->ob_mtx);
+      RpsAgenda_t *paylagenda = RPS_THE_AGENDA_OBJECT->ob_payload;
+      RPS_ASSERT (paylagenda != NULL
+		  && paylagenda->zm_type == -RpsPyt_Agenda);
+      for (enum RpsAgendaPrio_en prio = AgPrio_High; prio >= AgPrio_Low;
+	   prio--)
+	{
+	  RpsObject_t *obque = paylagenda->agenda_que[prio];
+	  if (!obque)
+	    continue;
+	  RPS_ASSERT (rps_is_valid_object (obque));
+	  obtasklet = rps_object_deque_pop_first (obque);
+	  if (obtasklet != NULL)
+	    break;
+	};			/* end for enum RpsAgendaPrio_en prio... */
       if (obtasklet == NULL)
 	{
 #warning should probably broadcast some cond.var. in incomplete rps_thread_routine
-	  RPS_FATAL("unimplemented rps_thread_routine when no obtasklet");
+	  RPS_FATAL ("unimplemented rps_thread_routine when no obtasklet");
 	}
-      pthread_mutex_unlock(&RPS_THE_AGENDA_OBJECT->ob_mtx);
-      if (obtasklet != NULL) {
-	/* should check the obtasklet and run it */
-	RPS_ASSERT(rps_is_valid_object(obtasklet));
-	pthread_mutex_lock(&obtasklet->ob_mtx);
+      pthread_mutex_unlock (&RPS_THE_AGENDA_OBJECT->ob_mtx);
+      if (obtasklet != NULL)
+	{
+	  /* should check the obtasklet and run it */
+	  RPS_ASSERT (rps_is_valid_object (obtasklet));
+	  pthread_mutex_lock (&obtasklet->ob_mtx);
 #warning should check and run the obtasklet in incomplete rps_thread_routine
-	RPS_FATAL("unimplemented rps_thread_routine when found obtasklet");
-	pthread_mutex_unlock(&obtasklet->ob_mtx);
-      }
+	  RPS_FATAL ("unimplemented rps_thread_routine when found obtasklet");
+	  pthread_mutex_unlock (&obtasklet->ob_mtx);
+	}
 #warning incomplete rps_thread_routine
       usleep (10000);
       RPS_FATAL ("incomplete rps_thread_routine %d", d->agth_index);
@@ -215,7 +219,7 @@ rps_run_agenda (int nbthreads)
 			       PTHREAD_CREATE_JOINABLE);
   printf ("rps_run_agenda nbthreads=%d\n", nbthreads);
   fflush (NULL);
-  atomic_store(&rps_agenda_running, true);
+  atomic_store (&rps_agenda_running, true);
   for (int ix = 1; ix <= nbthreads; ix++)
     {
       pthread_t curth = (pthread_t) (0);
@@ -227,6 +231,6 @@ rps_run_agenda (int nbthreads)
 		   nbthreads, err, strerror (err));
       usleep (1000);
     }
-  usleep(500000);
+  usleep (500000);
   RPS_FATAL ("unimplemented rps_run_agenda %d threads", nbthreads);
 }				/* end rps_run_agenda */
