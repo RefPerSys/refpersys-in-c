@@ -930,11 +930,6 @@ end:
 pthread_mutex_t rps_rootob_mtx = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 RpsMutableSetOb_t rps_rootob_mutset = {.zm_type = -RpsPyt_MutableSetOb };
 
-extern bool rps_paylsetob_add_element (RpsMutableSetOb_t * paylmset,
-				       const RpsObject_t * ob);
-extern bool rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
-					  const RpsObject_t * ob);
-
 void
 rps_add_global_root_object (RpsObject_t * obj)
 {
