@@ -631,15 +631,31 @@ extern bool rps_object_deque_push_last (RpsObject_t * obq,
  * Hashtable of objects payload for -RpsPyt_HashTblObj
  ****************************************************************/
 
-#define RPS_HTBOB_MAGIC 0x3210d03f /*839962687*/
+#define RPS_HTBOB_MAGIC 0x3210d03f	/*839962687 */
+  /* zm_type should be RpsPyt_HashTblObj */
+  /* zm_length is the total number of objects */
+  /* zm_extra is the prime index of buckets */
 #define RPSFIELDS_PAYLOAD_HASHTBLOB			\
   RPSFIELDS_OWNED_PAYLOAD;				\
-  unsigned htbob_magic /*should be RPS_HTBOB_MAGIC */
-
-struct RpsPayl_HashTblOb_st {
+  unsigned htbob_magic /*should be RPS_HTBOB_MAGIC */;
+struct rps_dequeob_link_st **htbob_bucketarr struct RpsPayl_HashTblOb_st
+{
   RPSFIELDS_PAYLOAD_HASHTBLOB;
 };
 typedef struct RpsPayl_HashTblOb_st RpsHashTblOb_t;
+// create some unowned hash table of objects of a given initial capacity
+RpsHashTblOb_t *rps_hash_tbl_ob_create (unsigned capacity);
+// reserve space for NBEXTRA more objects, return true on success
+// when NBEXTRA is 0, reorganize the hash table to its current size
+bool rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra);
+// add a new element, return true if it was absent
+bool rps_hash_tbl_ob_add (RpsHashTblOb_t * htb, RpsObject_t * obelem);
+// remove an element, return true if it was there
+bool rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb, RpsObject_t * obelem);
+// cardinal of an hash table of objects
+unsigned rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb);
+// make a set from the elements of an hash table
+const RpsSetOb_t *rps_hash_tbl_set_elements (RpsHashTblOb_t * htb);
 
 /****************************************************************
  * String dictionary payload for -RpsPyt_StringDict
