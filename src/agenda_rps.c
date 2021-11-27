@@ -132,6 +132,12 @@ rps_stop_agenda (void)
 #warning rps_stop_agenda should be coded
 }				/* end rps_stop_agenda */
 
+volatile bool
+rps_agenda_is_running(void)
+{
+  return atomic_load(&rps_agenda_running);
+} /* end rps_agenda_is_running */
+
 void *
 rps_thread_routine (void *ptr)
 {

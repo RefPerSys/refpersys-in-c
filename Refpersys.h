@@ -752,6 +752,12 @@ typedef struct RpsPayl_Agenda_st RpsAgenda_t;
 #define RPS_THE_AGENDA_OBJECT RPS_ROOT_OB(_1aGtWm38Vw701jDhZn)	//"the_agenda"∈agenda
 
 void rps_run_agenda (int nbthreads);
+// the below function is approximate.... It could return true a µs
+// before the agenda stops, etc...  Could be used in some run-time
+// assert tests...
+extern volatile bool rps_agenda_is_running(void);
+
+
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
 extern void rps_dump_heap (void);	/// dump into rps_dump_directory
