@@ -638,8 +638,10 @@ extern bool rps_object_deque_push_last (RpsObject_t * obq,
   /* zm_extra is the prime index of buckets */
 #define RPSFIELDS_PAYLOAD_HASHTBLOB			\
   RPSFIELDS_OWNED_PAYLOAD;				\
-  unsigned htbob_magic /*should be RPS_HTBOB_MAGIC */;
-struct rps_dequeob_link_st **htbob_bucketarr struct RpsPayl_HashTblOb_st
+  unsigned htbob_magic /*should be RPS_HTBOB_MAGIC */;  \
+struct rps_dequeob_link_st **htbob_bucketarr
+
+struct RpsPayl_HashTblOb_st
 {
   RPSFIELDS_PAYLOAD_HASHTBLOB;
 };
