@@ -35,7 +35,7 @@
  *            ABOUT PTHREADS IN RefPerSys
  *
  * We have a fixed amount of pthreads in RefPerSys, and their number
- * is called the number of jobs NJ, and should be settable by some
+ * is called the number of pthreads NPT, and should be settable by some
  * program option, e.g. --nb-threads=4; that number of jobs should be more
  * than two and less than twenty and less than one more than the
  * number of cores in the CPU.
@@ -54,7 +54,7 @@
  * large copy/paste into GtkTextView etc...  The reader is requested to
  * dive into the source code of GTK.
  *
- * + The NJ agenda threads.  These threads can use RPS_ALLOC_ZONE but
+ * + The NPT agenda threads.  These threads can use RPS_ALLOC_ZONE but
  * cannot use any GTK routines directly. For any GTK updating
  * requests, an agenda thread should write on the pipe(7) used by the
  * main thread and known by GTK.
