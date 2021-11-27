@@ -926,4 +926,60 @@ end:
   return pushed;
 }				/* end rps_object_deque_push_last */
 
+
+pthread_mutex_t rps_rootob_mtx = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+RpsMutableSetOb_t rps_rootob_mutset = {.zm_type = -RpsPyt_MutableSetOb };
+
+extern bool rps_paylsetob_add_element (RpsMutableSetOb_t * paylmset,
+				       const RpsObject_t * ob);
+extern bool rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
+					  const RpsObject_t * ob);
+
+void
+rps_add_global_root_object (RpsObject_t * obj)
+{
+  if (!obj)
+    return;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&rps_rootob_mtx);
+  rps_paylsetob_add_element (&rps_rootob_mutset, obj);
+  pthread_mutex_unlock (&rps_rootob_mtx);
+}				/* end rps_add_global_root_object  */
+
+void
+rps_remove_global_root_object (RpsObject_t * obj)
+{
+  if (!obj)
+    return;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&rps_rootob_mtx);
+  rps_paylsetob_remove_element (&rps_rootob_mutset, obj);
+  pthread_mutex_unlock (&rps_rootob_mtx);
+}				/* end rps_remove_global_root_object */
+
+const RpsSetOb_t *
+rps_set_of_global_root_objects (void)
+{
+  RpsSetOb_t *setv = NULL;
+  int ix = 0;
+  unsigned nbglobroot = 0;
+  struct kavl_itr_rpsmusetob iter = { };
+  pthread_mutex_lock (&rps_rootob_mtx);
+  nbglobroot = rps_rootob_mutset.zm_length;
+  const RpsObject_t **arrob =
+    RPS_ALLOC_ZEROED ((nbglobroot + 1) * sizeof (RpsObject_t *));
+  kavl_itr_first_rpsmusetob (rps_rootob_mutset.muset_root, &iter);
+  while (ix < (int) nbglobroot)
+    {
+      arrob[ix++] = kavl_at (&iter)->setobnodrps_obelem;
+      if (!kavl_itr_next_rpsmusetob (&iter))
+	break;
+    };
+  RPS_ASSERT (ix == nbglobroot);
+  setv = rps_alloc_set_sized (nbglobroot, arrob);
+  free (arrob);
+  pthread_mutex_unlock (&rps_rootob_mtx);
+  return setv;
+}				/* end rps_set_of_global_root_objects */
+
 /***************** end of file composite_rps.c from refpersys.org **********/
