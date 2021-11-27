@@ -197,7 +197,9 @@ rps_thread_routine (void *ptr)
 	  struct timespec ts = { 0, 0 };
 	  clock_gettime (CLOCK_REALTIME, &ts);
 	  ts.tv_sec += 1;
-	  pthread_cond_wait (&rps_agenda_changed_cond, &ts);
+	  pthread_cond_timedwait (&rps_agenda_changed_cond,
+				  &RPS_THE_AGENDA_OBJECT->ob_mtx,
+				  &ts);
 	}
       pthread_mutex_unlock (&RPS_THE_AGENDA_OBJECT->ob_mtx);
       if (obtasklet != NULL)
