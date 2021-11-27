@@ -61,6 +61,13 @@ rps_is_valid_dumper (RpsDumper_t * du)
 void
 rps_dump_heap (void)
 {
+  if (rps_agenda_is_running ())
+    RPS_FATAL ("cannot dump heap while agenda is running");
+  /* TODO: Do we need some temporary dumper object, owning the dumper
+     payload below? */
+  RpsDumper_t *dumper =		//    
+    RPS_ALLOC_ZONE (sizeof (RpsDumper_t),
+		    -RpsPyt_Dumper);
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
 }				/* end rps_dump_heap */
 

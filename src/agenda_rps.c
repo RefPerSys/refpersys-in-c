@@ -133,10 +133,10 @@ rps_stop_agenda (void)
 }				/* end rps_stop_agenda */
 
 volatile bool
-rps_agenda_is_running(void)
+rps_agenda_is_running (void)
 {
-  return atomic_load(&rps_agenda_running);
-} /* end rps_agenda_is_running */
+  return atomic_load (&rps_agenda_running);
+}				/* end rps_agenda_is_running */
 
 void *
 rps_thread_routine (void *ptr)

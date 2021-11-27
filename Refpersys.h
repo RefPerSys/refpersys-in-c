@@ -218,6 +218,7 @@ enum
   RpsPyt_StringDict,		/* string dictionary associating names
 				   to values */
   RpsPyt_Space,			/* space payload */
+  RpsPyt_Dumper,		/* dumper payload */
   RpsPyt__LAST
 };
 
@@ -755,7 +756,7 @@ void rps_run_agenda (int nbthreads);
 // the below function is approximate.... It could return true a µs
 // before the agenda stops, etc...  Could be used in some run-time
 // assert tests...
-extern volatile bool rps_agenda_is_running(void);
+extern volatile bool rps_agenda_is_running (void);
 
 
 ////////////////////////////////////////////////////////////////
