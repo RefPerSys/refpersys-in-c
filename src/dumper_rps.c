@@ -38,6 +38,13 @@ struct RpsPayl_Dumper_st
 {
   RPSFIELDS_ZONED_VALUE;
   unsigned du_magic;		/* always RPS_DUMPER_MAGIC */
+  /* The dumper probably needs to contain a big hash table of visited
+     objects; a first pass is scanning the heap, starting from global
+     roots including the agenda. During the dump only one pthread should
+     be running, every other pthread should be blocked. The agenda should
+     be "idle".
+   */
+  RpsHashTblOb_t *du_visitedht;
   RpsMutableSetOb_t *du_dumpedset;
 };
 
@@ -54,12 +61,6 @@ rps_is_valid_dumper (RpsDumper_t * du)
 void
 rps_dump_heap (void)
 {
-  /* The dumper probably needs to contain a big hash table of visited
-     objects; a first pass is scanning the heap, starting from global
-     roots including the agenda. During the dump only one pthread should
-     be running, every other pthread should be blocked. The agenda should
-     be "idle".
-   */
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
 }				/* end rps_dump_heap */
 
