@@ -624,6 +624,23 @@ extern RpsObject_t *rps_object_deque_get_last (RpsObject_t * obq);
 extern RpsObject_t *rps_object_deque_pop_last (RpsObject_t * obq);
 extern bool rps_object_deque_push_last (RpsObject_t * obq,
 					RpsObject_t * obelem);
+
+
+
+/****************************************************************
+ * Hashtable of objects payload for -RpsPyt_HashTblObj
+ ****************************************************************/
+
+#define RPS_HTBOB_MAGIC 0x3210d03f /*839962687*/
+#define RPSFIELDS_PAYLOAD_HASHTBLOB			\
+  RPSFIELDS_OWNED_PAYLOAD;				\
+  unsigned htbob_magic /*should be RPS_HTBOB_MAGIC */
+
+struct RpsPayl_HashTblOb_st {
+  RPSFIELDS_PAYLOAD_HASHTBLOB;
+};
+typedef struct RpsPayl_HashTblOb_st RpsHashTblOb_t;
+
 /****************************************************************
  * String dictionary payload for -RpsPyt_StringDict
  ****************************************************************/
