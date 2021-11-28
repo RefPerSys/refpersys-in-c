@@ -234,7 +234,7 @@ enum
  ****************************************************************/
 /// the fields in every zoned memory -value or payload-; we use macros to mimic C field inheritance
 #define RPSFIELDS_ZONED_MEMORY						\
-  int8_t zm_type; /* the type of that zone - value (>0) or payload (<0) */ \
+  atomic_schar zm_type; /* the type of that zone - value (>0) or payload (<0) */ \
   atomic_uchar zm_gcmark; /* the garbage collector mark */ 		\
   uint16_t zm_xtra;	  /* some short extra data */			\
   uint32_t zm_length;		/* the size of variable-sized data */   \
@@ -256,7 +256,7 @@ rps_zoned_memory_type(const void*ad)
 
 
 static inline
-uchar
+unsigned char
 rps_zoned_memory_gcmark(const void*ad)
 {
   if (!ad) return 0;
