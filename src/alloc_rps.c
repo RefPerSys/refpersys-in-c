@@ -119,7 +119,7 @@ alloczone_at_rps (size_t bytsz, int8_t type, const char *file, int lineno)
   struct RpsZonedMemory_st *zm =
     (struct RpsZonedMemory_st *) alloc0_at_rps (bytsz, file, lineno);
   atomic_init (&zm->zm_gcmark, 0);
-  zm->zm_type = type;
+  atomic_init (&zm->zm_atype, type);
   atomic_init (&zm->zm_gclink, rps_zoned_chainarr[h]);
   rps_zoned_chainarr[h] = zm;
   pthread_mutex_unlock (&rps_zoned_mtxarr[h]);

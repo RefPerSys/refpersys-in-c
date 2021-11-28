@@ -234,7 +234,7 @@ enum
  ****************************************************************/
 /// the fields in every zoned memory -value or payload-; we use macros to mimic C field inheritance
 #define RPSFIELDS_ZONED_MEMORY						\
-  atomic_schar zm_type; /* the type of that zone - value (>0) or payload (<0) */ \
+  atomic_schar zm_atype; /* the type of that zone - value (>0) or payload (<0) */ \
   atomic_uchar zm_gcmark; /* the garbage collector mark */ 		\
   uint16_t zm_xtra;	  /* some short extra data */			\
   uint32_t zm_length;		/* the size of variable-sized data */   \
@@ -246,22 +246,23 @@ struct RpsZonedMemory_st
   RPSFIELDS_ZONED_MEMORY;
 };
 
-static inline
-int8_t
-rps_zoned_memory_type(const void*ad)
+static inline int8_t
+rps_zoned_memory_type (const void *ad)
 {
-  if (!ad) return 0;
-  return atomic_load(&((struct RpsZonedMemory_st*)ad)->zm_type);
-} /* end rps_zoned_memory_type */
+  if (!ad)
+    return 0;
+  return atomic_load (&((struct RpsZonedMemory_st *) ad)->zm_atype);
+}				/* end rps_zoned_memory_type */
 
+#define RPS_ZONED_MEMORY_TYPE(Ad) rps_zoned_memory_type((const void*)(Ad))
 
-static inline
-unsigned char
-rps_zoned_memory_gcmark(const void*ad)
+static inline unsigned char
+rps_zoned_memory_gcmark (const void *ad)
 {
-  if (!ad) return 0;
-  return atomic_load(&((struct RpsZonedMemory_st*)ad)->zm_gcmark);
-} /* end rps_zoned_memory_gcmark */
+  if (!ad)
+    return 0;
+  return atomic_load (&((struct RpsZonedMemory_st *) ad)->zm_gcmark);
+}				/* end rps_zoned_memory_gcmark */
 
 
 /// zoned values all have some non-zero hash
@@ -477,7 +478,7 @@ extern unsigned rps_nb_global_root_objects (void);
   RPSFIELDS_ZONED_MEMORY;			\
   RpsObject_t* payl_owner
 
-/// By convention, the zm_type of payload is a small negative index, e.g. some RpsPyt_* 
+/// By convention, the zm_atype of payload is a small negative index, e.g. some RpsPyt_* 
 struct rps_owned_payload_st
 {
   RPSFIELDS_OWNED_PAYLOAD;
@@ -657,7 +658,7 @@ extern bool rps_object_deque_push_last (RpsObject_t * obq,
  ****************************************************************/
 
 #define RPS_HTBOB_MAGIC 0x3210d03f	/*839962687 */
-  /* zm_type should be -RpsPyt_HashTblObj */
+  /* zm_atype should be -RpsPyt_HashTblObj */
   /* zm_length is the total number of objects */
   /* zm_extra is the prime index of buckets */
 #define RPSFIELDS_PAYLOAD_HASHTBLOB			\

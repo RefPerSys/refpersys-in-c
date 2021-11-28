@@ -33,7 +33,7 @@ rps_is_valid_object (RpsObject_t * obj)
 {
   if (!obj)
     return false;
-  if (obj->zm_type != RPS_TYPE_OBJECT)
+  if (RPS_ZONED_MEMORY_TYPE (obj) != RPS_TYPE_OBJECT)
     return false;
   pthread_mutex_lock (&obj->ob_mtx);
   if (obj->ob_class == NULL)
@@ -74,7 +74,7 @@ rps_get_object_attribute (RpsObject_t * obj, RpsObject_t * obattr)
   RpsAttrTable_t *atbl = obj->ob_attrtable;
   if (!atbl)
     goto end;
-  RPS_ASSERT (atbl->zm_type == RpsPyt_AttrTable);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (atbl) == RpsPyt_AttrTable);
   res = rps_attr_table_find (atbl, obattr);
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
@@ -165,9 +165,9 @@ rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2)
     return true;
   if (!ob2)
     return false;
-  if (ob1->zm_type != RPS_TYPE_OBJECT)
+  if (RPS_ZONED_MEMORY_TYPE (ob1) != RPS_TYPE_OBJECT)
     RPS_FATAL ("non-object ob1 @%p", ob1);
-  if (ob2->zm_type != RPS_TYPE_OBJECT)
+  if (RPS_ZONED_MEMORY_TYPE (ob2) != RPS_TYPE_OBJECT)
     RPS_FATAL ("non-object ob2 @%p", ob1);
   return rps_oid_less_than (ob1->ob_id, ob2->ob_id);
 }
@@ -199,7 +199,7 @@ rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
 {
   if (!tbl || !obattr)
     return RPS_NULL_VALUE;
-  if (tbl->zm_type != -RpsPyt_AttrTable)
+  if (RPS_ZONED_MEMORY_TYPE (tbl) != -RpsPyt_AttrTable)
     return RPS_NULL_VALUE;
   if (!rps_is_valid_object (obattr))
     return RPS_NULL_VALUE;
@@ -853,7 +853,7 @@ rps_object_put_payload (RpsObject_t * obj, void *payl)
   int newptype = 0;
   if (newpayl)
     {
-      newptype = -newpayl->zm_type;
+      newptype = -RPS_ZONED_MEMORY_TYPE (newpayl);
       RPS_ASSERT (newptype > 0 && newptype < RPS_MAX_PAYLOAD_TYPE_INDEX);
     }
   pthread_mutex_lock (&obj->ob_mtx);
@@ -862,7 +862,7 @@ rps_object_put_payload (RpsObject_t * obj, void *payl)
     {
       rps_payload_remover_t *oldremover = NULL;
       void *oldremdata = NULL;
-      int oldptype = -oldpayl->zm_type;
+      int oldptype = -RPS_ZONED_MEMORY_TYPE (oldpayl);
       if (oldptype > 0 && oldptype < RPS_MAX_PAYLOAD_TYPE_INDEX)
 	{
 	  pthread_mutex_lock (&rps_payload_mtx);

@@ -269,8 +269,8 @@ rps_mutable_set_ob_node_cmp (const struct internal_mutable_set_ob_node_rps_st
     return -1;
   if (obright == NULL)
     return 1;
-  RPS_ASSERT (obleft != NULL && obleft->zm_type == RPS_TYPE_OBJECT);
-  RPS_ASSERT (obright != NULL && obright->zm_type == RPS_TYPE_OBJECT);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (obleft) == RPS_TYPE_OBJECT);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (obright) == RPS_TYPE_OBJECT);
   return rps_oid_cmp (obleft->ob_id, obright->ob_id);
 }				/* end rps_mutable_set_ob_node_cmp */
 
@@ -285,7 +285,7 @@ bool
 rps_paylsetob_add_element (RpsMutableSetOb_t * paylmset,
 			   const RpsObject_t * ob)
 {
-  RPS_ASSERT (paylmset != NULL && paylmset->zm_type == -RpsPyt_MutableSetOb);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylmset) == -RpsPyt_MutableSetOb);
   RPS_ASSERT (ob != NULL && rps_is_valid_object ((RpsObject_t *) ob));
   struct internal_mutable_set_ob_node_rps_st *newnod =
     RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_rps_st));
@@ -312,7 +312,7 @@ bool
 rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
 			      const RpsObject_t * ob)
 {
-  RPS_ASSERT (paylmset != NULL && paylmset->zm_type == -RpsPyt_MutableSetOb);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylmset) == -RpsPyt_MutableSetOb);
   RPS_ASSERT (ob != NULL && rps_is_valid_object ((RpsObject_t *) ob));
   struct internal_mutable_set_ob_node_rps_st *newnod =
     RPS_ALLOC_ZEROED (sizeof (struct internal_mutable_set_ob_node_rps_st));
@@ -387,8 +387,7 @@ rps_object_mutable_set_add (RpsObject_t * obj, RpsValue_t val)
   pthread_mutex_lock (&obj->ob_mtx);
   if (!obj->ob_payload)
     goto end;
-  if (((RpsMutableSetOb_t *) (obj->ob_payload))->zm_type ==
-      -RpsPyt_MutableSetOb)
+  if (RPS_ZONED_MEMORY_TYPE (obj->ob_payload) == -RpsPyt_MutableSetOb)
     paylsetob = (RpsMutableSetOb_t *) (obj->ob_payload);
   else
     goto end;
@@ -431,8 +430,7 @@ rps_object_mutable_set_reify (RpsObject_t * obj)
   pthread_mutex_lock (&obj->ob_mtx);
   if (!obj->ob_payload)
     goto end;
-  if (((RpsMutableSetOb_t *) (obj->ob_payload))->zm_type ==
-      -RpsPyt_MutableSetOb)
+  if (RPS_ZONED_MEMORY_TYPE (obj->ob_payload) == -RpsPyt_MutableSetOb)
     paylsetob = (RpsMutableSetOb_t *) (obj->ob_payload);
   else
     goto end;
@@ -471,8 +469,7 @@ rps_object_mutable_set_remove (RpsObject_t * obj, RpsValue_t val)
   pthread_mutex_lock (&obj->ob_mtx);
   if (!obj->ob_payload)
     goto end;
-  if (((RpsMutableSetOb_t *) (obj->ob_payload))->zm_type ==
-      -RpsPyt_MutableSetOb)
+  if (RPS_ZONED_MEMORY_TYPE (obj->ob_payload) == -RpsPyt_MutableSetOb)
     paylsetob = (RpsMutableSetOb_t *) (obj->ob_payload);
   else
     goto end;
@@ -549,7 +546,7 @@ void
 rps_payl_string_dictionary_add_cstr (RpsStringDictOb_t * paylstrdic,
 				     const char *cstr, const RpsValue_t val)
 {
-  RPS_ASSERT (paylstrdic && paylstrdic->zm_type == -RpsPyt_StringDict);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylstrdic) == -RpsPyt_StringDict);
   RPS_ASSERT (cstr && g_utf8_validate (cstr, -1, NULL));
   RPS_ASSERT (val != RPS_NULL_VALUE);
   const RpsString_t *strv = rps_alloc_string (cstr);
@@ -573,8 +570,8 @@ rps_payl_string_dictionary_add_valstr (RpsStringDictOb_t * paylstrdic,
 				       const RpsString_t * strv,
 				       const RpsValue_t val)
 {
-  RPS_ASSERT (paylstrdic && paylstrdic->zm_type == -RpsPyt_StringDict);
-  RPS_ASSERT (strv && strv->zm_type == RPS_TYPE_STRING);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylstrdic) == -RpsPyt_StringDict);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (strv) == RPS_TYPE_STRING);
   RPS_ASSERT (val != RPS_NULL_VALUE);
   struct internal_string_dict_node_rps_st *newnod =
     RPS_ALLOC_ZEROED (sizeof (struct internal_string_dict_node_rps_st));
@@ -604,7 +601,7 @@ rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
   pthread_mutex_lock (&obj->ob_mtx);
   rps_object_string_dictionary_initialize (obj);
   RpsStringDictOb_t *paylstrdic = (RpsStringDictOb_t *) (obj->ob_payload);
-  RPS_ASSERT (paylstrdic && paylstrdic->zm_type == -RpsPyt_StringDict);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylstrdic) == -RpsPyt_StringDict);
   json_t *jsdict = json_object_get (jv, "dictionary");
   if (jsdict && json_is_array (jsdict))
     {
@@ -681,7 +678,7 @@ rps_object_deque_get_first (RpsObject_t * obj)
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
   if (!firstlink)
@@ -708,7 +705,7 @@ rps_object_deque_pop_first (RpsObject_t * obj)
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
   if (!firstlink)
@@ -753,7 +750,7 @@ rps_object_deque_push_first (RpsObject_t * obq, RpsObject_t * obelem)
   RPS_ASSERT (rps_is_valid_object (obelem));
   pthread_mutex_lock (&obq->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obq->ob_payload;
-  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
   if (!firstlink)
@@ -812,7 +809,7 @@ rps_object_deque_get_last (RpsObject_t * obj)
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
   if (!lastlink)
@@ -839,7 +836,7 @@ rps_object_deque_pop_last (RpsObject_t * obj)
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
   if (!lastlink)
@@ -881,7 +878,7 @@ rps_object_deque_push_last (RpsObject_t * obq, RpsObject_t * obelem)
   RPS_ASSERT (rps_is_valid_object (obelem));
   pthread_mutex_lock (&obq->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obq->ob_payload;
-  if (!payldeq || payldeq->zm_type != -RpsPyt_DequeOb)
+  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
   if (!lastlink)
@@ -928,7 +925,7 @@ end:
 
 
 pthread_mutex_t rps_rootob_mtx = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-RpsMutableSetOb_t rps_rootob_mutset = {.zm_type = -RpsPyt_MutableSetOb };
+RpsMutableSetOb_t rps_rootob_mutset = {.zm_atype = -RpsPyt_MutableSetOb };
 
 void
 rps_add_global_root_object (RpsObject_t * obj)
@@ -995,9 +992,9 @@ rps_hash_tbl_is_valid (const RpsHashTblOb_t * htb)
 {
   if (!htb)
     return false;
-  if (htb->htbob_magic != RPS_HTBOB_MAGIC)
+  if (RPS_ZONED_MEMORY_TYPE (htb) != -RpsPyt_HashTblObj)
     return false;
-  if (htb->zm_type != -RpsPyt_HashTblObj)
+  if (htb->htbob_magic != RPS_HTBOB_MAGIC)
     return false;
   if (htb->zm_length > 0 && !htb->htbob_bucketarr)
     return false;
@@ -1010,7 +1007,7 @@ RpsHashTblOb_t *
 rps_hash_tbl_ob_create (unsigned capacity)
 {
 #warning unimplemented rps_hash_tbl_ob_create
-  RPS_FATAL("unimplemented rps_hash_tbl_ob_create capacity %u", capacity);
+  RPS_FATAL ("unimplemented rps_hash_tbl_ob_create capacity %u", capacity);
 }				/* end rps_hash_tbl_ob_create */
 
 
@@ -1020,7 +1017,8 @@ bool
 rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra)
 {
 #warning unimplemented rps_hash_tbl_ob_reserve_more
-  RPS_FATAL("unimplemented rps_hash_tbl_ob_reserve_more nbextra=%u", nbextra);
+  RPS_FATAL ("unimplemented rps_hash_tbl_ob_reserve_more nbextra=%u",
+	     nbextra);
 }				/* end rps_hash_tbl_ob_reserve_more */
 
 
@@ -1028,8 +1026,8 @@ rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra)
 bool
 rps_hash_tbl_ob_add (RpsHashTblOb_t * htb, RpsObject_t * obelem)
 {
-#warning unimplemented rps_hash_tbl_ob_add 
-  RPS_FATAL("unimplemented rps_hash_tbl_ob_add");
+#warning unimplemented rps_hash_tbl_ob_add
+  RPS_FATAL ("unimplemented rps_hash_tbl_ob_add");
 }				/* end rps_hash_tbl_ob_add */
 
 // remove an element, return true if it was there
@@ -1037,7 +1035,7 @@ bool
 rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb, RpsObject_t * obelem)
 {
 #warning unimplemented rps_hash_tbl_ob_remove
-  RPS_FATAL("unimplemented rps_hash_tbl_ob_remove");
+  RPS_FATAL ("unimplemented rps_hash_tbl_ob_remove");
 }				/* end rps_hash_tbl_ob_remove */
 
 // cardinal of an hash table of objects
@@ -1045,7 +1043,7 @@ unsigned
 rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb)
 {
 #warning unimplemented rps_hash_tbl_ob_cardinal
-  RPS_FATAL("unimplemented rps_hash_tbl_ob_cardinal");
+  RPS_FATAL ("unimplemented rps_hash_tbl_ob_cardinal");
 }				/* end rps_hash_tbl_ob_cardinal */
 
 // make a set from the elements of an hash table
@@ -1053,7 +1051,7 @@ const RpsSetOb_t *
 rps_hash_tbl_set_elements (RpsHashTblOb_t * htb)
 {
 #warning unimplemented rps_hash_tbl_ob_set_elements
-  RPS_FATAL("unimplemented rps_hash_tbl_set_elements");
+  RPS_FATAL ("unimplemented rps_hash_tbl_set_elements");
 }				/* end rps_hash_tbl_set_elements */
 
 

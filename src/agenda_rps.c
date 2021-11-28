@@ -179,8 +179,7 @@ rps_thread_routine (void *ptr)
 	usleep (100 + d->agth_index * 333);
       pthread_mutex_lock (&RPS_THE_AGENDA_OBJECT->ob_mtx);
       RpsAgenda_t *paylagenda = RPS_THE_AGENDA_OBJECT->ob_payload;
-      RPS_ASSERT (paylagenda != NULL
-		  && paylagenda->zm_type == -RpsPyt_Agenda);
+      RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylagenda) == -RpsPyt_Agenda);
       for (enum RpsAgendaPrio_en prio = AgPrio_High; prio >= AgPrio_Low;
 	   prio--)
 	{
@@ -209,7 +208,7 @@ rps_thread_routine (void *ptr)
 #warning should check and run the obtasklet in incomplete rps_thread_routine
 	  RPS_FATAL ("unimplemented rps_thread_routine when found obtasklet");
 	  RpsTasklet_t *payltasklet = obtasklet->ob_payload;
-	  if (payltasklet && payltasklet->zm_type == -RpsPyt_Tasklet)
+	  if (RPS_ZONED_MEMORY_TYPE (payltasklet) == -RpsPyt_Tasklet)
 	    {
 	      RpsClosure_t *clos = payltasklet->tasklet_closure;
 	      double obsoltime = payltasklet->tasklet_obsoltime;

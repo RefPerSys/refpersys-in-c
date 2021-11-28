@@ -294,9 +294,7 @@ rps_value_type (RpsValue_t val)
     return RPS_TYPE__NONE;
   else if (val & 1)
     return RPS_TYPE_INT;
-  struct RpsZonedMemory_st *zm = (struct RpsZonedMemory_st *) val;
-  RPS_ASSERT (zm->zm_type != 0);
-  return (enum RpsType) (zm->zm_type);
+  return (enum RpsType) RPS_ZONED_MEMORY_TYPE (val);
 }				/* end of rps_value_type */
 
 /// nearly copied from Ian Lance Taylor's libbacktrace/print.c

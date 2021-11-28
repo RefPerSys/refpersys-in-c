@@ -36,14 +36,14 @@ rps_symbol_node_cmp (const struct internal_symbol_node_rps_st *left,
   RPS_ASSERT (right);
   RpsSymbol_t *syleft = left->synodrps_symbol;
   RpsSymbol_t *syright = right->synodrps_symbol;
-  RPS_ASSERT (syleft != NULL && syleft->zm_type == -RpsPyt_Symbol);
-  RPS_ASSERT (syright != NULL && syright->zm_type == -RpsPyt_Symbol);
   if (syleft == syright)
     return 0;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (syleft) == -RpsPyt_Symbol);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (syright) == -RpsPyt_Symbol);
   const RpsString_t *namleft = syleft->symb_name;
   const RpsString_t *namright = syright->symb_name;
-  RPS_ASSERT (namleft != NULL && namleft->zm_type == RPS_TYPE_STRING);
-  RPS_ASSERT (namright != NULL && namright->zm_type == RPS_TYPE_STRING);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (namleft) == RPS_TYPE_STRING);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (namright) == RPS_TYPE_STRING);
   return strcmp (namleft->cstr, namright->cstr);
 }				/* end rps_symbol_node_cmp */
 
@@ -63,7 +63,7 @@ rps_register_symbol (const char *name)
   pthread_mutex_lock (&rps_symbol_mtx);
   const RpsString_t *namestr = rps_alloc_string (name);
   RpsSymbol_t pseudosymb =	//
-  {.zm_type = -RpsPyt_Symbol,.zm_gcmark = 1,.symb_name = namestr };
+  {.zm_atype = -RpsPyt_Symbol,.zm_gcmark = 1,.symb_name = namestr };
   struct internal_symbol_node_rps_st pseudonode	//
   = {.synodrps_symbol = &pseudosymb };
   struct internal_symbol_node_rps_st *nod =
@@ -90,8 +90,10 @@ rps_find_symbol (const char *name)
   RPS_ASSERT (name != NULL);
   pthread_mutex_lock (&rps_symbol_mtx);
   const RpsString_t *namestr = rps_alloc_string (name);
-  RpsSymbol_t pseudosymb = {.zm_type = -RpsPyt_Symbol,.zm_gcmark =
-      1,.symb_name = namestr
+  RpsSymbol_t pseudosymb =	//
+  {.zm_atype = -RpsPyt_Symbol,	//
+    .zm_gcmark = 1,.		//
+      symb_name = namestr	//
   };
   struct internal_symbol_node_rps_st pseudonode = {.synodrps_symbol =
       &pseudosymb
