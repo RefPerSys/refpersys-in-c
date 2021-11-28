@@ -3,7 +3,7 @@ complete rewrite of refpersys in C.
 
 See http://refpersys.org/ for more.
 
-A previous version was [coded in C++]()https://github.com/RefPerSys/RefPerSys
+A previous version was [coded in C++](https://github.com/RefPerSys/RefPerSys)
 
 ## packages required
  - libcurl
