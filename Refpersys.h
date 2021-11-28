@@ -246,6 +246,15 @@ struct RpsZonedMemory_st
   RPSFIELDS_ZONED_MEMORY;
 };
 
+static inline
+int8_t
+rps_zoned_memory_type(const void*ad)
+{
+  if (!ad) return 0;
+  return atomic_load(&((struct RpsZonedMemory_st*)ad)->zm_type);
+} /* end rps_zoned_memory_type */
+
+
 /// zoned values all have some non-zero hash
 #define RPSFIELDS_ZONED_VALUE \
   RPSFIELDS_ZONED_MEMORY; \
