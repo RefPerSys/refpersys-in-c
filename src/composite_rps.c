@@ -1006,8 +1006,18 @@ rps_hash_tbl_is_valid (const RpsHashTblOb_t * htb)
 RpsHashTblOb_t *
 rps_hash_tbl_ob_create (unsigned capacity)
 {
-#warning unimplemented rps_hash_tbl_ob_create
-  RPS_FATAL ("unimplemented rps_hash_tbl_ob_create capacity %u", capacity);
+  RpsHashTblOb_t *htb = NULL;
+  unsigned nbbuck =		//
+    rps_prime_above (4 + capacity / RPS_DEQUE_CHUNKSIZE + capacity / 32);
+  int prix = rps_index_of_prime (nbbuck);
+  RPS_ASSERT (prix >= 0);
+  htb = RPS_ALLOC_ZONE (sizeof (RpsHashTblOb_t), -RpsPyt_HashTblObj);
+  htb->zm_xtra = prix;
+  htb->zm_length = 0;
+  htb->htbob_magic = RPS_HTBOB_MAGIC;
+  htb->htbob_bucketarr =
+    RPS_ALLOC_ZEROED (nbbuck * sizeof (struct rps_dequeob_link_st *));
+  return htb;
 }				/* end rps_hash_tbl_ob_create */
 
 
