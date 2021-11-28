@@ -491,7 +491,7 @@ main (int argc, char **argv)
 #warning missing code here, should create Gtk window and run the agenda...
     }
   if (rps_dump_directory)
-    rps_dump_heap ();
+    rps_dump_heap (rps_dump_directory);
 }				/* end of main function */
 
 

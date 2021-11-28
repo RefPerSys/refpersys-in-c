@@ -198,8 +198,7 @@ rps_thread_routine (void *ptr)
 	  clock_gettime (CLOCK_REALTIME, &ts);
 	  ts.tv_sec += 1;
 	  pthread_cond_timedwait (&rps_agenda_changed_cond,
-				  &RPS_THE_AGENDA_OBJECT->ob_mtx,
-				  &ts);
+				  &RPS_THE_AGENDA_OBJECT->ob_mtx, &ts);
 	}
       pthread_mutex_unlock (&RPS_THE_AGENDA_OBJECT->ob_mtx);
       if (obtasklet != NULL)

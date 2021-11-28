@@ -952,6 +952,15 @@ rps_remove_global_root_object (RpsObject_t * obj)
   pthread_mutex_unlock (&rps_rootob_mtx);
 }				/* end rps_remove_global_root_object */
 
+unsigned
+rps_nb_global_root_objects (void)
+{
+  unsigned nb = 0;
+  pthread_mutex_lock (&rps_rootob_mtx);
+  pthread_mutex_unlock (&rps_rootob_mtx);
+  return nb;
+}				/* end rps_nb_global_root_objects */
+
 const RpsSetOb_t *
 rps_set_of_global_root_objects (void)
 {
@@ -976,5 +985,76 @@ rps_set_of_global_root_objects (void)
   pthread_mutex_unlock (&rps_rootob_mtx);
   return setv;
 }				/* end rps_set_of_global_root_objects */
+
+
+/****************************************************************
+ * Hashtable of objects payload for -RpsPyt_HashTblObj
+ ****************************************************************/
+bool
+rps_hash_tbl_is_valid (const RpsHashTblOb_t * htb)
+{
+  if (!htb)
+    return false;
+  if (htb->htbob_magic != RPS_HTBOB_MAGIC)
+    return false;
+  if (htb->zm_type != -RpsPyt_HashTblObj)
+    return false;
+  if (htb->zm_length > 0 && !htb->htbob_bucketarr)
+    return false;
+  return true;
+}				/* end rps_hash_tbl_is_valid */
+
+
+// create some unowned hash table of objects of a given initial capacity
+RpsHashTblOb_t *
+rps_hash_tbl_ob_create (unsigned capacity)
+{
+#warning unimplemented rps_hash_tbl_ob_create
+  RPS_FATAL("unimplemented rps_hash_tbl_ob_create capacity %u", capacity);
+}				/* end rps_hash_tbl_ob_create */
+
+
+// reserve space for NBEXTRA more objects, return true on success
+// when NBEXTRA is 0, reorganize the hash table to its current size
+bool
+rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra)
+{
+#warning unimplemented rps_hash_tbl_ob_reserve_more
+  RPS_FATAL("unimplemented rps_hash_tbl_ob_reserve_more nbextra=%u", nbextra);
+}				/* end rps_hash_tbl_ob_reserve_more */
+
+
+// add a new element, return true if it was absent
+bool
+rps_hash_tbl_ob_add (RpsHashTblOb_t * htb, RpsObject_t * obelem)
+{
+#warning unimplemented rps_hash_tbl_ob_add 
+  RPS_FATAL("unimplemented rps_hash_tbl_ob_add");
+}				/* end rps_hash_tbl_ob_add */
+
+// remove an element, return true if it was there
+bool
+rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb, RpsObject_t * obelem)
+{
+#warning unimplemented rps_hash_tbl_ob_remove
+  RPS_FATAL("unimplemented rps_hash_tbl_ob_remove");
+}				/* end rps_hash_tbl_ob_remove */
+
+// cardinal of an hash table of objects
+unsigned
+rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb)
+{
+#warning unimplemented rps_hash_tbl_ob_cardinal
+  RPS_FATAL("unimplemented rps_hash_tbl_ob_cardinal");
+}				/* end rps_hash_tbl_ob_cardinal */
+
+// make a set from the elements of an hash table
+const RpsSetOb_t *
+rps_hash_tbl_set_elements (RpsHashTblOb_t * htb)
+{
+#warning unimplemented rps_hash_tbl_ob_set_elements
+  RPS_FATAL("unimplemented rps_hash_tbl_set_elements");
+}				/* end rps_hash_tbl_set_elements */
+
 
 /***************** end of file composite_rps.c from refpersys.org **********/

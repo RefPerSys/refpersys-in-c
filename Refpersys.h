@@ -217,6 +217,7 @@ enum
   RpsPyt_Agenda,		/* the agenda */
   RpsPyt_StringDict,		/* string dictionary associating names
 				   to values */
+  RpsPyt_HashTblObj,		/* hashtable of objects */
   RpsPyt_Space,			/* space payload */
   RpsPyt_Dumper,		/* dumper payload */
   RpsPyt__LAST
@@ -445,7 +446,7 @@ extern void rps_object_reserve_components (RpsObject_t * obj,
 					   unsigned nbcomp);
 extern void rps_add_global_root_object (RpsObject_t * obj);
 extern void rps_remove_global_root_object (RpsObject_t * obj);
-
+extern unsigned rps_nb_global_root_objects (void);
 
 
 
@@ -638,7 +639,7 @@ extern bool rps_object_deque_push_last (RpsObject_t * obq,
  ****************************************************************/
 
 #define RPS_HTBOB_MAGIC 0x3210d03f	/*839962687 */
-  /* zm_type should be RpsPyt_HashTblObj */
+  /* zm_type should be -RpsPyt_HashTblObj */
   /* zm_length is the total number of objects */
   /* zm_extra is the prime index of buckets */
 #define RPSFIELDS_PAYLOAD_HASHTBLOB			\
@@ -651,19 +652,22 @@ struct RpsPayl_HashTblOb_st
   RPSFIELDS_PAYLOAD_HASHTBLOB;
 };
 typedef struct RpsPayl_HashTblOb_st RpsHashTblOb_t;
+extern bool rps_hash_tbl_is_valid (const RpsHashTblOb_t * htb);
 // create some unowned hash table of objects of a given initial capacity
-RpsHashTblOb_t *rps_hash_tbl_ob_create (unsigned capacity);
+extern RpsHashTblOb_t *rps_hash_tbl_ob_create (unsigned capacity);
 // reserve space for NBEXTRA more objects, return true on success
 // when NBEXTRA is 0, reorganize the hash table to its current size
-bool rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra);
+extern bool rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb,
+					  unsigned nbextra);
 // add a new element, return true if it was absent
-bool rps_hash_tbl_ob_add (RpsHashTblOb_t * htb, RpsObject_t * obelem);
+extern bool rps_hash_tbl_ob_add (RpsHashTblOb_t * htb, RpsObject_t * obelem);
 // remove an element, return true if it was there
-bool rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb, RpsObject_t * obelem);
+extern bool rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb,
+				    RpsObject_t * obelem);
 // cardinal of an hash table of objects
-unsigned rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb);
+extern unsigned rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb);
 // make a set from the elements of an hash table
-const RpsSetOb_t *rps_hash_tbl_set_elements (RpsHashTblOb_t * htb);
+extern const RpsSetOb_t *rps_hash_tbl_set_elements (RpsHashTblOb_t * htb);
 
 /****************************************************************
  * String dictionary payload for -RpsPyt_StringDict
@@ -768,7 +772,9 @@ extern volatile bool rps_agenda_is_running (void);
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
-extern void rps_dump_heap (void);	/// dump into rps_dump_directory
+extern void rps_dump_heap (const char *dir);	/// dump into DIR or
+						/// else
+						/// rps_dump_directory
 extern void rps_abort (void) __attribute__((noreturn));
 extern void rps_backtrace_print (struct backtrace_state *state, int skip,
 				 FILE * f);

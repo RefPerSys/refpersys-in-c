@@ -1,5 +1,5 @@
 /****************************************************************
- * file load_rps.c
+ * file dumper_rps.c
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Description:
@@ -44,6 +44,7 @@ struct RpsPayl_Dumper_st
      be running, every other pthread should be blocked. The agenda should
      be "idle".
    */
+  RpsString_t *du_dirnam;
   RpsHashTblOb_t *du_visitedht;
   RpsMutableSetOb_t *du_dumpedset;
 };
@@ -59,15 +60,21 @@ rps_is_valid_dumper (RpsDumper_t * du)
 }				/* end rps_is_valid_dumper */
 
 void
-rps_dump_heap (void)
+rps_dump_heap (const char *dirn)
 {
+  if (!dirn)
+    dirn = rps_dump_directory;
   if (rps_agenda_is_running ())
-    RPS_FATAL ("cannot dump heap while agenda is running");
+    RPS_FATAL ("cannot dump heap into %s while agenda is running", dirn);
   /* TODO: Do we need some temporary dumper object, owning the dumper
      payload below? */
   RpsDumper_t *dumper =		//    
     RPS_ALLOC_ZONE (sizeof (RpsDumper_t),
 		    -RpsPyt_Dumper);
+  dumper->du_magic = RPS_DUMPER_MAGIC;
+  dumper->du_dirnam = rps_alloc_string (dirn);
+  dumper->du_visitedht =	//
+    rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
 }				/* end rps_dump_heap */
 
