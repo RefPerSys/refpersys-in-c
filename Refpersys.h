@@ -255,6 +255,15 @@ rps_zoned_memory_type(const void*ad)
 } /* end rps_zoned_memory_type */
 
 
+static inline
+uchar
+rps_zoned_memory_gcmark(const void*ad)
+{
+  if (!ad) return 0;
+  return atomic_load(&((struct RpsZonedMemory_st*)ad)->zm_gcmark);
+} /* end rps_zoned_memory_gcmark */
+
+
 /// zoned values all have some non-zero hash
 #define RPSFIELDS_ZONED_VALUE \
   RPSFIELDS_ZONED_MEMORY; \
