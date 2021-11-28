@@ -1026,7 +1026,29 @@ rps_hash_tbl_ob_create (unsigned capacity)
 bool
 rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra)
 {
+  if (!htb)
+    return false;
+  if (rps_zoned_memory_type (htb) != -RpsPyt_HashTblObj)
+    return false;
+  RPS_ASSERT (htb->htbob_magic == RPS_HTBOB_MAGIC);
+  struct rps_dequeob_link_st **oldbuckarr = htb->htbob_bucketarr;
+  struct rps_dequeob_link_st **newbuckarr = NULL;
+  int prix = htb->zm_xtra;
+  unsigned curlen = htb->zm_length;
+  unsigned oldsiz = rps_prime_of_index (prix);
+  unsigned newsiz = rps_prime_above (curlen + nbextra + 1);
+  if (newsiz != oldsiz)
+    {
+      int newprix = rps_index_of_prime (newsiz);
+      if (newprix != prix)
+	{
+	  newbuckarr =		//
+	    RPS_ALLOC_ZEROED (newsiz * sizeof (struct rps_dequeob_link_st *));
 #warning unimplemented rps_hash_tbl_ob_reserve_more
+	}
+    }
+  else
+    return true;
   RPS_FATAL ("unimplemented rps_hash_tbl_ob_reserve_more nbextra=%u",
 	     nbextra);
 }				/* end rps_hash_tbl_ob_reserve_more */
