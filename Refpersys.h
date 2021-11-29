@@ -657,6 +657,7 @@ extern bool rps_object_deque_push_last (RpsObject_t * obq,
  * Hashtable of objects payload for -RpsPyt_HashTblObj
  ****************************************************************/
 
+#define RPS_HTB_EMPTY_SLOT ((RpsObject_t*)(-1L))
 #define RPS_HTBOB_MAGIC 0x3210d03f	/*839962687 */
   /* zm_atype should be -RpsPyt_HashTblObj */
   /* zm_length is the total number of objects */
