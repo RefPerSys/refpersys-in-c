@@ -88,9 +88,57 @@ void
 rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
-  /* should recursively scan internal values and objects */
-  RPS_FATAL ("unimplemented rps_dumper_scan_value");
-#warning unimplemented rps_dumper_scan_value
+  if (val == RPS_NULL_VALUE)
+    return;
+  if (depth > RPS_MAX_VALUE_DEPTH)
+    RPS_FATAL ("too deep %u value to scan @%p", depth, (void *) val);
+  enum RpsType vtyp = rps_value_type (val);
+  switch (vtyp)
+    {
+    case RPS_TYPE_INT:
+      return;
+    case RPS_TYPE_STRING:
+      return;
+    case RPS_TYPE_JSON:
+      return;
+    case RPS_TYPE_GTKWIDGET:
+      return;
+    case RPS_TYPE_TUPLE:
+      {
+	const RpsTupleOb_t *tupv = (const RpsTupleOb_t *) val;
+	for (uint32_t ix = 0; ix < tupv->zm_length; ix++)
+	  if (tupv->tuple_comp[ix])
+	    rps_dumper_scan_object (du, tupv->tuple_comp[ix]);
+      };
+      return;
+    case RPS_TYPE_SET:
+      {
+	const RpsSetOb_t *setv = (const RpsSetOb_t *) val;
+	for (uint32_t ix = 0; ix < setv->zm_length; ix++)
+	  rps_dumper_scan_object (du, setv->set_elem[ix]);
+      };
+      return;
+    case RPS_TYPE_CLOSURE:
+      {
+	const RpsClosure_t *closv = (const RpsClosure_t *) val;
+	rps_dumper_scan_object (du, closv->clos_conn);
+	if (closv->clos_meta)
+	  rps_dumper_scan_value (du, closv->clos_meta, depth + 1);
+	for (uint32_t ix = 0; ix < closv->zm_length; ix++)
+	  rps_dumper_scan_value (du, closv->clos_val[ix], depth + 1);
+      };
+      return;
+    case RPS_TYPE_OBJECT:
+      {
+	RpsObject_t *ob = (RpsObject_t *) val;
+	rps_dumper_scan_object (du, ob);
+      };
+      return;
+    case RPS_TYPE_FILE:
+      return;
+    default:
+      RPS_FATAL ("unexpected value type#%u @%p", (int) vtyp, (void *) val);
+    }
 }				/* end rps_dumper_scan_value */
 
 
