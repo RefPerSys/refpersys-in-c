@@ -668,6 +668,24 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end of rps_object_deque_ob_initialize */
 
+RpsObject_t *
+rps_payldeque_get_first (RpsDequeOb_t * payldeq)
+{
+  RpsObject_t *resob = NULL;
+  if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
+    return NULL;
+  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
+  if (!firstlink)
+    return NULL;
+  RPS_ASSERT (firstlink->dequeob_prev == NULL);
+  for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
+    {
+      resob = firstlink->dequeob_chunk[i];
+      if (resob)
+	break;
+    }
+  return resob;
+}				/* end rps_payldeque_get_first */
 
 RpsObject_t *
 rps_object_deque_get_first (RpsObject_t * obj)
@@ -678,7 +696,7 @@ rps_object_deque_get_first (RpsObject_t * obj)
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
+  if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     goto end;
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
   if (!firstlink)
@@ -695,6 +713,42 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
   return resob;
 }				/* end rps_object_deque_get_first */
+
+
+RpsObject_t *
+rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
+{
+  RpsObject_t *resob = NULL;
+  if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
+    return NULL;
+  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
+  if (!firstlink)
+    goto end;
+  RPS_ASSERT (payldeq->zm_length > 0);
+  RPS_ASSERT (firstlink->dequeob_prev == NULL);
+  for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
+    {
+      resob = firstlink->dequeob_chunk[i];
+      if (resob)
+	{
+	  firstlink->dequeob_chunk[i] = NULL;
+	  payldeq->zm_length--;
+	  if (i == RPS_DEQUE_CHUNKSIZE - 1)
+	    {
+	      payldeq->deqob_first = firstlink->dequeob_next;
+	      if (!payldeq->deqob_first)
+		{
+		  RPS_ASSERT (payldeq->deqob_last == firstlink);
+		  payldeq->deqob_last = NULL;
+		}
+	      free (firstlink);
+	    }
+	  break;
+	}
+    }
+end:
+  return resob;
+}				/* end rps_payldeque_pop_first */
 
 RpsObject_t *
 rps_object_deque_pop_first (RpsObject_t * obj)
@@ -797,7 +851,55 @@ end:
   return pushed;
 }				/* end rps_object_deque_push_first */
 
-
+bool
+rps_payldeque_push_first (RpsDequeOb_t * deq, RpsObject_t * obelem)
+{
+  bool pushed = false;
+  if (!deq || RPS_ZONED_MEMORY_TYPE (deq) != -RpsPyt_DequeOb)
+    goto end;
+  struct rps_dequeob_link_st *firstlink = deq->deqob_first;
+  if (!firstlink)
+    {
+      RPS_ASSERT (deq->zm_length == 0);
+      struct rps_dequeob_link_st *newlink =	//
+	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
+      newlink->dequeob_chunk[0] = obelem;
+      deq->deqob_first = deq->deqob_last = newlink;
+      deq->zm_length = 1;
+      pushed = true;
+      goto end;
+    }
+  int firstlcnt = 0;
+  RpsObject_t *chunkarr[RPS_DEQUE_CHUNKSIZE];
+  for (int ix = 0; ix < RPS_DEQUE_CHUNKSIZE; ix++)
+    if (firstlink->dequeob_chunk[ix] != 0)
+      chunkarr[firstlcnt++] = firstlink->dequeob_chunk[ix];
+  if (firstlcnt == RPS_DEQUE_CHUNKSIZE)
+    {
+      // the chunk is full, we need to allocate a new one
+      struct rps_dequeob_link_st *newlink =	//
+	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
+      newlink->dequeob_chunk[0] = obelem;
+      struct rps_dequeob_link_st *oldfirstlink = deq->deqob_first;
+      RPS_ASSERT (oldfirstlink->dequeob_prev == NULL);
+      oldfirstlink->dequeob_prev = newlink;
+      newlink->dequeob_next = oldfirstlink;
+      deq->deqob_first = newlink;
+      deq->zm_length++;
+      pushed = true;
+      goto end;
+    }
+  else
+    {
+      firstlink->dequeob_chunk[0] = obelem;
+      memcpy (firstlink->dequeob_chunk + 1, chunkarr,
+	      firstlcnt * sizeof (RpsObject_t *));
+      pushed = true;
+      goto end;
+    }
+end:
+  return pushed;
+}				/* end rps_payldeque_push_first */
 
 
 RpsObject_t *
@@ -952,10 +1054,11 @@ rps_remove_global_root_object (RpsObject_t * obj)
 unsigned
 rps_nb_global_root_objects (void)
 {
-  unsigned nb = 0;
+  unsigned nbglobroot = 0;
   pthread_mutex_lock (&rps_rootob_mtx);
+  nbglobroot = rps_rootob_mutset.zm_length;
   pthread_mutex_unlock (&rps_rootob_mtx);
-  return nb;
+  return nbglobroot;
 }				/* end rps_nb_global_root_objects */
 
 const RpsSetOb_t *
