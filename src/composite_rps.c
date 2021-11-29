@@ -1021,6 +1021,58 @@ rps_hash_tbl_ob_create (unsigned capacity)
 }				/* end rps_hash_tbl_ob_create */
 
 
+/// return true if ob is added, false if it was there...
+static bool
+rps_hash_tbl_ob_put1 (RpsHashTblOb_t * htb, RpsObject_t * ob)
+{
+  RPS_ASSERT (htb && htb->htbob_magic == RPS_HTBOB_MAGIC);
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  int prix = htb->zm_xtra;
+  unsigned curlen = htb->zm_length;
+  unsigned siz = rps_prime_of_index (prix);
+  RpsHash_t hob = ob->zv_hash;
+  RPS_ASSERT (siz > 0 && curlen < siz);
+  struct rps_dequeob_link_st **buckarr = htb->htbob_bucketarr;
+  if (!buckarr[hob % siz])
+    {
+      struct rps_dequeob_link_st *newlink =	//
+	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
+      newlink->dequeob_chunk[0] = hob;
+      buckarr[hob % siz] = newlink;
+      htb->zm_length++;
+      return true;
+    }
+  RpsObject_t **slotptr = NULL;
+  struct rps_dequeob_link_st *prevbuck = NULL;
+  for (struct rps_dequeob_link_st * curbuck = buckarr[hob % siz];
+       curbuck != NULL; curbuck = curbuck->dequeob_next)
+    {
+      for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
+	{
+	  if (curbuck->dequeob_chunk[i] == ob)
+	    return false;
+	  if (!curbuck->dequeob_chunk[i]
+	      || curbuck->dequeob_chunk[i] == RPS_HTB_EMPTY_SLOT)
+	    if (!slotptr)
+	      slotptr = &curbuck->dequeob_chunk[i];
+	}
+      prevbuck = curbuck;
+    }
+  if (slotptr)
+    {
+      *slotptr = hob;
+      htb->zm_length++;
+      return true;
+    };
+  struct rps_dequeob_link_st *newlink =	//
+    RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
+  newlink->dequeob_chunk[0] = hob;
+  prevbuck->dequeob_next = newlink;
+  newlink->dequeob_prev = prevbuck;
+  htb->zm_length++;
+  return true;
+}				/* end rps_hash_tbl_ob_put1 */
+
 // reserve space for NBEXTRA more objects, return true on success
 // when NBEXTRA is 0, reorganize the hash table to its current size
 bool
