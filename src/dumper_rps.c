@@ -76,7 +76,8 @@ rps_dump_heap (const char *dirn)
   dumper->du_visitedht =	//
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
   /* scan the global objects */
-  rps_dumper_scan_value (dumper, rps_set_of_global_root_objects (), 0);
+  rps_dumper_scan_value (dumper,
+			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
   /* loop to scan visited, but unscanned objects */
   /* once every object is known, dump them by space */
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
@@ -109,14 +110,15 @@ rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	const RpsTupleOb_t *tupv = (const RpsTupleOb_t *) val;
 	for (uint32_t ix = 0; ix < tupv->zm_length; ix++)
 	  if (tupv->tuple_comp[ix])
-	    rps_dumper_scan_object (du, tupv->tuple_comp[ix]);
+	    rps_dumper_scan_object (du,
+				    (RpsObject_t *) (tupv->tuple_comp[ix]));
       };
       return;
     case RPS_TYPE_SET:
       {
 	const RpsSetOb_t *setv = (const RpsSetOb_t *) val;
 	for (uint32_t ix = 0; ix < setv->zm_length; ix++)
-	  rps_dumper_scan_object (du, setv->set_elem[ix]);
+	  rps_dumper_scan_object (du, (RpsObject_t *) (setv->set_elem[ix]));
       };
       return;
     case RPS_TYPE_CLOSURE:
