@@ -75,7 +75,36 @@ rps_dump_heap (const char *dirn)
   dumper->du_dirnam = rps_alloc_string (dirn);
   dumper->du_visitedht =	//
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
+  /* scan the global objects */
+  /* loop to scan visited, but unscanned objects */
+  /* once every object is known, dump them by space */
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
 }				/* end rps_dump_heap */
+
+
+
+
+void
+rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  /* should recursively scan internal values and objects */
+  RPS_FATAL ("unimplemented rps_dumper_scan_value");
+#warning unimplemented rps_dumper_scan_value
+}				/* end rps_dumper_scan_value */
+
+
+
+void
+rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (rps_is_valid_object (ob));
+  /* If the object was already visited by the dumper, do nothing;
+     otherwise postpone the scan of object internal data (class,
+     attributes and their values, components, payload...) */
+  RPS_FATAL ("unimplemented rps_dumper_scan_object");
+#warning unimplemented rps_dumper_scan_object
+}				/* end rps_dumper_scan_object */
 
 #warning a lot of dumping routines are missing here
