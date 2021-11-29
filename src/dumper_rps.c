@@ -46,7 +46,7 @@ struct RpsPayl_Dumper_st
    */
   RpsString_t *du_dirnam;
   RpsHashTblOb_t *du_visitedht;
-  RpsMutableSetOb_t *du_dumpedset;
+  RpsDequeOb_t *du_deque;
 };
 
 
@@ -76,6 +76,7 @@ rps_dump_heap (const char *dirn)
   dumper->du_visitedht =	//
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
   /* scan the global objects */
+  rps_dumper_scan_value (dumper, rps_set_of_global_root_objects (), 0);
   /* loop to scan visited, but unscanned objects */
   /* once every object is known, dump them by space */
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
@@ -147,7 +148,15 @@ void
 rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
+  if (!ob)
+    return;
   RPS_ASSERT (rps_is_valid_object (ob));
+  bool absent = rps_hash_tbl_ob_add (du->du_visitedht, ob);
+  if (absent)
+    {
+#warning for absent visited objects we should queue them in the dumper...
+    }
+
   /* If the object was already visited by the dumper, do nothing;
      otherwise postpone the scan of object internal data (class,
      attributes and their values, components, payload...) */
