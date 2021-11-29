@@ -159,6 +159,9 @@ enum RpsType
   RPS_TYPE__LAST
 };
 
+/* maximal value depth before encountering objects:*/
+#define RPS_MAX_VALUE_DEPTH 64
+
 /// an hash has 32 bits and conventionally is never 0
 typedef uint32_t RpsHash_t;
 
@@ -288,7 +291,7 @@ struct RpsZoneDouble_st
 {
   RPSFIELDS_DOUBLE;
 };
-typedef struct RpsZoneDouble_st RpsDouble_t;	/*for RPS_TYPE_DOUBLE, zv_size is unused */
+typedef struct RpsZoneDouble_st RpsDouble_t;	/*for RPS_TYPE_DOUBLE, zm_length is unused */
 RpsHash_t rps_hash_double (double x);
 // allocate a boxed double which is not NAN, fatal if NAN
 const RpsDouble_t *rps_alloc_boxed_double (double x);
@@ -361,7 +364,7 @@ const RpsGtkWidget_t *rps_alloc_gtk_widget (GtkWidget *);
  ****************************************************************/
 #define RPSFIELDS_TUPLEOB \
   RPSFIELDS_ZONED_VALUE; \
-  RpsObject_t* tuple_comp[]	/* zv_size is the number of components */
+  RpsObject_t* tuple_comp[]	/* zm_length is the number of components */
 
 struct RpsZoneTupleOb_st
 {
@@ -382,7 +385,7 @@ const RpsTupleOb_t *rps_load_tuple (const json_t * js, RpsLoader_t * ld);
  ****************************************************************/
 #define RPSFIELDS_SETOB \
   RPSFIELDS_ZONED_VALUE; \
-  const RpsObject_t* set_elem[]	/* zv_size is the number of elements, and they are ordered by oid */
+  const RpsObject_t* set_elem[]	/* zm_length is the number of elements, and they are ordered by oid */
 
 struct RpsZoneSetOb_st
 {
@@ -402,7 +405,7 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
   RPSFIELDS_ZONED_VALUE; \
   RpsObject_t* clos_conn; \
   RpsValue_t clos_meta; \
-  RpsValue_t clos_val[]		/*of zv_size */
+  RpsValue_t clos_val[]		/*of zm_length */
 
 #define RPS_CLOSURE_MAX_NB_VALUE 1024
 struct RpsClosure_st
