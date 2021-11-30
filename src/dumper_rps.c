@@ -78,12 +78,24 @@ rps_dump_heap (const char *dirn)
   /* scan the global objects */
   rps_dumper_scan_value (dumper,
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
+  RpsObject_t *curob = NULL;
   /* loop to scan visited, but unscanned objects */
+  while ((curob = rps_object_deque_pop_first (dumper->du_deque)) != NULL)
+    {
+      rps_dumper_scan_internal_object (dumper, curob);
+    };
   /* once every object is known, dump them by space */
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
 }				/* end rps_dump_heap */
 
 
+void
+rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
+{
+  RPS_ASSERT (du && du->du_magic == RPS_DUMPER_MAGIC);
+  RPS_FATAL ("unimplemented rps_dumper_scan_internal_object ob@%p", ob);
+#warning unimplemented rps_dumper_scan_internal_object
+}				/* end rps_dumper_scan_internal_object */
 
 
 void
