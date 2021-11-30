@@ -197,7 +197,7 @@ extern bool rps_is_valid_dumper (RpsDumper_t * du);
 extern void rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val,
 				   unsigned depth);
 extern void rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob);
-
+extern void rps_dumper_scan_internal_object(RpsDumper_t * du, RpsObject_t * ob);
 ///// hash of strings
 extern RpsHash_t rps_hash_cstr (const char *s);
 
