@@ -812,6 +812,13 @@ static pthread_mutex_t rps_payload_mtx =
 static rps_payload_remover_t
   * rps_payload_removing_rout_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
 static void *rps_payload_removing_data_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+static rps_payload_dump_scanner_t
+  * rps_payload_dump_scanning_rout_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+static void *rps_payload_dump_scanning_data_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+static rps_payload_dump_serializer_t
+  * rps_payload_dump_serializing_rout_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+static void
+  *rps_payload_dump_serializing_data_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
 
 void
 rps_register_payload_removal (int paylty, rps_payload_remover_t * rout,
@@ -841,7 +848,61 @@ end:
   pthread_mutex_unlock (&rps_payload_mtx);
 }				/* end rps_register_payload_removal */
 
+void
+rps_register_payload_dump_scanner (int paylty, rps_payload_dump_scanner_t * rout,	//
+				   void *data)
+{
+  pthread_mutex_lock (&rps_payload_mtx);
+  if (paylty == 0 || paylty >= RPS_MAX_PAYLOAD_TYPE_INDEX)
+    {
+      Dl_info routinfo = { };
+      dladdr ((void *) rout, &routinfo);
+      const char *routname = routinfo.dli_sname;
+      if (!routname)
+	routname = "???";
+      RPS_FATAL
+	("payload type#%d invalid for payload dump scanner routine %p / %s",
+	 paylty, (void *) rout, routname);
+    };
+  if ((void *) rout == NULL && data != NULL)
+    {
+      RPS_FATAL
+	("payload type#%d without dump scanner routine, but with some removal data @%p",
+	 paylty, data);
+    }
+  rps_payload_dump_scanning_rout_arr[paylty] = rout;
+  rps_payload_dump_scanning_data_arr[paylty] = data;
+end:
+  pthread_mutex_unlock (&rps_payload_mtx);
+}				/* end rps_register_payload_dump_scanner */
 
+void
+rps_register_payload_dump_serializer (int paylty, rps_payload_dump_serializer_t * rout,	//
+				      void *data)
+{
+  pthread_mutex_lock (&rps_payload_mtx);
+  if (paylty == 0 || paylty >= RPS_MAX_PAYLOAD_TYPE_INDEX)
+    {
+      Dl_info routinfo = { };
+      dladdr ((void *) rout, &routinfo);
+      const char *routname = routinfo.dli_sname;
+      if (!routname)
+	routname = "???";
+      RPS_FATAL
+	("payload type#%d invalid for payload dump scanner routine %p / %s",
+	 paylty, (void *) rout, routname);
+    };
+  if ((void *) rout == NULL && data != NULL)
+    {
+      RPS_FATAL
+	("payload type#%d without dump scanner routine, but with some removal data @%p",
+	 paylty, data);
+    }
+  rps_payload_dump_serializing_rout_arr[paylty] = rout;
+  rps_payload_dump_serializing_data_arr[paylty] = data;
+end:
+  pthread_mutex_unlock (&rps_payload_mtx);
+}				/* end rps_register_payload_dump_serializer */
 
 void
 rps_object_put_payload (RpsObject_t * obj, void *payl)
