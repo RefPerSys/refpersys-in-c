@@ -44,7 +44,7 @@ struct RpsPayl_Dumper_st
      be running, every other pthread should be blocked. The agenda should
      be "idle".
    */
-  RpsString_t *du_dirnam;
+  const RpsString_t *du_dirnam;
   RpsHashTblOb_t *du_visitedht;
   RpsDequeOb_t *du_deque;
 };
@@ -80,7 +80,7 @@ rps_dump_heap (const char *dirn)
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
   RpsObject_t *curob = NULL;
   /* loop to scan visited, but unscanned objects */
-  while ((curob = rps_object_deque_pop_first (dumper->du_deque)) != NULL)
+  while ((curob = rps_payldeque_pop_first (dumper->du_deque)) != NULL)
     {
       rps_dumper_scan_internal_object (dumper, curob);
     };
@@ -124,7 +124,7 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
     unsigned nbcomp = ob->ob_nbcomp;
     RpsValue_t *comparr = ob->ob_comparr;
     for (int cix = 0; cix < (int) nbcomp; cix++)
-      if (comparr[cix] != NULL)
+      if (comparr[cix] != RPS_NULL_VALUE)
 	rps_dumper_scan_value (du, comparr[cix], 0);
   }
   /// scan the payload
