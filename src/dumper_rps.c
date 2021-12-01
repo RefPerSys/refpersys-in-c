@@ -93,6 +93,54 @@ void
 rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
 {
   RPS_ASSERT (du && du->du_magic == RPS_DUMPER_MAGIC);
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  pthread_mutex_lock (&ob->ob_mtx);
+  rps_dumper_scan_object (du, ob->ob_class);
+  if (ob->ob_space)
+    rps_dumper_scan_object (du, ob->ob_space);
+  /// scan the table of attributes
+  {
+    RpsAttrTable_t *atbl = ob->ob_attrtable;
+    if (atbl)
+      {
+	RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (atbl) == -RpsPyt_AttrTable);
+	intptr_t atblsiz = rps_prime_of_index (atbl->zm_xtra);
+	unsigned atbllen = atbl->zm_length;
+	RPS_ASSERT (atbllen <= atblsiz);
+	for (int aix = 0; aix < atblsiz; aix++)
+	  {
+	    RpsObject_t *curattrob = atbl->attr_entries[aix].ent_attr;
+	    if (curattrob != NULL && curattrob != RPS_HTB_EMPTY_SLOT)
+	      {
+		rps_dumper_scan_object (du, curattrob);
+		rps_dumper_scan_value (du, atbl->attr_entries[aix].ent_val,
+				       0);
+	      }
+	  }
+      };
+  }
+  /// scan the components
+  {
+    unsigned nbcomp = ob->ob_nbcomp;
+    RpsValue_t *comparr = ob->ob_comparr;
+    for (int cix = 0; cix < (int) nbcomp; cix++)
+      if (comparr[cix] != NULL)
+	rps_dumper_scan_value (du, comparr[cix], 0);
+  }
+  /// scan the payload
+  {
+    struct rps_owned_payload_st *payl =
+      (struct rps_owned_payload_st *) (ob->ob_payload);
+    if (payl)
+      {
+	RPS_ASSERT (payl->payl_owner == ob);
+	RPS_ASSERT (payl->zm_atype < 0 && payl->zm_atype > -RpsPyt__LAST);
+	/// see related rps_register_payload_dump_scanner
+#warning rps_dumper_scan_internal_object should scan the payload
+      }
+  };
+end:
+  pthread_mutex_unlock (&ob->ob_mtx);
   RPS_FATAL ("unimplemented rps_dumper_scan_internal_object ob@%p", ob);
 #warning unimplemented rps_dumper_scan_internal_object
 }				/* end rps_dumper_scan_internal_object */

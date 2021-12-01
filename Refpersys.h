@@ -197,7 +197,8 @@ extern bool rps_is_valid_dumper (RpsDumper_t * du);
 extern void rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val,
 				   unsigned depth);
 extern void rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob);
-extern void rps_dumper_scan_internal_object(RpsDumper_t * du, RpsObject_t * ob);
+extern void rps_dumper_scan_internal_object (RpsDumper_t * du,
+					     RpsObject_t * ob);
 ///// hash of strings
 extern RpsHash_t rps_hash_cstr (const char *s);
 
@@ -496,7 +497,18 @@ typedef void rps_payload_remover_t (RpsObject_t *,
 extern void rps_register_payload_removal (int paylty,
 					  rps_payload_remover_t * rout,
 					  void *data);
-
+typedef void rps_payload_dump_scanner_t (RpsDumper_t * du,
+					 struct rps_owned_payload_st *payl,
+					 void *data);
+extern void rps_register_payload_dump_scanner (int paylty,
+					       rps_payload_dump_scanner_t *
+					       rout, void *data);
+typedef void rps_payload_dump_serializer_t (RpsDumper_t * du,
+					    struct rps_owned_payload_st *payl,
+					    json_t * json, void *data);
+extern void rps_register_payload_dump_serializer (int paylty,
+						  rps_payload_dump_serializer_t
+						  * rout, void *data);
 
 /****************************************************************
  * Payload for table of ordered attributes (objects) associated to
