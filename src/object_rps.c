@@ -990,4 +990,28 @@ rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
   rps_object_put_payload (obj, clinf);
 }				/* end rpsldpy_classinfo */
 
+/// rps_classinfo_payload_remover is a rps_payload_remover_t for classinfo
+/// TODO: it should be registered (in main) by rps_register_payload_removal
+void
+rps_classinfo_payload_remover (RpsObject_t * ob,
+			       struct rps_owned_payload_st *clpayl,
+			       void *data)
+{
+  /// the ob has been locked...
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  RPS_ASSERT (clpayl && rps_zoned_memory_type (clpayl) == -RpsPyt_ClassInfo);
+  RpsClassInfo_t *clinf = (RpsClassInfo_t *) clpayl;
+  RPS_ASSERT (clinf->pclass_magic == RPS_CLASSINFO_MAGIC);
+  /// we cannot free clinf, the garbage collection should later do it.
+  /// we clear the magic number and the owner
+  clinf->pclass_magic = 0;
+  clinf->payl_owner = NULL;
+  clinf->pclass_super = NULL;	// will be garbage collected.
+  clinf->pclass_methdict = NULL;	// will be garbage collected
+  clinf->pclass_symbol = NULL;
+#warning rps_classinfo_payload_remover need a code review
+  /// TODO: should we also clear the zm_length, sm_xtra fields?
+}				/* end rps_classinfo_payload_remover */
+
+
 /*************** end of file object_rps.c ****************/

@@ -592,7 +592,7 @@ typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
 
 
 
-
+extern rps_payload_remover_t rps_classinfo_payload_remover;
 
 
 /****************************************************************
