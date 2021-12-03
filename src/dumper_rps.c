@@ -134,15 +134,11 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
     if (payl)
       {
 	RPS_ASSERT (payl->payl_owner == ob);
-	RPS_ASSERT (payl->zm_atype < 0 && payl->zm_atype > -RpsPyt__LAST);
-	/// see related rps_register_payload_dump_scanner
-#warning rps_dumper_scan_internal_object should scan the payload
+	rps_dump_scan_object_payload (du, ob);
       }
   };
 end:
   pthread_mutex_unlock (&ob->ob_mtx);
-  RPS_FATAL ("unimplemented rps_dumper_scan_internal_object ob@%p", ob);
-#warning unimplemented rps_dumper_scan_internal_object
 }				/* end rps_dumper_scan_internal_object */
 
 
