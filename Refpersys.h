@@ -510,6 +510,10 @@ extern void rps_register_payload_dump_serializer (int paylty, rps_payload_dump_s
 						  void *data);
 
 extern void rps_dump_scan_object_payload (RpsDumper_t * du, RpsObject_t * ob);
+extern void rps_dump_serialize_object_payload (RpsDumper_t * du,
+					       RpsObject_t * ob,
+					       json_t * jsob);
+
 
 /****************************************************************
  * Payload for table of ordered attributes (objects) associated to

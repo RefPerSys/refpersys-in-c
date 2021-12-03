@@ -929,6 +929,32 @@ end:
   pthread_mutex_unlock (&rps_payload_mtx);
 }				/* end rps_register_payload_dump_serializer */
 
+/* this function is called with the object locked */
+void
+rps_dump_serialize_object_payload (RpsDumper_t * du, RpsObject_t * ob,
+				   json_t * jsob)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (rps_is_valid_object (ob));
+  RPS_ASSERT (jsob && json_is_object (jsob));
+  struct rps_owned_payload_st *payl =
+    (struct rps_owned_payload_st *) (ob->ob_payload);
+  RPS_ASSERT (payl != NULL);
+  RPS_ASSERT (payl->payl_owner == ob);
+  int8_t paylty = atomic_load (&payl->zm_atype);
+  RPS_ASSERT (paylty < 0 && paylty > -RpsPyt__LAST);
+  rps_payload_dump_serializer_t *serirout = NULL;
+  void *seridata = NULL;
+  {
+    pthread_mutex_lock (&rps_payload_mtx);
+    serirout = rps_payload_dump_serializing_rout_arr[paylty];
+    seridata = rps_payload_dump_serializing_data_arr[paylty];
+    pthread_mutex_unlock (&rps_payload_mtx);
+  }
+  if (serirout)
+    (*serirout) (du, payl, jsob, seridata);
+}				/* end rps_dump_serialize_object_payload */
+
 void
 rps_object_put_payload (RpsObject_t * obj, void *payl)
 {
