@@ -212,7 +212,7 @@ rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
   bool absent = rps_hash_tbl_ob_add (du->du_visitedht, ob);
   if (absent)
     {
-#warning for absent visited objects we should queue them in the dumper...
+      rps_payldeque_push_last (du->du_deque, ob);
     }
 
   /* If the object was already visited by the dumper, do nothing;
