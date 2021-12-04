@@ -1292,8 +1292,24 @@ rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra)
 bool
 rps_hash_tbl_ob_add (RpsHashTblOb_t * htb, RpsObject_t * obelem)
 {
-#warning unimplemented rps_hash_tbl_ob_add
-  RPS_FATAL ("unimplemented rps_hash_tbl_ob_add");
+  if (!htb || !obelem)
+    return false;
+  if (rps_zoned_memory_type (htb) != -RpsPyt_HashTblObj)
+    return false;
+  RPS_ASSERT (htb->htbob_magic == RPS_HTBOB_MAGIC);
+  RPS_ASSERT (rps_is_valid_object (obelem));
+  int oldprix = htb->zm_xtra;
+  unsigned curlen = htb->zm_length;
+  unsigned oldsiz = rps_prime_of_index (oldprix);
+  unsigned newsiz = rps_hash_tbl_nb_buckets (curlen + 1, NULL);
+  if (newsiz != oldsiz)
+    {
+      if (!rps_hash_tbl_ob_reserve_more (htb, 1 + curlen / 8))
+	RPS_FATAL ("failed to reserve more");
+      oldprix = htb->zm_xtra;
+      oldsiz = rps_prime_of_index (oldprix);
+    }
+  return rps_hash_tbl_ob_put1 (htb, obelem);
 }				/* end rps_hash_tbl_ob_add */
 
 // remove an element, return true if it was there
