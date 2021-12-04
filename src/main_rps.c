@@ -65,6 +65,8 @@ GOptionEntry rps_gopt_entries[] = {
    "dump heap into directory DIR", "DIR"},
   {"nb-threads", 'T', 0, G_OPTION_ARG_INT, &rps_nb_threads,
    "set number of agenda threads to NBTHREADS", "NBTHREADS"},
+  {"gui", 'G', 0, G_OPTION_ARG_NONE, &rps_with_gui,
+   "start a graphical interface with GTK", NULL},
   {NULL}
 };
 
@@ -485,9 +487,7 @@ main (int argc, char **argv)
   if (rps_nb_threads > 0)
     rps_run_agenda (rps_nb_threads);
   if (rps_with_gui)
-    {
-#warning missing code here, should create Gtk window and run the agenda...
-    }
+    rps_run_gui (&argc, argv);
   if (rps_dump_directory)
     rps_dump_heap (rps_dump_directory);
 }				/* end of main function */

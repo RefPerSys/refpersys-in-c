@@ -1,3 +1,4 @@
+
 /****************************************************************
  * file Refpersys.h
  * SPDX-License-Identifier: GPL-3.0-or-later
@@ -884,6 +885,10 @@ extern RpsValue_t rps_tagged_integer_value (intptr_t i);
 extern bool rps_is_tagged_integer (const RpsValue_t v);
 extern intptr_t rps_value_to_integer (const RpsValue_t v);	/* gives 0 for a non-tagged integer */
 
+
+/*******************************************************************
+ * GTK user interface
+ *******************************************************************/
 
 
 //////////////////////////////////////////////////////////////////

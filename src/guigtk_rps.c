@@ -33,3 +33,27 @@
     http://attractivechaos.github.io/klib/ see also
     https://en.wikipedia.org/wiki/AVL_tree */
 #include "kavl.h"
+
+
+GtkWidget *guigtk_topwin;
+
+void
+rpsgui_initialize (void)
+{
+  guigtk_topwin = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_default_size (GTK_WINDOW (guigtk_topwin), 450, 333);
+  char titlebuf[80];
+  memset (titlebuf, 0, sizeof (titlebuf));
+  snprintf (titlebuf, sizeof (titlebuf), "refpersys p.%d [%s] %s",
+	    (int) getpid (), rps_hostname (), _rps_git_short_id);
+  gtk_window_set_title (GTK_WINDOW (guigtk_topwin), titlebuf);
+  gtk_widget_show_all (GTK_WIDGET (guigtk_topwin));
+}				/* end rpsgui_initialize_windows */
+
+void
+rps_run_gui (int *pargc, char **argv)
+{
+  gtk_init (pargc, &argv);
+  rpsgui_initialize ();
+  gtk_main ();
+}				/* end rps_run_gui */
