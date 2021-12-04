@@ -1116,7 +1116,7 @@ rps_nb_global_root_objects (void)
 const RpsSetOb_t *
 rps_set_of_global_root_objects (void)
 {
-  RpsSetOb_t *setv = NULL;
+  const RpsSetOb_t *setv = NULL;
   int ix = 0;
   unsigned nbglobroot = 0;
   struct kavl_itr_rpsmusetob iter = { };
@@ -1201,7 +1201,7 @@ rps_hash_tbl_ob_put1 (RpsHashTblOb_t * htb, RpsObject_t * ob)
     {
       struct rps_dequeob_link_st *newlink =	//
 	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
-      newlink->dequeob_chunk[0] = hob;
+      newlink->dequeob_chunk[0] = ob;
       buckarr[hob % siz] = newlink;
       htb->zm_length++;
       return true;
@@ -1224,13 +1224,13 @@ rps_hash_tbl_ob_put1 (RpsHashTblOb_t * htb, RpsObject_t * ob)
     }
   if (slotptr)
     {
-      *slotptr = hob;
+      *slotptr = ob;
       htb->zm_length++;
       return true;
     };
   struct rps_dequeob_link_st *newlink =	//
     RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
-  newlink->dequeob_chunk[0] = hob;
+  newlink->dequeob_chunk[0] = ob;
   prevbuck->dequeob_next = newlink;
   newlink->dequeob_prev = prevbuck;
   htb->zm_length++;
@@ -1264,8 +1264,7 @@ rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra)
 	  htb->zm_length = 0;
 	  for (int oix = 0; oix < oldsiz; oix++)
 	    {
-	      struct rps_dequeob_link_st **oldbuck = oldbuckarr[oix];
-	      if (oldbuck == NULL)
+	      if (oldbuckarr[oix] == NULL)
 		continue;
 	      for (struct rps_dequeob_link_st * oldbuck = oldbuckarr[oix];
 		   oldbuck != NULL; oldbuck = oldbuck->dequeob_next)
@@ -1316,6 +1315,17 @@ rps_hash_tbl_ob_add (RpsHashTblOb_t * htb, RpsObject_t * obelem)
 bool
 rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb, RpsObject_t * obelem)
 {
+  if (!htb || !obelem)
+    return false;
+  if (rps_zoned_memory_type (htb) != -RpsPyt_HashTblObj)
+    return false;
+  RPS_ASSERT (htb->htbob_magic == RPS_HTBOB_MAGIC);
+  RPS_ASSERT (rps_is_valid_object (obelem));
+  int oldprix = htb->zm_xtra;
+  unsigned curlen = htb->zm_length;
+  if (curlen == 0)
+    return false;
+  unsigned oldsiz = rps_prime_of_index (oldprix);
 #warning unimplemented rps_hash_tbl_ob_remove
   RPS_FATAL ("unimplemented rps_hash_tbl_ob_remove");
 }				/* end rps_hash_tbl_ob_remove */
