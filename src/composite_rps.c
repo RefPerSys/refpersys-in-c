@@ -1425,7 +1425,7 @@ rps_hash_tbl_iterate (RpsHashTblOb_t * htb, rps_object_callback_sig_t * rout,
   unsigned counter = 0;
   struct rps_dequeob_link_st **buckarr = htb->htbob_bucketarr;
   int prix = htb->zm_xtra;
-  unsigned nbbuck = rps_prime_of_index (oldprix);
+  unsigned nbbuck = rps_prime_of_index (prix);
   for (unsigned ix = 0; ix < nbbuck; ix++)
     {
       for (struct rps_dequeob_link_st * curbuck = buckarr[ix];
