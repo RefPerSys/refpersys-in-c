@@ -1326,6 +1326,18 @@ rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb, RpsObject_t * obelem)
   if (curlen == 0)
     return false;
   unsigned oldsiz = rps_prime_of_index (oldprix);
+  /* We want to avoid oscillations and too frequent reorganizations
+     when removing a few objects and adding the same number of other
+     objects later. So we reorganize the table only when it is quite
+     empty... */
+  if (oldsiz > 7
+      && rps_hash_tbl_nb_buckets (curlen + 3 + curlen / 3, NULL) < oldsiz)
+    {
+      if (!rps_hash_tbl_ob_reserve_more (htb, 0))
+	RPS_FATAL ("failed to reorganize");
+      oldprix = htb->zm_xtra;
+      oldsiz = rps_prime_of_index (oldprix);
+    }
 #warning unimplemented rps_hash_tbl_ob_remove
   RPS_FATAL ("unimplemented rps_hash_tbl_ob_remove");
 }				/* end rps_hash_tbl_ob_remove */
