@@ -1449,14 +1449,52 @@ rps_hash_tbl_iterate (RpsHashTblOb_t * htb, rps_object_callback_sig_t * rout,
   return counter;
 }				/* end rps_hash_tbl_iterate */
 
+struct rps_hashtblelements_st
+{
+#define RPS_HTBEL_MAGIC 0x19b2475d	/*431114077 */
+  unsigned htbel_magic_num;	/* should be RPS_HTBEL_MAGIC */
+  unsigned htbel_maxcount;
+  unsigned htbel_size;
+  unsigned htbel_curix;
+  RpsObject_t *htbel_obarr[];	/* allocated size is htbel_size, a prime */
+};
+
+static rps_object_callback_sig_t rps_hash_tbl_iter_for_set;
+static bool
+rps_hash_tbl_iter_for_set (RpsObject_t * ob, void *data)
+{
+  struct rps_hashtblelements_st *htbel = data;
+  RPS_ASSERT (htbel && htbel->htbel_magic_num == RPS_HTBEL_MAGIC);
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  RPS_ASSERT (htbel->htbel_curix < htbel->htbel_size);
+  RPS_ASSERT (htbel->htbel_curix < htbel->htbel_maxcount);
+  htbel->htbel_obarr[htbel->htbel_curix++] = ob;
+  return true;
+}				/* end rps_hash_tbl_iter_for_set */
+
 // make a set from the elements of an hash table
 const RpsSetOb_t *
 rps_hash_tbl_set_elements (RpsHashTblOb_t * htb)
 {
+  const RpsSetOb_t *setv = NULL;
   if (!htb || rps_zoned_memory_type (htb) != -RpsPyt_HashTblObj)
     return NULL;
-#warning unimplemented rps_hash_tbl_ob_set_elements
-  RPS_FATAL ("unimplemented rps_hash_tbl_set_elements");
+  RPS_ASSERT (htb->htbob_magic == RPS_HTBOB_MAGIC);
+  unsigned curlen = htb->zm_length;
+  unsigned primsiz = rps_prime_above (curlen + 1);
+  struct rps_hashtblelements_st *htbel =
+    RPS_ALLOC_ZEROED (sizeof (struct rps_hashtblelements_st) +
+		      primsiz * sizeof (RpsObject_t *));
+  htbel->htbel_magic_num = RPS_HTBEL_MAGIC;
+  htbel->htbel_maxcount = curlen;
+  htbel->htbel_size = primsiz;
+  htbel->htbel_curix = 0;
+  unsigned nbit =
+    rps_hash_tbl_iterate (htb, rps_hash_tbl_iter_for_set, (void *) htbel);
+  RPS_ASSERT (nbit == curlen);
+  setv = rps_alloc_set_sized (htbel->htbel_obarr, nbit);
+  free (htbel);
+  return setv;
 }				/* end rps_hash_tbl_set_elements */
 
 
