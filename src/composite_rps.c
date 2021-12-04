@@ -1237,6 +1237,64 @@ rps_hash_tbl_ob_put1 (RpsHashTblOb_t * htb, RpsObject_t * ob)
   return true;
 }				/* end rps_hash_tbl_ob_put1 */
 
+
+/// return true if ob was removed, false otherwise...
+static bool
+rps_hash_tbl_ob_remove1 (RpsHashTblOb_t * htb, RpsObject_t * ob)
+{
+  RPS_ASSERT (htb && htb->htbob_magic == RPS_HTBOB_MAGIC);
+  RPS_ASSERT (ob && ob != RPS_HTB_EMPTY_SLOT && rps_is_valid_object (ob));
+  int prix = htb->zm_xtra;
+  unsigned curlen = htb->zm_length;
+  if (curlen == 0)
+    return false;
+  unsigned siz = rps_prime_of_index (prix);
+  RpsHash_t hob = ob->zv_hash;
+  RPS_ASSERT (siz > 0 && curlen < siz);
+  struct rps_dequeob_link_st **buckarr = htb->htbob_bucketarr;
+  struct rps_dequeob_link_st *curbuck = buckarr[hob % siz];
+  if (!curbuck)
+    return false;
+  RpsObject_t **slotptr = NULL;
+  struct rps_dequeob_link_st *prevbuck = NULL;
+  for (; curbuck != NULL; curbuck = curbuck->dequeob_next)
+    {
+      unsigned buckcap = 0;
+      for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
+	{
+	  if (curbuck->dequeob_chunk[i] == ob)
+	    {
+	      slotptr = &curbuck->dequeob_chunk[i];
+	    }
+	  else
+	    buckcap++;
+	};
+      if (buckcap == 0)
+	{			/* should remove this link */
+	  struct rps_dequeob_link_st *nextbuck = curbuck->dequeob_next;
+	  if (prevbuck)
+	    {
+	      prevbuck->dequeob_next = nextbuck;
+	      if (nextbuck)
+		nextbuck->dequeob_prev = prevbuck;
+	    }
+	  else
+	    buckarr[hob % siz] = nextbuck;
+	  free (curbuck);
+	}
+      else
+	{
+	  RPS_ASSERT (slotptr);
+	  *slotptr = RPS_HTB_EMPTY_SLOT;
+	  htb->zm_length--;
+	  return true;
+	}
+      prevbuck = curbuck;
+    };
+  return false;
+}				/* end rps_hash_tbl_ob_remove1 */
+
+
 // reserve space for NBEXTRA more objects, return true on success
 // when NBEXTRA is 0, reorganize the hash table to its current size
 bool
@@ -1330,24 +1388,26 @@ rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb, RpsObject_t * obelem)
      when removing a few objects and adding the same number of other
      objects later. So we reorganize the table only when it is quite
      empty... */
+  if (!rps_hash_tbl_ob_remove1 (htb, obelem))
+    return false;
   if (oldsiz > 7
       && rps_hash_tbl_nb_buckets (curlen + 3 + curlen / 3, NULL) < oldsiz)
     {
       if (!rps_hash_tbl_ob_reserve_more (htb, 0))
 	RPS_FATAL ("failed to reorganize");
-      oldprix = htb->zm_xtra;
-      oldsiz = rps_prime_of_index (oldprix);
-    }
-#warning unimplemented rps_hash_tbl_ob_remove
-  RPS_FATAL ("unimplemented rps_hash_tbl_ob_remove");
+    };
+  return true;
 }				/* end rps_hash_tbl_ob_remove */
+
 
 // cardinal of an hash table of objects
 unsigned
 rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb)
 {
-#warning unimplemented rps_hash_tbl_ob_cardinal
-  RPS_FATAL ("unimplemented rps_hash_tbl_ob_cardinal");
+  if (!htb || rps_zoned_memory_type (htb) != -RpsPyt_HashTblObj)
+    return false;
+  RPS_ASSERT (htb->htbob_magic == RPS_HTBOB_MAGIC);
+  return htb->zm_length;
 }				/* end rps_hash_tbl_ob_cardinal */
 
 // make a set from the elements of an hash table
