@@ -1156,15 +1156,24 @@ rps_hash_tbl_is_valid (const RpsHashTblOb_t * htb)
   return true;
 }				/* end rps_hash_tbl_is_valid */
 
+static inline unsigned
+rps_hash_tbl_nb_buckets (unsigned capacity, int *pbix)
+{
+  unsigned nbbuck =		//
+    rps_prime_above (4 + capacity / RPS_DEQUE_CHUNKSIZE + capacity / 32);
+  if (pbix)
+    *pbix = rps_index_of_prime (nbbuck);
+  return nbbuck;
+}				/* end of rps_hash_tbl_nb_buckets */
+
 
 // create some unowned hash table of objects of a given initial capacity
 RpsHashTblOb_t *
 rps_hash_tbl_ob_create (unsigned capacity)
 {
   RpsHashTblOb_t *htb = NULL;
-  unsigned nbbuck =		//
-    rps_prime_above (4 + capacity / RPS_DEQUE_CHUNKSIZE + capacity / 32);
-  int prix = rps_index_of_prime (nbbuck);
+  int prix = -1;
+  unsigned nbbuck = rps_hash_tbl_nb_buckets (capacity, &prix);
   RPS_ASSERT (prix >= 0);
   htb = RPS_ALLOC_ZONE (sizeof (RpsHashTblOb_t), -RpsPyt_HashTblObj);
   htb->zm_xtra = prix;
@@ -1240,24 +1249,42 @@ rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb, unsigned nbextra)
   RPS_ASSERT (htb->htbob_magic == RPS_HTBOB_MAGIC);
   struct rps_dequeob_link_st **oldbuckarr = htb->htbob_bucketarr;
   struct rps_dequeob_link_st **newbuckarr = NULL;
-  int prix = htb->zm_xtra;
+  int oldprix = htb->zm_xtra;
   unsigned curlen = htb->zm_length;
-  unsigned oldsiz = rps_prime_of_index (prix);
-  unsigned newsiz = rps_prime_above (curlen + nbextra + 1);
-  if (newsiz != oldsiz)
+  unsigned oldsiz = rps_prime_of_index (oldprix);
+  int newprix = -1;
+  unsigned newsiz = rps_hash_tbl_nb_buckets (curlen + nbextra, &newprix);
+  if (newsiz != oldsiz || nbextra == 0)
     {
-      int newprix = rps_index_of_prime (newsiz);
-      if (newprix != prix)
+      if (newprix != oldprix || nbextra == 0)
 	{
 	  newbuckarr =		//
 	    RPS_ALLOC_ZEROED (newsiz * sizeof (struct rps_dequeob_link_st *));
-#warning unimplemented rps_hash_tbl_ob_reserve_more
+	  htb->htbob_bucketarr = newbuckarr;
+	  htb->zm_length = 0;
+	  for (int oix = 0; oix < oldsiz; oix++)
+	    {
+	      struct rps_dequeob_link_st **oldbuck = oldbuckarr[oix];
+	      if (oldbuck == NULL)
+		continue;
+	      for (struct rps_dequeob_link_st * oldbuck = oldbuckarr[oix];
+		   oldbuck != NULL; oldbuck = oldbuck->dequeob_next)
+		for (int bix = 0; bix < RPS_DEQUE_CHUNKSIZE; bix++)
+		  {
+		    RpsObject_t *curob = oldbuck->dequeob_chunk[bix];
+		    if (curob != NULL && curob != RPS_HTB_EMPTY_SLOT)
+		      {
+			if (!rps_hash_tbl_ob_put1 (htb, curob))
+			  RPS_FATAL ("corrupted hash table with same object");
+		      }
+		  }
+	    }
+	  free (oldbuckarr);
 	}
+      return true;
     }
   else
     return true;
-  RPS_FATAL ("unimplemented rps_hash_tbl_ob_reserve_more nbextra=%u",
-	     nbextra);
 }				/* end rps_hash_tbl_ob_reserve_more */
 
 
