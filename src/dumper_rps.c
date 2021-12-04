@@ -216,6 +216,8 @@ rps_dump_heap (const char *dirn)
     {
       rps_dumper_scan_internal_object (dumper, curob);
     };
+  const RpsSetOb_t *universet =
+    rps_hash_tbl_set_elements (dumper->du_visitedht);
   /* once every object is known, dump them by space */
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
 }				/* end rps_dump_heap */
