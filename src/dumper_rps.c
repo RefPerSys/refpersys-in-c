@@ -59,35 +59,6 @@ rps_is_valid_dumper (RpsDumper_t * du)
     return false;
 }				/* end rps_is_valid_dumper */
 
-void
-rps_dump_heap (const char *dirn)
-{
-  if (!dirn)
-    dirn = rps_dump_directory;
-  if (rps_agenda_is_running ())
-    RPS_FATAL ("cannot dump heap into %s while agenda is running", dirn);
-  /* TODO: Do we need some temporary dumper object, owning the dumper
-     payload below? */
-  RpsDumper_t *dumper =		//    
-    RPS_ALLOC_ZONE (sizeof (RpsDumper_t),
-		    -RpsPyt_Dumper);
-  dumper->du_magic = RPS_DUMPER_MAGIC;
-  dumper->du_dirnam = rps_alloc_string (dirn);
-  dumper->du_visitedht =	//
-    rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
-  /* scan the global objects */
-  rps_dumper_scan_value (dumper,
-			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
-  RpsObject_t *curob = NULL;
-  /* loop to scan visited, but unscanned objects */
-  while ((curob = rps_payldeque_pop_first (dumper->du_deque)) != NULL)
-    {
-      rps_dumper_scan_internal_object (dumper, curob);
-    };
-  /* once every object is known, dump them by space */
-  RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
-}				/* end rps_dump_heap */
-
 
 void
 rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
@@ -210,16 +181,41 @@ rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
     return;
   RPS_ASSERT (rps_is_valid_object (ob));
   bool absent = rps_hash_tbl_ob_add (du->du_visitedht, ob);
+  /* If the object was already visited by the dumper, do nothing;
+     otherwise postpone the scan of object internal data (class,
+     attributes and their values, components, payload...) */
   if (absent)
     {
       rps_payldeque_push_last (du->du_deque, ob);
     }
-
-  /* If the object was already visited by the dumper, do nothing;
-     otherwise postpone the scan of object internal data (class,
-     attributes and their values, components, payload...) */
-  RPS_FATAL ("unimplemented rps_dumper_scan_object");
-#warning unimplemented rps_dumper_scan_object
 }				/* end rps_dumper_scan_object */
 
 #warning a lot of dumping routines are missing here
+
+void
+rps_dump_heap (const char *dirn)
+{
+  if (!dirn)
+    dirn = rps_dump_directory;
+  if (rps_agenda_is_running ())
+    RPS_FATAL ("cannot dump heap into %s while agenda is running", dirn);
+  /* TODO: Do we need some temporary dumper object, owning the dumper
+     payload below? */
+  RpsDumper_t *dumper =		//    
+    RPS_ALLOC_ZONE (sizeof (RpsDumper_t), -RpsPyt_Dumper);
+  dumper->du_magic = RPS_DUMPER_MAGIC;
+  dumper->du_dirnam = rps_alloc_string (dirn);
+  dumper->du_visitedht =	//
+    rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
+  /* scan the global objects */
+  rps_dumper_scan_value (dumper,
+			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
+  RpsObject_t *curob = NULL;
+  /* loop to scan visited, but unscanned objects */
+  while ((curob = rps_payldeque_pop_first (dumper->du_deque)) != NULL)
+    {
+      rps_dumper_scan_internal_object (dumper, curob);
+    };
+  /* once every object is known, dump them by space */
+  RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
+}				/* end rps_dump_heap */

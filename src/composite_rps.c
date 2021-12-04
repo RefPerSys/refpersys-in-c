@@ -1410,10 +1410,51 @@ rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb)
   return htb->zm_length;
 }				/* end rps_hash_tbl_ob_cardinal */
 
+unsigned
+rps_hash_tbl_iterate (RpsHashTblOb_t * htb, rps_object_callback_sig_t * rout,
+		      void *data)
+{
+  if (!htb || rps_zoned_memory_type (htb) != -RpsPyt_HashTblObj)
+    return 0;
+  if (!rout)
+    return 0;
+  RPS_ASSERT (htb->htbob_magic == RPS_HTBOB_MAGIC);
+  unsigned curlen = htb->zm_length;
+  if (!curlen)
+    return 0;
+  unsigned counter = 0;
+  struct rps_dequeob_link_st **buckarr = htb->htbob_bucketarr;
+  int prix = htb->zm_xtra;
+  unsigned nbbuck = rps_prime_of_index (oldprix);
+  for (unsigned ix = 0; ix < nbbuck; ix++)
+    {
+      for (struct rps_dequeob_link_st * curbuck = buckarr[ix];
+	   curbuck != NULL; curbuck = curbuck->dequeob_next)
+	{
+	  for (int bix = 0; bix < RPS_DEQUE_CHUNKSIZE; bix++)
+	    {
+	      RpsObject_t *curob = curbuck->dequeob_chunk[bix];
+	      if (curob != NULL && curob != RPS_HTB_EMPTY_SLOT)
+		{
+		  bool ok = (*rout) (curob, data);
+		  // check that number of objects in hashtable did not change
+		  RPS_ASSERT (htb->zm_length == curlen);
+		  if (!ok)
+		    return counter;
+		  counter++;
+		}
+	    }
+	};
+    }
+  return counter;
+}				/* end rps_hash_tbl_iterate */
+
 // make a set from the elements of an hash table
 const RpsSetOb_t *
 rps_hash_tbl_set_elements (RpsHashTblOb_t * htb)
 {
+  if (!htb || rps_zoned_memory_type (htb) != -RpsPyt_HashTblObj)
+    return NULL;
 #warning unimplemented rps_hash_tbl_ob_set_elements
   RPS_FATAL ("unimplemented rps_hash_tbl_set_elements");
 }				/* end rps_hash_tbl_set_elements */

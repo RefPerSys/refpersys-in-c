@@ -169,6 +169,9 @@ typedef uint32_t RpsHash_t;
 typedef struct RpsZoneObject_st RpsObject_t;	///// forward declaration
 typedef struct RpsPayl_AttrTable_st RpsAttrTable_t;	//// forward declaration
 
+/// callback function, by convention returning false to "stop" or "fail" e.g. some iteration
+typedef bool rps_object_callback_sig_t (RpsObject_t * ob, void *data);
+
 /// a value is a word, sometimes a pointer, sometimes a tagged integer (odd word)
 typedef uintptr_t RpsValue_t;
 
@@ -717,6 +720,13 @@ extern bool rps_hash_tbl_ob_remove (RpsHashTblOb_t * htb,
 				    RpsObject_t * obelem);
 // cardinal of an hash table of objects
 extern unsigned rps_hash_tbl_ob_cardinal (RpsHashTblOb_t * htb);
+// iterate on objects of an hashtable, return number of visited object
+// till rout returns false. The routine should not update the
+// hashtable.
+extern unsigned rps_hash_tbl_iterate (RpsHashTblOb_t * htb,
+				      rps_object_callback_sig_t * rout,
+				      void *data);
+
 // make a set from the elements of an hash table
 extern const RpsSetOb_t *rps_hash_tbl_set_elements (RpsHashTblOb_t * htb);
 
