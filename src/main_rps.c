@@ -451,10 +451,10 @@ main (int argc, char **argv)
   /* CAVEAT: we need a valid $DISPLAY, even when running in --batch
      mode.  This should be improved by generating C code later, or
      parsing twice our program arguments [argc, argv]. */
-  started = gtk_init_with_args (&argc, &argv,
-				"\n** RefPerSys - a symbolic artificial intelligence system. See refpersys.org **\n"
-				"[C variant on github.com/RefPerSys/refpersys-in-c ...]\n",
-				rps_gopt_entries, NULL, &argperr);
+  bool started = gtk_init_with_args (&argc, &argv,
+				     "\n** RefPerSys - a symbolic artificial intelligence system. See refpersys.org **\n"
+				     "[C variant on github.com/RefPerSys/refpersys-in-c ...]\n",
+				     rps_gopt_entries, NULL, &argperr);
   if (argperr)
     {
       fprintf (stderr, "%s: failed to parse program arguments (#%d) : %s\n",
