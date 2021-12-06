@@ -36,7 +36,9 @@
 
 
 GtkWidget *guigtk_topwin;
-
+GtkWidget *guigtk_topvbox;
+GtkWidget *guigtk_menubar;
+GtkWidget *guigtk_menu_app;
 void
 rpsgui_initialize (void)
 {
@@ -47,6 +49,12 @@ rpsgui_initialize (void)
   snprintf (titlebuf, sizeof (titlebuf), "refpersys p.%d [%s] %s",
 	    (int) getpid (), rps_hostname (), _rps_git_short_id);
   gtk_window_set_title (GTK_WINDOW (guigtk_topwin), titlebuf);
+  guigtk_topvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
+  gtk_container_add (GTK_CONTAINER (guigtk_topwin), guigtk_topvbox);
+  guigtk_menubar = gtk_menu_bar_new ();
+  gtk_container_add (GTK_CONTAINER (guigtk_topvbox), guigtk_menubar);
+  guigtk_menu_app = gtk_menu_item_new_with_label ("App");
+  gtk_container_add (GTK_CONTAINER (guigtk_menubar), guigtk_menu_app);
   gtk_widget_show_all (GTK_WIDGET (guigtk_topwin));
 }				/* end rpsgui_initialize_windows */
 
