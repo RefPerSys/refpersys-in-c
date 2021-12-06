@@ -889,7 +889,7 @@ extern intptr_t rps_value_to_integer (const RpsValue_t v);	/* gives 0 for a non-
 /*******************************************************************
  * GTK user interface
  *******************************************************************/
-
+extern void rps_run_gui (int *pargc, char **argv);
 
 //////////////////////////////////////////////////////////////////
 /// C code can refer to root objects
