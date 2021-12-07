@@ -63,6 +63,7 @@
 #include <stdalign.h>
 #include <math.h>
 #include <limits.h>
+#include <setjmp.h>
 
 
 // See also the important comment about pthreads in file agenda_rps.c
@@ -431,7 +432,10 @@ const RpsClosure_t *rps_closure_array_make (RpsObject_t * conn,
 					    RpsValue_t meta, unsigned arity,
 					    RpsValue_t * cvalarr);
 
-
+/* TODO: closure application code should be declared. The ob_routaddr
+   of clos_conn is holding the C function pointer to be called. The
+   ob_routsig should be checked. Closure application code should
+   carefully be tail-call friendly. */
 
 
 /****************************************************************

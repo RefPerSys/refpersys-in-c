@@ -147,8 +147,13 @@ rps_show_version_info (int argc, char **argv)
 void
 rps_show_types_info (void)
 {
+  struct utsname uts;
+  memset (&uts, 0, sizeof(uts));
+  uname (&uts);
   printf ("\n *** types information %s:%d gitid %s *** \n",
 	  __FILE__, __LINE__, _rps_git_short_id);
+  printf ("uts: sysname=%s nodename=%s release=%s version='%s' machine=%s\n",
+	  uts.sysname, uts.nodename, uts.release, uts.version, uts.machine);
   printf
     (" RPS_OID_BUFLEN=%d, RPS_OID_HI_NBDIGITS=%d, RPS_NBDIGITS_OID_LO=%d\n",
      RPS_OID_BUFLEN, RPS_OID_HI_NBDIGITS, RPS_NBDIGITS_OID_LO);
@@ -186,6 +191,7 @@ rps_show_types_info (void)
   EXPLAIN_TYPE (char);
   EXPLAIN_TYPE (bool);
   EXPLAIN_TYPE (void *);
+  EXPLAIN_TYPE (jmp_buf);	/* for longjmp/setjmp */
   EXPLAIN_TYPE (struct RpsZonedMemory_st);
   EXPLAIN_TYPE (struct RpsZonedValue_st);
   EXPLAIN_TYPE (struct rps_owned_payload_st);
