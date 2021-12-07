@@ -404,7 +404,10 @@ const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 
 
 /****************************************************************
- * Closures.
+ * Closures.  The connective of a closure is an object whose
+ * ob_routsig and ob_routaddr are set.  When the signature is
+ * appropriate, the function pointed by ob_routaddr is called when
+ * applying the closure.
  ****************************************************************/
 #define RPSFIELDS_CLOSURE \
   RPSFIELDS_ZONED_VALUE; \
@@ -428,22 +431,38 @@ const RpsClosure_t *rps_closure_array_make (RpsObject_t * conn,
 					    RpsValue_t meta, unsigned arity,
 					    RpsValue_t * cvalarr);
 
+
+
+
 /****************************************************************
  * Mutable and mutexed heavy objects.
+ * ==================================
+ *
+ *
+ * The ob_class is an object representing the RefPerSys class of our
+ * object.  The ob_space is its space. Different spaces are persisted
+ * in different files.  The ob_attrtable is for the attributes of that
+ * object.  The ob_routsig and ob_routaddr is for the routine inside
+ * that object, e.g. when that object is a closure connective.  The
+ * ob_nbcomp is the used length of the component array ob_comparr,
+ * whose allocated size is ob_compsize.  The ob_payload is the
+ * optional object payload.
  ****************************************************************/
-#define RPSFIELDS_OBJECT                        \
-  RPSFIELDS_ZONED_VALUE;                        \
-  RpsOid ob_id;                                 \
-  double ob_mtime;                              \
-  pthread_mutex_t ob_mtx;                       \
-  RpsObject_t* ob_class;                        \
-  RpsObject_t* ob_space;                        \
-  RpsAttrTable_t* ob_attrtable /*unowned!*/;	\
-  unsigned ob_nbcomp;                           \
-  unsigned ob_compsize;                         \
-  RpsValue_t*ob_comparr;                       \
+#define RPSFIELDS_OBJECT                                        \
+  RPSFIELDS_ZONED_VALUE;                                        \
+  RpsOid ob_id;                                                 \
+  double ob_mtime;                                              \
+  pthread_mutex_t ob_mtx;                                       \
+  RpsObject_t* ob_class;                                        \
+  RpsObject_t* ob_space;                                        \
+  RpsAttrTable_t* ob_attrtable /*unowned!*/;                    \
+  RpsObject_t* ob_routsig      /* signature of routine */;      \
+  void* ob_routaddr;           /* dlsymed address of routine */ \
+  unsigned ob_nbcomp;                                           \
+  unsigned ob_compsize;                                         \
+  RpsValue_t*ob_comparr;                                        \
   void* ob_payload
-				/* other fields missing */
+			
 
 #define RPS_MAX_NB_OBJECT_COMPONENTS (1U<<20)
 
