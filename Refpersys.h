@@ -466,7 +466,7 @@ const RpsClosure_t *rps_closure_array_make (RpsObject_t * conn,
   unsigned ob_compsize;                                         \
   RpsValue_t*ob_comparr;                                        \
   void* ob_payload
-			
+
 
 #define RPS_MAX_NB_OBJECT_COMPONENTS (1U<<20)
 

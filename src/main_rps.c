@@ -148,7 +148,7 @@ void
 rps_show_types_info (void)
 {
   struct utsname uts;
-  memset (&uts, 0, sizeof(uts));
+  memset (&uts, 0, sizeof (uts));
   uname (&uts);
   printf ("\n *** types information %s:%d gitid %s *** \n",
 	  __FILE__, __LINE__, _rps_git_short_id);
