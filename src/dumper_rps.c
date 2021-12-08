@@ -45,7 +45,11 @@ struct RpsPayl_Dumper_st
      be "idle".
    */
   const RpsString_t *du_dirnam;
+  // the large hash table of visited objects....
   RpsHashTblOb_t *du_visitedht;
+  // the smaller hash table of visited spaces...
+  RpsHashTblOb_t *du_spaceht;
+  // the queue of object to scan internally....
   RpsDequeOb_t *du_deque;
 };
 
@@ -181,6 +185,8 @@ rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
     return;
   RPS_ASSERT (rps_is_valid_object (ob));
   bool absent = rps_hash_tbl_ob_add (du->du_visitedht, ob);
+  if (ob->ob_space)
+    (void) rps_hash_tbl_ob_add (du->du_spaceht, ob->ob_space);
   /* If the object was already visited by the dumper, do nothing;
      otherwise postpone the scan of object internal data (class,
      attributes and their values, components, payload...) */
