@@ -248,6 +248,95 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
 
 
 
+RpsValue_t
+rps_closure_apply_v (rps_callframe_t * callerframe, const RpsClosure_t * clos,
+		     RpsValue_t arg0, RpsValue_t arg1, RpsValue_t arg2,
+		     RpsValue_t arg3)
+{
+  RPS_ASSERT (callerframe == NULL || callerframe->calfr_descr == NULL
+	      || callerframe->calfr_descr->calfrd_magic == RPS_CALLFRD_MAGIC);
+  if (!clos || rps_value_type ((RpsValue_t) clos) != RPS_TYPE_CLOSURE)
+    return RPS_NULL_VALUE;
+  RpsObject_t *obconn = clos->clos_conn;
+  if (!obconn || !rps_is_valid_object (obconn))
+    return RPS_NULL_VALUE;
+  RpsObject_t *obsig = NULL;
+  void *routaddr = NULL;
+  pthread_mutex_lock (&obconn->ob_mtx);
+  obsig = obconn->ob_routsig;
+  routaddr = obconn->ob_routaddr;
+  pthread_mutex_unlock (&obconn->ob_mtx);
+  if (!routaddr)
+    return RPS_NULL_VALUE;
+  /* We should check obsig and use routaddr suitably casted to (rps_apply_v_sigt*) */
+#warning rps_closure_apply_v should check obsig
+  return (*(rps_apply_v_sigt *) routaddr) (callerframe, clos, arg0, arg1,
+					   arg2, arg3);
+}				/* end rps_closure_apply_v */
+
+RpsValueAndInt
+rps_closure_apply_vi (rps_callframe_t * callerframe,
+		      const RpsClosure_t * clos, RpsValue_t arg0,
+		      RpsValue_t arg1, RpsValue_t arg2, RpsValue_t arg3)
+{
+  RPS_ASSERT (callerframe == NULL || callerframe->calfr_descr == NULL
+	      || callerframe->calfr_descr->calfrd_magic == RPS_CALLFRD_MAGIC);
+  if (!clos || rps_value_type ((RpsValue_t) clos) != RPS_TYPE_CLOSURE)
+    return (RpsValueAndInt)
+    {
+    RPS_NULL_VALUE, 0};
+  RpsObject_t *obconn = clos->clos_conn;
+  if (!obconn || !rps_is_valid_object (obconn))
+    return (RpsValueAndInt)
+    {
+    RPS_NULL_VALUE, 0};
+  RpsObject_t *obsig = NULL;
+  void *routaddr = NULL;
+  pthread_mutex_lock (&obconn->ob_mtx);
+  obsig = obconn->ob_routsig;
+  routaddr = obconn->ob_routaddr;
+  pthread_mutex_unlock (&obconn->ob_mtx);
+  if (!routaddr)
+    return (RpsValueAndInt)
+    {
+    RPS_NULL_VALUE, 0};
+  /* We should check obsig and use routaddr suitably casted to (rps_apply_vi_sigt*) */
+#warning rps_closure_apply_vi should check obsig
+  return (*(rps_apply_vi_sigt *) routaddr) (callerframe, clos, arg0, arg1,
+					    arg2, arg3);
+}				/* end rps_closure_apply_vi */
+
+RpsTwoValues
+rps_closure_apply_twov (rps_callframe_t * callerframe,
+			const RpsClosure_t * clos, RpsValue_t arg0,
+			RpsValue_t arg1, RpsValue_t arg2, RpsValue_t arg3)
+{
+  RPS_ASSERT (callerframe == NULL || callerframe->calfr_descr == NULL
+	      || callerframe->calfr_descr->calfrd_magic == RPS_CALLFRD_MAGIC);
+  if (!clos || rps_value_type ((RpsValue_t) clos) != RPS_TYPE_CLOSURE)
+    return (RpsTwoValues)
+    {
+    RPS_NULL_VALUE, RPS_NULL_VALUE};
+  RpsObject_t *obconn = clos->clos_conn;
+  if (!obconn || !rps_is_valid_object (obconn))
+    return (RpsTwoValues)
+    {
+    RPS_NULL_VALUE, RPS_NULL_VALUE};
+  RpsObject_t *obsig = NULL;
+  void *routaddr = NULL;
+  pthread_mutex_lock (&obconn->ob_mtx);
+  obsig = obconn->ob_routsig;
+  routaddr = obconn->ob_routaddr;
+  pthread_mutex_unlock (&obconn->ob_mtx);
+  if (!routaddr)
+    return (RpsTwoValues)
+    {
+    RPS_NULL_VALUE, 0};
+  /* We should check obsig and use routaddr suitably casted to (rps_apply_twov_sigt*) */
+#warning rps_closure_apply_twov should check obsig
+  return (*(rps_apply_twov_sigt *) routaddr) (callerframe, clos, arg0, arg1,
+					      arg2, arg3);
+}				/* end rps_closure_apply_twov */
 
 /**** mutable set payload support *****/
 

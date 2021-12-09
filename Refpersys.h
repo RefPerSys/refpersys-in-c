@@ -437,7 +437,63 @@ const RpsClosure_t *rps_closure_array_make (RpsObject_t * conn,
    of clos_conn is holding the C function pointer to be called. The
    ob_routsig should be checked. Closure application code should
    carefully be tail-call friendly. */
+typedef struct rps_value_and_int_st
+{
+  RpsValue_t val;
+  intptr_t num;
+} RpsValueAndInt;
 
+typedef struct rps_two_values_st
+{
+  RpsValue_t main_val;
+  RpsValue_t xtra_val;
+} RpsTwoValues;
+
+typedef struct rps_protocallframe_st rps_callframe_t;
+
+/*****************************************************************
+ *                       APPLYING FUNCTIONS
+ *
+ * Notice that on x86/64 calling conventions only six arguments are
+ * passed by registers.
+ *
+ ****************************************************************/
+
+typedef RpsValue_t rps_apply_v_sigt (rps_callframe_t * callerframe,
+				     const RpsClosure_t * clos,
+				     RpsValue_t arg0, RpsValue_t arg1,
+				     RpsValue_t arg2, RpsValue_t arg3);
+RpsValue_t rps_closure_apply_v (rps_callframe_t * callerframe,
+				const RpsClosure_t * clos, RpsValue_t arg0,
+				RpsValue_t arg1, RpsValue_t arg2,
+				RpsValue_t arg3);
+
+typedef RpsValueAndInt rps_apply_vi_sigt (rps_callframe_t * callerframe,
+					  const RpsClosure_t * clos,
+					  RpsValue_t arg0, RpsValue_t arg1,
+					  RpsValue_t arg2, RpsValue_t arg3);
+RpsValueAndInt rps_closure_apply_vi (rps_callframe_t * callerframe,
+				     const RpsClosure_t * clos,
+				     RpsValue_t arg0, RpsValue_t arg1,
+				     RpsValue_t arg2, RpsValue_t arg3);
+
+typedef RpsTwoValues rps_apply_twov_sigt (rps_callframe_t * callerframe,
+					  const RpsClosure_t * clos,
+					  RpsValue_t arg0, RpsValue_t arg1,
+					  RpsValue_t arg2, RpsValue_t arg3);
+RpsTwoValues rps_closure_apply_twov (rps_callframe_t * callerframe,
+				     const RpsClosure_t * clos,
+				     RpsValue_t arg0, RpsValue_t arg1,
+				     RpsValue_t arg2, RpsValue_t arg3);
+
+typedef intptr_t rps_apply_i_sigt (rps_callframe_t * callerframe,
+				   RpsClosure_t * clos, RpsValue_t arg0,
+				   RpsValue_t arg1, RpsValue_t arg2,
+				   RpsValue_t arg3);
+intptr_t rps_closure_apply_i (rps_callframe_t * callerframe,
+			      RpsClosure_t * clos, RpsValue_t arg0,
+			      RpsValue_t arg1, RpsValue_t arg2,
+			      RpsValue_t arg3);
 
 /****************************************************************
  * Mutable and mutexed heavy objects.
@@ -798,14 +854,15 @@ void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
  ****************************************************************/
 
 // call frame descriptors are in constant read-only memory
-#define RPS_CALLFRD_MAGIC 20919 /*0x51b7*/
-				 
-struct rps_callframedescr_st {
+#define RPS_CALLFRD_MAGIC 20919	/*0x51b7 */
+
+struct rps_callframedescr_st
+{
   const uint16_t calfrd_magic;	/* always RPS_CALLFRD_MAGIC */
   const uint16_t calfrd_nbvalue;
   const uint16_t calfrd_nbobject;
   const uint16_t calfrd_xtrasiz;
-  const char calfrd_str[]; 
+  const char calfrd_str[];
 };
 
 
@@ -814,11 +871,12 @@ struct rps_callframedescr_st {
   const struct rps_callframedescr_st* calfr_descr;      \
   intptr_t calfr_base[0] __attribute__((aligned(2*sizeof(void*))))
 
-struct rps_protocallframe_st {
+struct rps_protocallframe_st
+{
   RPSFIELDS_PAYLOAD_PROTOCALLFRAME;
 };
 
-  
+
 /****************************************************************
  * Space payload for -RpsPyt_Space
  ****************************************************************/
