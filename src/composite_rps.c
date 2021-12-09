@@ -270,6 +270,7 @@ rps_closure_apply_v (rps_callframe_t * callerframe, const RpsClosure_t * clos,
     return RPS_NULL_VALUE;
   /* We should check obsig and use routaddr suitably casted to (rps_apply_v_sigt*) */
 #warning rps_closure_apply_v should check obsig
+  /* A good optimizing GCC compiler would make a tail-recursive call. */
   return (*(rps_apply_v_sigt *) routaddr) (callerframe, clos, arg0, arg1,
 					   arg2, arg3);
 }				/* end rps_closure_apply_v */
@@ -302,6 +303,7 @@ rps_closure_apply_vi (rps_callframe_t * callerframe,
     RPS_NULL_VALUE, 0};
   /* We should check obsig and use routaddr suitably casted to (rps_apply_vi_sigt*) */
 #warning rps_closure_apply_vi should check obsig
+  /* A good optimizing GCC compiler would make a tail-recursive call. */
   return (*(rps_apply_vi_sigt *) routaddr) (callerframe, clos, arg0, arg1,
 					    arg2, arg3);
 }				/* end rps_closure_apply_vi */
@@ -334,6 +336,7 @@ rps_closure_apply_twov (rps_callframe_t * callerframe,
     RPS_NULL_VALUE, 0};
   /* We should check obsig and use routaddr suitably casted to (rps_apply_twov_sigt*) */
 #warning rps_closure_apply_twov should check obsig
+  /* A good optimizing GCC compiler would make a tail-recursive call. */
   return (*(rps_apply_twov_sigt *) routaddr) (callerframe, clos, arg0, arg1,
 					      arg2, arg3);
 }				/* end rps_closure_apply_twov */
