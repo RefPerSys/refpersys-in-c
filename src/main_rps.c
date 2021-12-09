@@ -196,6 +196,8 @@ rps_show_types_info (void)
   EXPLAIN_TYPE (struct RpsZonedValue_st);
   EXPLAIN_TYPE (struct rps_owned_payload_st);
   EXPLAIN_TYPE (struct RpsPayl_AttrTable_st);
+  EXPLAIN_TYPE (struct rps_callframedescr_st);
+  EXPLAIN_TYPE (struct rps_protocallframe_st);
   EXPLAIN_TYPE (pthread_mutex_t);
   EXPLAIN_TYPE (pthread_cond_t);
   EXPLAIN_TYPE (RpsObject_t);

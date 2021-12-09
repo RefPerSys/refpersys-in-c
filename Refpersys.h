@@ -216,6 +216,7 @@ enum
 {
   //// this enumeration needs to be in generated C code of course....
   RpsPyt__NONE,
+  RpsPyt_CallFrame,		/* call frames */
   RpsPyt_Loader,		/* the initial loader */
   RpsPyt_AttrTable,		/* associate objects to values */
   RpsPyt_StringBuf,		/* mutable string buffer */
@@ -792,6 +793,32 @@ void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
 
 
 
+/****************************************************************
+ * Callframe payloads are in call stacks only for -RpsPyt_CallFrame
+ ****************************************************************/
+
+// call frame descriptors are in constant read-only memory
+#define RPS_CALLFRD_MAGIC 20919 /*0x51b7*/
+				 
+struct rps_callframedescr_st {
+  const uint16_t calfrd_magic;	/* always RPS_CALLFRD_MAGIC */
+  const uint16_t calfrd_nbvalue;
+  const uint16_t calfrd_nbobject;
+  const uint16_t calfrd_xtrasiz;
+  const char calfrd_str[]; 
+};
+
+
+#define RPSFIELDS_PAYLOAD_PROTOCALLFRAME	       	\
+  RPSFIELDS_OWNED_PAYLOAD;				\
+  const struct rps_callframedescr_st* calfr_descr;      \
+  intptr_t calfr_base[0] __attribute__((aligned(2*sizeof(void*))))
+
+struct rps_protocallframe_st {
+  RPSFIELDS_PAYLOAD_PROTOCALLFRAME;
+};
+
+  
 /****************************************************************
  * Space payload for -RpsPyt_Space
  ****************************************************************/
