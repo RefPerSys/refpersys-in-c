@@ -1456,7 +1456,7 @@ struct rps_hashtblelements_st
   unsigned htbel_maxcount;
   unsigned htbel_size;
   unsigned htbel_curix;
-  RpsObject_t *htbel_obarr[];	/* allocated size is htbel_size, a prime */
+  const RpsObject_t *htbel_obarr[];	/* allocated size is htbel_size, a prime */
 };
 
 static rps_object_callback_sig_t rps_hash_tbl_iter_for_set;
@@ -1489,10 +1489,10 @@ rps_hash_tbl_set_elements (RpsHashTblOb_t * htb)
   htbel->htbel_maxcount = curlen;
   htbel->htbel_size = primsiz;
   htbel->htbel_curix = 0;
-  unsigned nbit =
+  unsigned nbiter =
     rps_hash_tbl_iterate (htb, rps_hash_tbl_iter_for_set, (void *) htbel);
-  RPS_ASSERT (nbit == curlen);
-  setv = rps_alloc_set_sized (htbel->htbel_obarr, nbit);
+  RPS_ASSERT (nbiter == curlen);
+  setv = rps_alloc_set_sized (nbiter, htbel->htbel_obarr);
   free (htbel);
   return setv;
 }				/* end rps_hash_tbl_set_elements */
