@@ -133,11 +133,14 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
 		    RPS_TYPE_SET);
   set->zm_length = card;
   int nbel = 0;
-  for (int ix = 0; ix < (int) nbcomp - 1; ix++)
-    if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
-      set->set_elem[nbel++] = arrcpy[ix];
-  if (set->set_elem[nbel] != arrcpy[nbcomp - 1] && arrcpy[nbcomp - 1])
-    set->set_elem[nbel++] = arrcpy[nbcomp - 1];
+  if (nbcomp > 0)
+    {
+      for (int ix = 0; ix < (int) nbcomp - 1; ix++)
+	if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
+	  set->set_elem[nbel++] = arrcpy[ix];
+      if (set->set_elem[nbel] != arrcpy[nbcomp - 1] && arrcpy[nbcomp - 1])
+	set->set_elem[nbel++] = arrcpy[nbcomp - 1];
+    }
   free (arrcpy);
   RPS_ASSERT (card == nbel);
   return set;
