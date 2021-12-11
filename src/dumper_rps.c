@@ -248,12 +248,14 @@ rps_dump_heap (const char *dirn)
   const RpsSetOb_t *spaceset =	//
     rps_hash_tbl_set_elements (dumper->du_spaceht);
   unsigned nbspace = rps_set_cardinal (spaceset);
+  unsigned nbobj = rps_set_cardinal(universet);
   /* Temporarily we cannot deal with many spaces.... Should be fixed
      by generating C code later... */
   if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
     RPS_FATAL ("too many %d spaces to dump into %s", nbspace,
 	       rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam));
   /* once every object is known, dump them by space */
-  RPS_FATAL ("unimplemented rps_dump_heap to %s",
-	     rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam));
+  RPS_FATAL ("unimplemented rps_dump_heap to %s with %u spaces for %u objects and %u globals",
+	     rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam),
+	     nbspace, nbobj, rps_nb_global_root_objects ());
 }				/* end rps_dump_heap */
