@@ -61,6 +61,7 @@ rps_is_valid_dumper (RpsDumper_t * du)
     return false;
   if (du->du_magic != RPS_DUMPER_MAGIC)
     return false;
+  return true;
 }				/* end rps_is_valid_dumper */
 
 
