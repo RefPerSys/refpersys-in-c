@@ -120,36 +120,39 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
   RpsSetOb_t *set = NULL;
   if (!arr && nbcomp > 0)
     return NULL;
+  /// some of the objects in arr could be NULL
   const RpsObject_t **arrcpy =
     RPS_ALLOC_ZEROED ((nbcomp + 1) * sizeof (RpsObject_t *));
-  int nbel = 0;
+  int nbob = 0;
   for (int ix = 0; ix < nbcomp; ix++)
     if (arr[ix] && rps_is_valid_object (arr[ix]))
-      arrcpy[nbel++] = arr[ix];
-  rps_object_array_qsort (arrcpy, (int) nbel);
+      arrcpy[nbob++] = arr[ix];
+  rps_object_array_qsort (arrcpy, (int) nbob);
   int card = 0;
-  for (int ix = 0; ix < (int) nbel - 1; ix++)
-    if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
+  for (int ix = 0; ix < (int) nbob - 1; ix++)
+    if (arrcpy[ix + 1] != arrcpy[ix])
       card++;
   set =
     RPS_ALLOC_ZONE (sizeof (RpsSetOb_t) + (card * sizeof (RpsObject_t *)),
 		    RPS_TYPE_SET);
   set->zm_length = card;
-  nbel = 0;
   if (card > 0)
     {
-      for (int ix = 0; ix < (int) nbcomp - 1; ix++)
+      int setix = 0;
+      for (int ix = 0; ix < (int) nbob - 1; ix++)
 	{
 	  if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
-	    set->set_elem[nbel++] = arrcpy[ix];
+	    set->set_elem[setix++] = arrcpy[ix];
 	};
-      if (set->set_elem[nbel] != arrcpy[nbcomp - 1] && arrcpy[nbcomp - 1])
-	set->set_elem[nbel] = arrcpy[nbcomp - 1];
-      RPS_ASSERT (card == nbel);
+      if (nbob > 1 && arrcpy[nbob - 1] != arrcpy[nbob - 2])
+	set->set_elem[setix++] = arrcpy[nbob - 1];
+      RPS_ASSERT (card == setix - 1);
     }
   free (arrcpy);
   return set;
 }				/* end rps_alloc_set_sized */
+
+
 
 const RpsSetOb_t *
 rps_alloc_vset (unsigned card, /*objects */ ...)
@@ -1488,7 +1491,7 @@ rps_hash_tbl_reorganize (RpsHashTblOb_t * htb)
 	      const RpsObject_t *curob = oldbuck->dequeob_chunk[i];
 	      if (!curob || curob == RPS_HTB_EMPTY_SLOT)
 		continue;
-	      rps_hash_tbl_ob_put1 (htb, curob);
+	      rps_hash_tbl_ob_put1 (htb, (RpsObject_t *) curob);
 	      free (oldbuck);
 	    }
 	}
