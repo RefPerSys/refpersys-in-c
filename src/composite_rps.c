@@ -832,6 +832,16 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end of rps_object_deque_ob_initialize */
 
+RpsDequeOb_t *
+rps_deque_for_dumper (RpsDumper_t * du)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RpsDequeOb_t *payldeq =
+    RPS_ALLOC_ZONE (sizeof (RpsDequeOb_t), -RpsPyt_DequeOb);
+  return payldeq;
+}				/* end rps_deque_for_dumper */
+
+
 RpsObject_t *
 rps_payldeque_get_first (RpsDequeOb_t * payldeq)
 {

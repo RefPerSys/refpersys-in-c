@@ -234,6 +234,8 @@ rps_dump_heap (const char *dirn)
   }
   dumper->du_visitedht =	//
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
+  dumper->du_deque =		//
+    rps_deque_for_dumper (dumper);
   /* scan the global objects */
   rps_dumper_scan_value (dumper,
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);

@@ -758,6 +758,7 @@ struct RpsPayl_DequeOb_st
   RPSFIELDS_PAYLOAD_DEQUE;
 };
 typedef struct RpsPayl_DequeOb_st RpsDequeOb_t;
+RpsDequeOb_t *rps_deque_for_dumper (RpsDumper_t * du);
 /// initialize the payload to an empty double ended queue
 extern void rps_object_deque_ob_initialize (RpsObject_t *);
 /// The get functions are accessors; the pop functions are shinking
