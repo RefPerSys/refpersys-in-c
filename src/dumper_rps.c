@@ -238,9 +238,15 @@ rps_dump_heap (const char *dirn)
   rps_dumper_scan_value (dumper,
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
   RpsObject_t *curob = NULL;
+  long scancnt = 0;
   /* loop to scan visited, but unscanned objects */
   while ((curob = rps_payldeque_pop_first (dumper->du_deque)) != NULL)
     {
+      char oidbuf[32];
+      memset (oidbuf, 0, sizeof (oidbuf));
+      scancnt++;
+      rps_oid_to_cbuf (curob->ob_id, oidbuf);
+      printf ("dump scan internal#%ld oid %s\n", scancnt, oidbuf);
       rps_dumper_scan_internal_object (dumper, curob);
     };
   const RpsSetOb_t *universet =
@@ -256,7 +262,7 @@ rps_dump_heap (const char *dirn)
 	       rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam));
   /* once every object is known, dump them by space */
   RPS_FATAL
-    ("unimplemented rps_dump_heap to %s with %u spaces for %u objects and %u globals",
+    ("unimplemented rps_dump_heap to %s with %u spaces for %u objects and %u globals (scancnt=%ld)",
      rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam), nbspace, nbobj,
-     rps_nb_global_root_objects ());
+     rps_nb_global_root_objects (), scancnt);
 }				/* end rps_dump_heap */
