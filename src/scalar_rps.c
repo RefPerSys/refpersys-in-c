@@ -359,7 +359,7 @@ unsigned
 rps_stringv_utf8length (RpsValue_t v)
 {
   if (rps_value_type (v) != RPS_TYPE_STRING)
-    return NULL;
+    return 0;
   const RpsString_t *strv = (const RpsString_t *) v;
   return strv->zm_length;
 }				/* end rps_stringv_utf8length */
