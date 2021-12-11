@@ -66,7 +66,8 @@ struct RpsPayl_Loader_st
 void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 void rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 void rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
-					 RpsObject_t * obj, json_t * jsobj);
+					 RpsObject_t * obj, json_t * jsobj,
+					 RpsObject_t * obspac);
 void rps_load_install_global_root_objects (RpsLoader_t * ld);
 
 bool
@@ -620,7 +621,8 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 
 void
 rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
-				    RpsObject_t * obj, json_t * jsobj)
+				    RpsObject_t * obj, json_t * jsobj,
+				    RpsObject_t * obspac)
 {
   RPS_ASSERT (rps_is_valid_filling_loader (ld));
   RPS_ASSERT (obj != NULL);
@@ -638,13 +640,14 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
     RPS_ASSERT (classob != NULL);
     obj->ob_class = classob;
   }
-  /// set the object mtime
+  /// set the object mtime and space
   {
     json_t *jsmtime = json_object_get (jsobj, "mtime");
     RPS_ASSERT (json_is_real (jsmtime));
     double mtime = json_real_value (jsmtime);
     RPS_ASSERT (mtime > 0.0 && mtime < 1e12);
     obj->ob_mtime = mtime;
+    obj->ob_space = obspac;
   }
   /// load the object attributes
   {
@@ -733,6 +736,8 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
   rps_check_all_objects_buckets_are_valid ();
   ld->ld_state = RPSLOADING_FILL_OBJECTS_PASS;
+  RpsObject_t *obspac = rps_find_object_by_oid (spaceid);
+  RPS_ASSERT (obspac != NULL);
   long linoff = 0;
   int lincnt = 0;
   size_t linsz = 256;
@@ -869,7 +874,8 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    RPS_ASSERT (curob != NULL);
 	    //printf ("before ldfillobj2ndpass obidbuf=%s lincnt=%d (%s:%d)\n",
 	    //      obidbuf, lincnt, __FILE__, __LINE__);
-	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject);
+	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject,
+						obspac);
 	    objcount++;
 	    json_decref (jsobject);
 	    fclose (obstream);
