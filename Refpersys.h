@@ -805,6 +805,8 @@ typedef struct RpsPayl_HashTblOb_st RpsHashTblOb_t;
 extern bool rps_hash_tbl_is_valid (const RpsHashTblOb_t * htb);
 // create some unowned hash table of objects of a given initial capacity
 extern RpsHashTblOb_t *rps_hash_tbl_ob_create (unsigned capacity);
+// reorganize and somehow optimize an hash table to its current content
+extern void rps_hash_tbl_reorganize (RpsHashTblOb_t * htb);
 // reserve space for NBEXTRA more objects, return true on success
 // when NBEXTRA is 0, reorganize the hash table to its current size
 extern bool rps_hash_tbl_ob_reserve_more (RpsHashTblOb_t * htb,
