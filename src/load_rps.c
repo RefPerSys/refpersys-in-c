@@ -67,7 +67,7 @@ void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 void rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 void rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 					 RpsObject_t * obj, json_t * jsobj);
-void rps_load_install_global_objects (RpsLoader_t * ld);
+void rps_load_install_global_root_objects (RpsLoader_t * ld);
 
 bool
 rps_is_valid_loader (RpsLoader_t * ld)
@@ -303,7 +303,7 @@ rps_load_initial_heap (void)
       rps_check_all_objects_buckets_are_valid ();
     };
   loader->ld_state = RPSLOADING_EPILOGUE_PASS;
-  rps_load_install_global_objects(loader);
+  rps_load_install_global_root_objects (loader);
   double elapsedtime =
     rps_clocktime (CLOCK_REALTIME) - loader->ld_start_elapsedtime;
   double processcputime =
@@ -504,7 +504,7 @@ RpsObject_t *
 rps_loader_json_to_object (RpsLoader_t * ld, json_t * jv)
 {
   RpsObject_t *obres = NULL;
-  RPS_ASSERT (rps_is_valid_filling_loader (ld));
+  RPS_ASSERT (rps_is_valid_loader (ld));
   RPS_ASSERT (jv != NULL);
   RpsOid oid = RPS_OID_NULL;
   if (json_is_string (jv))
@@ -882,12 +882,28 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 
 
 void
-rps_load_install_global_objects (RpsLoader_t * ld)
+rps_load_install_global_root_objects (RpsLoader_t * ld)
 {
-  RPS_ASSERT(rps_is_valid_loader(ld) && ld->ld_state == RPSLOADING_EPILOGUE_PASS);
-  RPS_FATAL("incomplete rps_load_install_global_objects");
-#warning should call rps_add_global_root_object 
-} /* end rps_load_install_global_objects */
+  RPS_ASSERT (rps_is_valid_loader (ld)
+	      && ld->ld_state == RPSLOADING_EPILOGUE_PASS);
+  json_t *jsglobroots = json_object_get (ld->ld_json_manifest, "globalroots");
+  if (!jsglobroots || !json_is_array (jsglobroots))
+    RPS_FATAL ("bad globalroots in JSON manifest...\n %s",
+	       json_dumps (ld->ld_json_manifest,
+			   JSON_INDENT (2) | JSON_SORT_KEYS));
+  int nbglob = json_array_size (jsglobroots);
+  for (int ix = 0; ix < nbglob; ix++)
+    {
+      json_t *jscurglob = json_array_get (jsglobroots, ix);
+      RpsObject_t *globob = rps_loader_json_to_object (ld, jscurglob);
+      if (!globob)
+	RPS_FATAL ("unknown globalroot #%d\n... for %s", ix,
+		   json_dumps (jscurglob, JSON_INDENT (2) | JSON_SORT_KEYS));
+      rps_add_global_root_object (globob);
+    }
+  printf ("installed %d global root objects [%s:%d]\n",
+	  nbglob, __FILE__, __LINE__);
+}				/* end rps_load_install_global_objects */
 
 
 /************************ end of file load_rps.c *****************/
