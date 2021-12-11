@@ -346,4 +346,31 @@ rps_alloc_string (const char *str)
   return res;
 }				/* end of rps_alloc_string */
 
+const char *
+rps_stringv_utf8bytes (RpsValue_t v)
+{
+  if (rps_value_type (v) != RPS_TYPE_STRING)
+    return NULL;
+  const RpsString_t *strv = (const RpsString_t *) v;
+  return strv->cstr;
+}				/* end rps_string_utf8bytes */
+
+unsigned
+rps_stringv_utf8length (RpsValue_t v)
+{
+  if (rps_value_type (v) != RPS_TYPE_STRING)
+    return NULL;
+  const RpsString_t *strv = (const RpsString_t *) v;
+  return strv->zm_length;
+}				/* end rps_stringv_utf8length */
+
+RpsHash_t
+rps_stringv_hash (RpsValue_t v)
+{
+  if (rps_value_type (v) != RPS_TYPE_STRING)
+    return 0;
+  const RpsString_t *strv = (const RpsString_t *) v;
+  return strv->zv_hash;
+}				/* end rps_stringv_hash */
+
 /********************* end of file scalar_rps.c ***************/
