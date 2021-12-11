@@ -34,6 +34,10 @@
 
 #define RPS_DUMPER_MAGIC 0x2501f5e3	/*620885475 */
 
+// A temporary limit on the number of spaces; it will be much larger
+// once dumping code has been generated...
+#define RPS_DUMP_MAX_NB_SPACE 32
+
 struct RpsPayl_Dumper_st
 {
   RPSFIELDS_ZONED_VALUE;
@@ -51,7 +55,15 @@ struct RpsPayl_Dumper_st
   RpsHashTblOb_t *du_spaceht;
   // the queue of object to scan internally....
   RpsDequeOb_t *du_deque;
-};
+  // small set of space objects; at most RPS_DUMP_MAX_NB_SPACE elements
+  const RpsSetOb_t *du_spaceset;
+  // for each dumped space
+  struct
+  {
+    unsigned sp_size;
+    FILE *sp_file;
+  } du_spacedescr[RPS_DUMP_MAX_NB_SPACE];
+};				/* end struct RpsPayl_Dumper_st */
 
 
 bool
@@ -206,12 +218,20 @@ rps_dump_heap (const char *dirn)
     dirn = rps_dump_directory;
   if (rps_agenda_is_running ())
     RPS_FATAL ("cannot dump heap into %s while agenda is running", dirn);
-  /* TODO: Do we need some temporary dumper object, owning the dumper
-     payload below? */
-  RpsDumper_t *dumper =		//    
-    RPS_ALLOC_ZONE (sizeof (RpsDumper_t), -RpsPyt_Dumper);
-  dumper->du_magic = RPS_DUMPER_MAGIC;
-  dumper->du_dirnam = rps_alloc_string (dirn);
+  RpsDumper_t *dumper = NULL;
+  {
+    if (g_mkdir_with_parents (dirn, 0750) < 0)
+      RPS_FATAL ("g_mkdir_with_parents failed for %s", dirn);
+    /* TODO: Do we need some temporary dumper object, owning the dumper
+       payload below? */
+    dumper = RPS_ALLOC_ZONE (sizeof (RpsDumper_t), -RpsPyt_Dumper);
+    dumper->du_magic = RPS_DUMPER_MAGIC;
+    char *realdirn = realpath (dirn, NULL);
+    if (!realdirn)
+      RPS_FATAL ("realpath failed for %s", dirn);
+    dumper->du_dirnam = rps_alloc_string (realdirn);
+    free (realdirn);
+  }
   dumper->du_visitedht =	//
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
   /* scan the global objects */
@@ -227,6 +247,13 @@ rps_dump_heap (const char *dirn)
     rps_hash_tbl_set_elements (dumper->du_visitedht);
   const RpsSetOb_t *spaceset =	//
     rps_hash_tbl_set_elements (dumper->du_spaceht);
+  unsigned nbspace = rps_set_cardinal (spaceset);
+  /* Temporarily we cannot deal with many spaces.... Should be fixed
+     by generating C code later... */
+  if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
+    RPS_FATAL ("too many %d spaces to dump into %s", nbspace,
+	       rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam));
   /* once every object is known, dump them by space */
-  RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
+  RPS_FATAL ("unimplemented rps_dump_heap to %s",
+	     rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam));
 }				/* end rps_dump_heap */
