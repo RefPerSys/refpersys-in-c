@@ -225,6 +225,8 @@ rps_dump_heap (const char *dirn)
     };
   const RpsSetOb_t *universet =
     rps_hash_tbl_set_elements (dumper->du_visitedht);
+  const RpsSetOb_t *spaceset =	//
+    rps_hash_tbl_set_elements (dumper->du_spaceht);
   /* once every object is known, dump them by space */
   RPS_FATAL ("unimplemented rps_dump_heap to %s", rps_dump_directory);
 }				/* end rps_dump_heap */

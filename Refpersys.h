@@ -404,6 +404,17 @@ const RpsSetOb_t *rps_alloc_set_sized (unsigned nbcomp,
 				       const RpsObject_t ** arr);
 const RpsSetOb_t *rps_load_set (const json_t * js, RpsLoader_t * ld);
 
+// return the index of an element or -1 if non member
+int rps_set_index (const RpsSetOb_t * setv, const RpsObject_t * ob);
+
+// test membership
+bool rps_set_contains (const RpsSetOb_t * setv, const RpsObject_t * ob);
+
+// cardinal of a set
+unsigned rps_set_cardinal (const RpsSetOb_t * setv);
+
+/// get the N-th member of a set; if N<0 count from last.
+const RpsObject_t *rps_set_nth_member (const RpsSetOb_t * setv, int n);
 
 /****************************************************************
  * Closures.  The connective of a closure is an object whose

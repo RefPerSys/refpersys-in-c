@@ -122,17 +122,20 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
     return NULL;
   const RpsObject_t **arrcpy =
     RPS_ALLOC_ZEROED ((nbcomp + 1) * sizeof (RpsObject_t *));
-  memcpy (arrcpy, arr, nbcomp * sizeof (RpsObject_t *));
-  rps_object_array_qsort (arrcpy, (int) nbcomp);
+  int nbel = 0;
+  for (int ix = 0; ix < nbcomp; ix++)
+    if (arr[ix] && rps_is_valid_object (arr[ix]))
+      arrcpy[nbel++] = arr[ix];
+  rps_object_array_qsort (arrcpy, (int) nbel);
   int card = 0;
-  for (int ix = 0; ix < (int) nbcomp - 1; ix++)
+  for (int ix = 0; ix < (int) nbel - 1; ix++)
     if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
       card++;
   set =
     RPS_ALLOC_ZONE (sizeof (RpsSetOb_t) + card * sizeof (RpsObject_t *),
 		    RPS_TYPE_SET);
   set->zm_length = card;
-  int nbel = 0;
+  nbel = 0;
   if (nbcomp > 0)
     {
       for (int ix = 0; ix < (int) nbcomp - 1; ix++)
@@ -163,6 +166,58 @@ rps_alloc_vset (unsigned card, /*objects */ ...)
   free (arrcpy);
   return set;
 }				/* end rps_alloc_vset */
+
+int
+rps_set_index (const RpsSetOb_t * setv, const RpsObject_t * ob)
+{
+  if (!setv || !ob)
+    return -1;
+  if (rps_value_type ((RpsValue_t) setv) != RPS_TYPE_SET)
+    return -1;
+  if (!rps_is_valid_object (ob))
+    return -1;
+  unsigned card = setv->zm_length;
+  int lo = 0, hi = (int) card - 1;
+  while (lo + 4 < hi)
+    {
+      int md = (lo + hi) / 2;
+      const RpsObject_t *obmidelem = setv->set_elem[md];
+      if (obmidelem == ob)
+	return md;
+      RPS_ASSERT (obmidelem && rps_is_valid_object (obmidelem));
+      if (rps_object_less (ob, obmidelem))
+	hi = md;
+      else
+	lo = md;
+    }
+  for (int ix = lo; ix < hi; ix++)
+    {
+      const RpsObject_t *obmidelem = setv->set_elem[ix];
+      RPS_ASSERT (obmidelem && rps_is_valid_object (obmidelem));
+      if (obmidelem == ob)
+	return ix;
+    };
+  return -1;
+}				/* end rps_set_index */
+
+bool
+rps_set_contains (const RpsSetOb_t * setv, const RpsObject_t * ob)
+{
+  return rps_set_index (setv, ob) >= 0;
+}				/* end rps_set_index */
+
+const RpsObject_t *
+rps_set_nth_member (const RpsSetOb_t * setv, int n)
+{
+  if (rps_value_type ((RpsValue_t) setv) != RPS_TYPE_SET)
+    return NULL;
+  unsigned card = setv->zm_length;
+  if (n < 0)
+    n += card;
+  if (n >= 0 && n < card)
+    return setv->set_elem[n];
+  return NULL;
+}				/* end rps_set_nth_member */
 
 const RpsClosure_t *
 rps_closure_array_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
