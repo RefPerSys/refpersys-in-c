@@ -206,6 +206,15 @@ rps_set_contains (const RpsSetOb_t * setv, const RpsObject_t * ob)
   return rps_set_index (setv, ob) >= 0;
 }				/* end rps_set_index */
 
+unsigned
+rps_set_cardinal (const RpsSetOb_t * setv)
+{
+  if (rps_value_type ((RpsValue_t) setv) != RPS_TYPE_SET)
+    return 0;
+  unsigned card = setv->zm_length;
+  return card;
+}				/* end rps_set_cardinal */
+
 const RpsObject_t *
 rps_set_nth_member (const RpsSetOb_t * setv, int n)
 {
