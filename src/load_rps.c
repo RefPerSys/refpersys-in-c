@@ -67,6 +67,7 @@ void rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 void rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid);
 void rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 					 RpsObject_t * obj, json_t * jsobj);
+void rps_load_install_global_objects (RpsLoader_t * ld);
 
 bool
 rps_is_valid_loader (RpsLoader_t * ld)
@@ -301,6 +302,8 @@ rps_load_initial_heap (void)
       rps_load_second_pass (loader, spix, spaceid);
       rps_check_all_objects_buckets_are_valid ();
     };
+  loader->ld_state = RPSLOADING_EPILOGUE_PASS;
+  rps_load_install_global_objects(loader);
   double elapsedtime =
     rps_clocktime (CLOCK_REALTIME) - loader->ld_start_elapsedtime;
   double processcputime =
@@ -876,5 +879,15 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
       }
     }
 }				/* end rps_load_second_pass */
+
+
+void
+rps_load_install_global_objects (RpsLoader_t * ld)
+{
+  RPS_ASSERT(rps_is_valid_loader(ld) && ld->ld_state == RPSLOADING_EPILOGUE_PASS);
+  RPS_FATAL("incomplete rps_load_install_global_objects");
+#warning should call rps_add_global_root_object 
+} /* end rps_load_install_global_objects */
+
 
 /************************ end of file load_rps.c *****************/
