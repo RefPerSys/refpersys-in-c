@@ -327,8 +327,12 @@ const RpsString_t *rps_sprintf_string (const char *fmt, ...)
   __attribute__((__format__ (__printf__, 1, 2)));
 // load a string
 const RpsString_t *rps_load_string (json_t * js, RpsLoader_t * ld);
-
-
+// get the UTF8 bytes of a string value, or else NULL
+const char *rps_stringv_utf8bytes (RpsValue_t v);
+// get the length, in Unicode glyphs, of a string value
+unsigned rps_stringv_utf8length (RpsValue_t v);
+// get the hashcode of a string value
+RpsHash_t rps_stringv_hash (RpsValue_t v);
 
 /****************************************************************
  * Boxed JSON values.
