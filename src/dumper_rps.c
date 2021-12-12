@@ -66,6 +66,13 @@ struct RpsPayl_Dumper_st
 };				/* end struct RpsPayl_Dumper_st */
 
 
+// In principle, we don't need a global for the dumper. In practice,
+// it should help debugging with GDB....
+//
+// TODO: remove it when the dump is working completely....
+static RpsDumper_t*rps_the_dumper;
+
+
 bool
 rps_is_valid_dumper (RpsDumper_t * du)
 {
@@ -225,6 +232,7 @@ rps_dump_heap (const char *dirn)
     /* TODO: Do we need some temporary dumper object, owning the dumper
        payload below? */
     dumper = RPS_ALLOC_ZONE (sizeof (RpsDumper_t), -RpsPyt_Dumper);
+    rps_the_dumper = dumper;
     dumper->du_magic = RPS_DUMPER_MAGIC;
     char *realdirn = realpath (dirn, NULL);
     if (!realdirn)
@@ -267,4 +275,5 @@ rps_dump_heap (const char *dirn)
     ("unimplemented rps_dump_heap to %s with %u spaces for %u objects and %u globals (scancnt=%ld)",
      rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam), nbspace, nbobj,
      rps_nb_global_root_objects (), scancnt);
+  rps_the_dumper = NULL;
 }				/* end rps_dump_heap */
