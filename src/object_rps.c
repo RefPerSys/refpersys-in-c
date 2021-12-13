@@ -1061,8 +1061,10 @@ rps_classinfo_payload_remover (RpsObject_t * ob,
   clinf->pclass_methdict = NULL;	// will be garbage collected
   clinf->pclass_symbol = NULL;
 #warning rps_classinfo_payload_remover need a code review
-  /// TODO: should we also clear the zm_length, sm_xtra fields?
+  /// TODO: should we also clear the zm_length, zm_xtra fields?
 }				/* end rps_classinfo_payload_remover */
 
+#warning missing rps_classinfo_payload_scanner routine
+#warning missing rps_classinfo_payload_serializer routine
 
 /*************** end of file object_rps.c ****************/
