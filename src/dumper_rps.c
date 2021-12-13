@@ -256,7 +256,8 @@ rps_dump_heap (const char *dirn)
       memset (oidbuf, 0, sizeof (oidbuf));
       scancnt++;
       rps_oid_to_cbuf (curob->ob_id, oidbuf);
-      printf ("dump scan internal#%ld oid %s\n", scancnt, oidbuf);
+      printf ("dump scan internal#%ld oid %s [%s:%d]\n", scancnt, oidbuf,
+	      __FILE__, __LINE__);
       rps_dumper_scan_internal_object (dumper, curob);
     };
   const RpsSetOb_t *universet =
