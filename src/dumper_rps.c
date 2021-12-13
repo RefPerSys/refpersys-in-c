@@ -70,7 +70,7 @@ struct RpsPayl_Dumper_st
 // it should help debugging with GDB....
 //
 // TODO: remove it when the dump is working completely....
-static RpsDumper_t*rps_the_dumper;
+static RpsDumper_t *rps_the_dumper;
 
 
 bool

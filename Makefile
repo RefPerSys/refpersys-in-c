@@ -8,7 +8,7 @@
 ##      Basile Starynkevitch <basile@starynkevitch.net>
 ##      Abhishek Chakravarti <abhishek@taranjali.org>
 ##      Nimesh Neema <nimeshneema@gmail.com>
- ##
+##
 ##      © Copyright 2019 - 2021 The Reflective Persistent System Team
 ##      team@refpersys.org
 ##
