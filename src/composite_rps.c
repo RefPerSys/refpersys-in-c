@@ -895,6 +895,7 @@ rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
   RpsObject_t *resob = NULL;
   if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     return NULL;
+#warning rps_payldeque_pop_first is probably buggy. Please code review
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
   if (!firstlink)
     goto end;
