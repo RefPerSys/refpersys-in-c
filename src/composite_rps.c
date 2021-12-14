@@ -870,20 +870,7 @@ rps_object_deque_get_first (RpsObject_t * obj)
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
-    goto end;
-  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
-  if (!firstlink)
-    goto end;
-  RPS_ASSERT (firstlink->dequeob_prev == NULL);
-  for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
-    {
-      resob = firstlink->dequeob_chunk[i];
-      if (resob)
-	break;
-    }
-  RPS_ASSERT (resob != NULL);
-end:
+  resob = rps_payldeque_get_first (payldeq);
   pthread_mutex_unlock (&obj->ob_mtx);
   return resob;
 }				/* end rps_object_deque_get_first */
@@ -934,97 +921,11 @@ rps_object_deque_pop_first (RpsObject_t * obj)
   RPS_ASSERT (rps_is_valid_object (obj));
   pthread_mutex_lock (&obj->ob_mtx);
   RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
-    goto end;
-  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
-  if (!firstlink)
-    goto end;
-  RPS_ASSERT (payldeq->zm_length > 0);
-  RPS_ASSERT (firstlink->dequeob_prev == NULL);
-  for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
-    {
-      resob = firstlink->dequeob_chunk[i];
-      if (resob)
-	{
-	  firstlink->dequeob_chunk[i] = NULL;
-	  payldeq->zm_length--;
-	  if (i == RPS_DEQUE_CHUNKSIZE - 1)
-	    {
-	      payldeq->deqob_first = firstlink->dequeob_next;
-	      if (!payldeq->deqob_first)
-		{
-		  RPS_ASSERT (payldeq->deqob_last == firstlink);
-		  payldeq->deqob_last = NULL;
-		}
-	      free (firstlink);
-	    }
-	  break;
-	}
-    }
-  RPS_ASSERT (resob != NULL);
+  resob = rps_payldeque_pop_first (payldeq);
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
   return resob;
 }				/* end rps_object_deque_pop_first */
-
-bool
-rps_object_deque_push_first (RpsObject_t * obq, RpsObject_t * obelem)
-{
-  bool pushed = false;
-  if (!obq)
-    return false;
-  if (!obelem)
-    return false;
-  RPS_ASSERT (rps_is_valid_object (obq));
-  RPS_ASSERT (rps_is_valid_object (obelem));
-  pthread_mutex_lock (&obq->ob_mtx);
-  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obq->ob_payload;
-  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
-    goto end;
-  struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
-  if (!firstlink)
-    {
-      RPS_ASSERT (payldeq->zm_length == 0);
-      struct rps_dequeob_link_st *newlink =	//
-	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
-      newlink->dequeob_chunk[0] = obelem;
-      payldeq->deqob_first = payldeq->deqob_last = newlink;
-      payldeq->zm_length = 1;
-      pushed = true;
-      goto end;
-    }
-  int firstlcnt = 0;
-  RpsObject_t *chunkarr[RPS_DEQUE_CHUNKSIZE];
-  for (int ix = 0; ix < RPS_DEQUE_CHUNKSIZE; ix++)
-    if (firstlink->dequeob_chunk[ix] != 0)
-      chunkarr[firstlcnt++] = firstlink->dequeob_chunk[ix];
-  if (firstlcnt == RPS_DEQUE_CHUNKSIZE)
-    {
-      // the chunk is full, we need to allocate a new one
-      struct rps_dequeob_link_st *newlink =	//
-	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
-      newlink->dequeob_chunk[0] = obelem;
-      struct rps_dequeob_link_st *oldfirstlink = payldeq->deqob_first;
-      RPS_ASSERT (oldfirstlink->dequeob_prev == NULL);
-      oldfirstlink->dequeob_prev = newlink;
-      newlink->dequeob_next = oldfirstlink;
-      payldeq->deqob_first = newlink;
-      payldeq->zm_length++;
-      pushed = true;
-      goto end;
-    }
-  else
-    {
-      firstlink->dequeob_chunk[0] = obelem;
-      memcpy (firstlink->dequeob_chunk + 1, chunkarr,
-	      firstlcnt * sizeof (RpsObject_t *));
-      pushed = true;
-      goto end;
-    }
-end:
-  pthread_mutex_unlock (&obq->ob_mtx);
-  return pushed;
-}				/* end rps_object_deque_push_first */
 
 bool
 rps_payldeque_push_first (RpsDequeOb_t * deq, RpsObject_t * obelem)
@@ -1075,6 +976,23 @@ rps_payldeque_push_first (RpsDequeOb_t * deq, RpsObject_t * obelem)
 end:
   return pushed;
 }				/* end rps_payldeque_push_first */
+
+bool
+rps_object_deque_push_first (RpsObject_t * obq, RpsObject_t * obelem)
+{
+  bool pushed = false;
+  if (!obq)
+    return false;
+  if (!obelem)
+    return false;
+  RPS_ASSERT (rps_is_valid_object (obq));
+  RPS_ASSERT (rps_is_valid_object (obelem));
+  pthread_mutex_lock (&obq->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obq->ob_payload;
+  pushed = rps_payldeque_push_first (payldeq, obelem);
+  pthread_mutex_unlock (&obq->ob_mtx);
+  return pushed;
+}				/* end rps_object_deque_push_first */
 
 
 RpsObject_t *
@@ -1143,62 +1061,8 @@ end:
   return resob;
 }				/* end rps_object_deque_pop_last */
 
-bool
-rps_object_deque_push_last (RpsObject_t * obq, RpsObject_t * obelem)
-{
-  bool pushed = false;
-  if (!obq)
-    return false;
-  if (!obelem)
-    return false;
-  RPS_ASSERT (rps_is_valid_object (obq));
-  RPS_ASSERT (rps_is_valid_object (obelem));
-  pthread_mutex_lock (&obq->ob_mtx);
-  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obq->ob_payload;
-  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
-    goto end;
-  struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
-  if (!lastlink)
-    {
-      RPS_ASSERT (payldeq->deqob_first == NULL);
-      RPS_ASSERT (payldeq->zm_length == 0);
-      struct rps_dequeob_link_st *newlink =	//
-	RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
-      newlink->dequeob_chunk[0] = obelem;
-      payldeq->deqob_first = payldeq->deqob_last = newlink;
-      payldeq->zm_length = 1;
-      pushed = true;
-      goto end;
-    };
-  RPS_ASSERT (lastlink->dequeob_next == NULL);
-  int lastlcnt = 0;
-  RpsObject_t *chunkarr[RPS_DEQUE_CHUNKSIZE];
-  for (int ix = 0; ix < RPS_DEQUE_CHUNKSIZE; ix++)
-    if (lastlink->dequeob_chunk[ix] != 0)
-      chunkarr[lastlcnt++] = lastlink->dequeob_chunk[ix];
-  if (lastlcnt < RPS_DEQUE_CHUNKSIZE)
-    {
-      if (lastlcnt > 0)
-	memcpy (lastlink->dequeob_chunk, chunkarr,
-		lastlcnt * sizeof (RpsObject_t *));
-      lastlink->dequeob_chunk[lastlcnt] = obelem;
-      payldeq->zm_length++;
-      pushed = true;
-      goto end;
-    }
-  struct rps_dequeob_link_st *newlink =	//
-    RPS_ALLOC_ZEROED (sizeof (struct rps_dequeob_link_st));
-  lastlink->dequeob_next = newlink;
-  newlink->dequeob_prev = lastlink;
-  payldeq->deqob_last = newlink;
-  newlink->dequeob_chunk[0] = obelem;
-  payldeq->zm_length++;
-  pushed = true;
-  goto end;
-end:
-  pthread_mutex_unlock (&obq->ob_mtx);
-  return pushed;
-}				/* end rps_object_deque_push_last */
+
+
 
 bool
 rps_payldeque_push_last (RpsDequeOb_t * payldeq, RpsObject_t * obelem)
@@ -1251,6 +1115,23 @@ rps_payldeque_push_last (RpsDequeOb_t * payldeq, RpsObject_t * obelem)
 end:
   return pushed;
 }				/* end rps_payldeque_push_last */
+
+bool
+rps_object_deque_push_last (RpsObject_t * obq, RpsObject_t * obelem)
+{
+  bool pushed = false;
+  if (!obq)
+    return false;
+  if (!obelem)
+    return false;
+  RPS_ASSERT (rps_is_valid_object (obq));
+  RPS_ASSERT (rps_is_valid_object (obelem));
+  pthread_mutex_lock (&obq->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obq->ob_payload;
+  pushed = rps_payldeque_push_last (payldeq, obelem);
+  pthread_mutex_unlock (&obq->ob_mtx);
+  return pushed;
+}				/* end rps_object_deque_push_last */
 
 
 pthread_mutex_t rps_rootob_mtx = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
