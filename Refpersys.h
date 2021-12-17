@@ -772,7 +772,7 @@ extern RpsObject_t *rps_object_deque_get_last (RpsObject_t * obq);
 extern RpsObject_t *rps_object_deque_pop_last (RpsObject_t * obq);
 extern bool rps_object_deque_push_last (RpsObject_t * obq,
 					RpsObject_t * obelem);
-
+extern int rps_object_deque_length (RpsObject_t * obq);
 extern RpsObject_t *rps_payldeque_get_first (RpsDequeOb_t * deq);
 extern RpsObject_t *rps_payldeque_pop_first (RpsDequeOb_t * deq);
 extern bool rps_payldeque_push_first (RpsDequeOb_t * deq,
@@ -781,7 +781,7 @@ extern RpsObject_t *rps_payldeque_get_last (RpsDequeOb_t * deq);
 extern RpsObject_t *rps_payldeque_pop_last (RpsDequeOb_t * deq);
 extern bool rps_payldeque_push_last (RpsDequeOb_t * deq,
 				     RpsObject_t * obelem);
-
+extern int rps_payldeque_length (RpsDequeOb_t * deq);
 
 
 /****************************************************************

@@ -146,9 +146,11 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
 	  if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
 	    set->set_elem[setix++] = arrcpy[ix];
 	};
-      if (nbob > 1 && arrcpy[nbob - 1] != arrcpy[nbob - 2])
-	set->set_elem[setix++] = arrcpy[nbob - 1];
-      RPS_ASSERT (card == setix - 1);
+      if (nbob == 1 && arrcpy[0])
+	set->set_elem[0] = arrcpy[0];
+      else if (nbob > 1 && arrcpy[nbob - 1] != arrcpy[nbob - 2])
+	set->set_elem[setix] = arrcpy[nbob - 1];
+      RPS_ASSERT (card == setix);
     }
   free (arrcpy);
   return set;
@@ -877,6 +879,31 @@ rps_object_deque_get_first (RpsObject_t * obj)
   return resob;
 }				/* end rps_object_deque_get_first */
 
+
+int
+rps_payldeque_length (RpsDequeOb_t * payldeq)
+{
+  RpsObject_t *resob = NULL;
+  if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
+    return 0;
+  return payldeq->zm_length;
+}				/* end rps_payldeque_length */
+
+
+int
+rps_object_deque_length (RpsObject_t * obq)
+{
+  int ln = 0;
+  if (!obj)
+    return 0;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
+  if (payldeq)
+    ln = rps_payldeque_length (payldeq);
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return ln;
+}				/* end rps_object_deque_length */
 
 RpsObject_t *
 rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
