@@ -260,7 +260,8 @@ rps_dump_heap (const char *dirn)
       memset (oidbuf, 0, sizeof (oidbuf));
       scancnt++;
       rps_oid_to_cbuf (curob->ob_id, oidbuf);
-      printf ("dump scan internal#%ld oid %s [%s:%d]\n", scancnt, oidbuf,
+      printf ("dump scan internal#%ld oid %s, remaining %d [%s:%d]\n",
+	      scancnt, oidbuf, rps_payldeque_length (dumper->du_deque),
 	      __FILE__, __LINE__);
       rps_dumper_scan_internal_object (dumper, curob);
     };
