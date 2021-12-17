@@ -131,26 +131,37 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
       arrcpy[nbob++] = arr[ix];
   rps_object_array_qsort (arrcpy, (int) nbob);
   int card = 0;
+  bool duplicate = false;
   for (int ix = 0; ix < (int) nbob - 1; ix++)
     if (arrcpy[ix + 1] != arrcpy[ix])
       card++;
+    else
+      duplicate = true;
   set =
     RPS_ALLOC_ZONE (sizeof (RpsSetOb_t) + (card * sizeof (RpsObject_t *)),
 		    RPS_TYPE_SET);
   set->zm_length = card;
-  if (card > 0)
+  if (duplicate)
     {
-      int setix = 0;
-      for (int ix = 0; ix < (int) nbob - 1; ix++)
+      if (card > 0)
 	{
-	  if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
-	    set->set_elem[setix++] = arrcpy[ix];
-	};
-      if (nbob == 1 && arrcpy[0])
-	set->set_elem[0] = arrcpy[0];
-      else if (nbob > 1 && arrcpy[nbob - 1] != arrcpy[nbob - 2])
-	set->set_elem[setix] = arrcpy[nbob - 1];
-      RPS_ASSERT (card == setix);
+	  int setix = 0;
+	  for (int ix = 0; ix < (int) nbob - 1; ix++)
+	    {
+	      if (arrcpy[ix + 1] != arrcpy[ix] && arrcpy[ix])
+		set->set_elem[setix++] = arrcpy[ix];
+	    };
+	  if (nbob == 1 && arrcpy[0])
+	    set->set_elem[0] = arrcpy[0];
+	  else if (nbob > 1 && arrcpy[nbob - 1] != arrcpy[nbob - 2])
+	    set->set_elem[setix] = arrcpy[nbob - 1];
+	  RPS_ASSERT (card == setix);
+	}
+    }
+  else				/*no duplicate */
+    {
+      if (card > 0)
+	memcpy (set->set_elem, arrcpy, card * sizeof (RpsObject_t *));
     }
   free (arrcpy);
   return set;
