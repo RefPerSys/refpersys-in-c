@@ -238,12 +238,16 @@ rps_dump_heap (const char *dirn)
     if (!realdirn)
       RPS_FATAL ("realpath failed for %s", dirn);
     dumper->du_dirnam = rps_alloc_string (realdirn);
+    printf ("\n**Start dumping into %s git %s [%s:%d]\n",
+	    realdirn, _rps_git_short_id, __FILE__, __LINE__);
+    fflush (NULL);
     free (realdirn);
   }
   dumper->du_visitedht =	//
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
   dumper->du_deque =		//
     rps_deque_for_dumper (dumper);
+
   /* scan the global objects */
   rps_dumper_scan_value (dumper,
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
