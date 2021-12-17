@@ -882,7 +882,6 @@ rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
   RpsObject_t *resob = NULL;
   if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     return NULL;
-#warning rps_payldeque_pop_first is probably buggy. Please code review
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
   if (!firstlink)
     goto end;
@@ -897,7 +896,11 @@ rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
 	  payldeq->zm_length--;
 	  if (i == RPS_DEQUE_CHUNKSIZE - 1)
 	    {
-	      payldeq->deqob_first = firstlink->dequeob_next;
+	      struct rps_dequeob_link_st *secondlink =
+		firstlink->dequeob_next;
+	      payldeq->deqob_first = secondlink;
+	      if (secondlink)
+		secondlink->dequeob_prev = NULL;
 	      if (!payldeq->deqob_first)
 		{
 		  RPS_ASSERT (payldeq->deqob_last == firstlink);
@@ -1023,16 +1026,12 @@ end:
 }				/* end rps_object_deque_get_last */
 
 RpsObject_t *
-rps_object_deque_pop_last (RpsObject_t * obj)
+rps_payldeque_pop_last (RpsDequeOb_t * payldeq)
 {
   RpsObject_t *resob = NULL;
-  if (!obj)
+  if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     return NULL;
-  RPS_ASSERT (rps_is_valid_object (obj));
-  pthread_mutex_lock (&obj->ob_mtx);
-  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
-  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
-    goto end;
+
   struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
   if (!lastlink)
     goto end;
@@ -1044,18 +1043,37 @@ rps_object_deque_pop_last (RpsObject_t * obj)
 	{
 	  if (i == 0)
 	    {
-	      payldeq->deqob_last = lastlink->dequeob_prev;
-	      if (!payldeq->deqob_last)
+	      struct rps_dequeob_link_st *secondlink = lastlink->dequeob_prev;
+	      payldeq->deqob_last = secondlink;
+	      if (!secondlink)
 		{
 		  RPS_ASSERT (payldeq->deqob_first == lastlink);
 		  payldeq->deqob_first = NULL;
 		}
+	      else
+		secondlink->dequeob_next = NULL;
 	      free (lastlink);
 	    }
 	  break;
 	}
     }
-  RPS_ASSERT (resob != NULL);
+ end:
+  return resob;
+}				/* end rps_payldeque_pop_last */
+
+
+RpsObject_t *
+rps_object_deque_pop_last (RpsObject_t * obj)
+{
+  RpsObject_t *resob = NULL;
+  if (!obj)
+    return NULL;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  RpsDequeOb_t *payldeq = (RpsDequeOb_t *) obj->ob_payload;
+  if (RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
+    goto end;
+  resob = rps_payldeque_pop_last (payldeq);
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
   return resob;
