@@ -39,7 +39,9 @@ rps_alloc_tuple_sized (unsigned arity, RpsObject_t ** arr)
   if (arr == NULL && arity > 0)
     return NULL;
   tup =
-    RPS_ALLOC_ZONE (sizeof (RpsTupleOb_t) + arity * sizeof (RpsObject_t *),
+    /* TODO: perhaps the arity should be rounded up, to avoid having
+       too many alloced zone sizes.... */
+    RPS_ALLOC_ZONE (sizeof (RpsTupleOb_t) + (arity * sizeof (RpsObject_t *)),
 		    RPS_TYPE_TUPLE);
   for (int ix = 0; ix < (int) arity; ix++)
     {
@@ -245,7 +247,7 @@ rps_closure_array_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
   unsigned size = rps_prime_above (arity);
   int prix = rps_index_of_prime (size);
   clos =
-    RPS_ALLOC_ZONE (sizeof (RpsClosure_t) + size * sizeof (RpsValue_t),
+    RPS_ALLOC_ZONE (sizeof (RpsClosure_t) + (size * sizeof (RpsValue_t)),
 		    RPS_TYPE_SET);
   clos->zm_length = arity;
   clos->zm_xtra = prix;
@@ -1610,7 +1612,7 @@ rps_hash_tbl_set_elements (RpsHashTblOb_t * htb)
   unsigned primsiz = rps_prime_above (curlen + 1);
   struct rps_hashtblelements_st *htbel =
     RPS_ALLOC_ZEROED (sizeof (struct rps_hashtblelements_st) +
-		      primsiz * sizeof (RpsObject_t *));
+		      (primsiz * sizeof (RpsObject_t *)));
   htbel->htbel_magic_num = RPS_HTBEL_MAGIC;
   htbel->htbel_maxcount = curlen;
   htbel->htbel_size = primsiz;
