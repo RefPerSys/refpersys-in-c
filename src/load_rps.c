@@ -305,6 +305,8 @@ rps_load_initial_heap (void)
     };
   loader->ld_state = RPSLOADING_EPILOGUE_PASS;
   rps_load_install_global_root_objects (loader);
+#warning temporary call to mallopt. Should be removed once loading and dumping completes.
+  mallopt (M_CHECK_ACTION, 03);
   double elapsedtime =
     rps_clocktime (CLOCK_REALTIME) - loader->ld_start_elapsedtime;
   double processcputime =
@@ -803,6 +805,10 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
       if (objcount % 8 == 0)
 	{
 	  rps_check_all_objects_buckets_are_valid ();
+	  if (objcount % 16 == 0) {
+#warning temporary call to mallopt. Should be removed once loading and dumping completes.
+  mallopt (M_CHECK_ACTION, 03);
+	  }
 	  // if (objcount % 16 == 0)
 	  //  printf
 	  //    ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",

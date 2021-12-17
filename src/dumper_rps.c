@@ -31,6 +31,8 @@
  ******************************************************************************/
 
 #include "Refpersys.h"
+/* for mallopt: */
+#include <malloc.h>
 
 #define RPS_DUMPER_MAGIC 0x2501f5e3	/*620885475 */
 
@@ -247,6 +249,8 @@ rps_dump_heap (const char *dirn)
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
   dumper->du_deque =		//
     rps_deque_for_dumper (dumper);
+#warning temporary call to mallopt. Should be removed once loading and dumping completes.
+  mallopt (M_CHECK_ACTION, 03);
 
   /* scan the global objects */
   rps_dumper_scan_value (dumper,
