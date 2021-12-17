@@ -61,8 +61,10 @@ RPS_TSTAMP:=generated/__timestamp
 
 # the GCC compiler (at least GCC 9, preferably GCC 11, see gcc.gnu.org ....)
 CC := gcc
+
+CPROFILEFLAGS=
 ## should be changed later to -Og, once loading succeeds
-CFLAGS := -O0 -g3 -pg
+CFLAGS := -O0 -ggdb3 $(CPROFILEFLAGS)
 
 ## preprocessor flags for gcc
 CPPFLAGS += $(RPS_PKG_CFLAGS) \
