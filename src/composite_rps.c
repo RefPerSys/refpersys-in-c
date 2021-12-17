@@ -916,6 +916,19 @@ rps_object_deque_length (RpsObject_t * obj)
   return ln;
 }				/* end rps_object_deque_length */
 
+int
+rps_dequeob_link_nbobj (struct rps_dequeob_link_st *link)
+{
+  if (!link)
+    return 0;
+  int cnt = 0;
+  for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
+    if (link->dequeob_chunk[i] != NULL
+	&& link->dequeob_chunk[i] != RPS_HTB_EMPTY_SLOT)
+      cnt++;
+  return cnt;
+}				/* end rps_dequeob_link_nbobj */
+
 RpsObject_t *
 rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
 {
@@ -938,7 +951,7 @@ rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
 	{
 	  firstlink->dequeob_chunk[i] = NULL;
 	  payldeq->zm_length--;
-	  if (i == RPS_DEQUE_CHUNKSIZE - 1)
+	  if (0 == rps_dequeob_link_nbobj (firstlink))
 	    {
 	      struct rps_dequeob_link_st *secondlink =
 		firstlink->dequeob_next;
@@ -1088,7 +1101,7 @@ rps_payldeque_pop_last (RpsDequeOb_t * payldeq)
       resob = lastlink->dequeob_chunk[i];
       if (resob)
 	{
-	  if (i == 0)
+	  if (0 == rps_dequeob_link_nbobj (lastlink))
 	    {
 	      struct rps_dequeob_link_st *secondlink = lastlink->dequeob_prev;
 	      payldeq->deqob_last = secondlink;
