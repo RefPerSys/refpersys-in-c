@@ -97,6 +97,7 @@ rpsldpy_agenda (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
     agenpayl->agenda_que[AgPrio_Normal] = obpriohigh;
   rps_object_put_payload (obj, agenpayl);
   RPS_ASSERT (obj == RPS_THE_AGENDA_OBJECT);
+  RPS_ASSERT (agenpayl->payl_owner == obj);
 }				/* end rpsldpy_agenda */
 
 
