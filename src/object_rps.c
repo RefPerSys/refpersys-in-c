@@ -1016,7 +1016,6 @@ rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
   RPS_ASSERT (jsclasssuper != NULL);
   RpsClassInfo_t *clinf =
     RPS_ALLOC_ZONE (sizeof (RpsClassInfo_t), -RpsPyt_ClassInfo);
-  clinf->payl_owner = obj;
   if (json_is_array (jsclassmethdict))
     {
       int nbmeth = json_array_size (jsclassmethdict);
