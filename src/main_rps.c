@@ -429,6 +429,82 @@ rps_abort (void)
 
 
 
+void
+rps_emit_gplv3plus_notice (FILE * fil, const char *name,
+			   const char *lineprefix, const char *linesuffix)
+{
+  time_t now = 0;
+  time (&now);
+  char yearbuf[8];
+  struct tm nowtm = { };
+  localtime_r (&now, &nowtm);
+  memset (yearbuf, 0, sizeof (yearbuf));
+  strftime (yearbuf, sizeof (yearbuf), "%Y", &nowtm);
+  fprintf (fil,
+	   "%s ---------------------------------------------------- %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s emitted file %.64s %s\n",
+	   lineprefix ? lineprefix : "", name, linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s SPDX-License-Identifier: GPL-3.0-or-later %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s © Copyright 2019 - %s The Reflective Persistent System Team %s\n",
+	   lineprefix ? lineprefix : "",
+	   yearbuf, linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s team@refpersys.org & http://refpersys.org/ %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil, "%s %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s License: %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  This program is free software: you can redistribute it and/or modify %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  it under the terms of the GNU General Public License as published by %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  the Free Software Foundation, either version 3 of the License, or %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  (at your option) any later version. %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  This program is distributed in the hope that it will be useful, %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  but WITHOUT ANY WARRANTY; without even the implied warranty of %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  GNU General Public License for more details. \n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  You should have received a copy of the GNU General Public License %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s  along with this program.  If not, see <http://www.gnu.org/licenses/>. %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil,
+	   "%s ---------------------------------------------------- %s\n",
+	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+}				/* end rps_emit_gplv3plus_notice */
+
+
+
+
 
 int
 main (int argc, char **argv)
@@ -503,7 +579,7 @@ main (int argc, char **argv)
   if (rps_with_gui)
     rps_run_gui (&argc, argv);
   if (rps_dump_directory)
-    rps_dump_heap (rps_dump_directory);
+    rps_dump_heap (NULL, rps_dump_directory);
 }				/* end of main function */
 
 

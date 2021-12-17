@@ -44,6 +44,7 @@ struct RpsPayl_Dumper_st
 {
   RPSFIELDS_ZONED_VALUE;
   unsigned du_magic;		/* always RPS_DUMPER_MAGIC */
+  rps_callframe_t *du_callframe;
   /* The dumper probably needs to contain a big hash table of visited
      objects; a first pass is scanning the heap, starting from global
      roots including the agenda. During the dump only one pthread should
@@ -55,6 +56,8 @@ struct RpsPayl_Dumper_st
   RpsHashTblOb_t *du_visitedht;
   // the smaller hash table of visited spaces...
   RpsHashTblOb_t *du_spaceht;
+  // the smaller hash table for the current space
+  RpsHashTblOb_t *du_htcurspace;
   // the queue of object to scan internally....
   RpsDequeOb_t *du_deque;
   // small set of space objects; at most RPS_DUMP_MAX_NB_SPACE elements
@@ -74,6 +77,10 @@ struct RpsPayl_Dumper_st
 // TODO: remove it when the dump is working completely....
 static RpsDumper_t *rps_the_dumper;
 
+
+void rps_dump_one_space (RpsDumper_t * du, int spix,
+			 const RpsObject_t * spacob,
+			 const RpsSetOb_t * universet);
 
 bool
 rps_is_valid_dumper (RpsDumper_t * du)
@@ -218,10 +225,56 @@ rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
     }
 }				/* end rps_dumper_scan_object */
 
-#warning a lot of dumping routines are missing here
-
 void
-rps_dump_heap (const char *dirn)
+rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
+		    const RpsSetOb_t * universet)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
+  RPS_ASSERT (rps_is_valid_object (spacob));
+  char spacid[32];
+  memset (spacid, 0, sizeof (spacid));
+  rps_oid_to_cbuf (spacob->ob_id, spacid);
+  char filnambuf[128];
+  memset (filnambuf, 0, sizeof (filnambuf));
+  snprintf (filnambuf, sizeof (filnambuf), "persistore/sp%s-rps.json",
+	    spacid);
+  char tempathbuf[256];
+  memset (tempathbuf, 0, sizeof (tempathbuf));
+  snprintf (tempathbuf, sizeof (tempathbuf),
+	    "%s/%s-p%d~", du->du_dirnam, filnambuf, (int) getpid ());
+  int cardspace = 0;
+  int carduniv = rps_set_cardinal (universet);
+  du->du_htcurspace = rps_hash_tbl_ob_create (carduniv / 2 + 10);
+  for (int oix = 0; oix < carduniv; oix++)
+    {
+      const RpsObject_t *curob = rps_set_nth_member (universet, oix);
+      RPS_ASSERT (rps_is_valid_object (curob));
+      bool goodob = false;
+      pthread_mutex_lock (&((RpsObject_t*)curob)->ob_mtx);
+      goodob = curob->ob_space == spacob;
+      pthread_mutex_unlock (&((RpsObject_t*)curob)->ob_mtx);
+      if (goodob)
+	rps_hash_tbl_ob_add (du->du_htcurspace, curob);
+    };
+  const RpsSetOb_t *curspaceset =
+    rps_hash_tbl_set_elements (du->du_htcurspace);
+  FILE *spfil = du->du_spacedescr[spix].sp_file = fopen (tempathbuf, "w");
+  if (!spfil)
+    RPS_FATAL ("failed to open %s - %m", tempathbuf);
+  fprintf (spfil, "/// GENERATED file %s / DO NOT EDIT\n", filnambuf);
+  rps_emit_gplv3plus_notice (spfil, filnambuf, "///", "");
+  fprintf (spfil, "\n\n");
+  fflush (spfil);
+  RPS_FATAL ("incomplete rps_dump_one_space %s", tempathbuf);
+#warning incomplete rps_dump_one_space
+  du->du_htcurspace = NULL;
+}				/* end rps_dump_one_space */
+
+
+#warning a lot of dumping routines are missing here
+void
+rps_dump_heap (rps_callframe_t * frame, const char *dirn)
 {
   if (!dirn)
     dirn = rps_dump_directory;
@@ -236,6 +289,7 @@ rps_dump_heap (const char *dirn)
     dumper = RPS_ALLOC_ZONE (sizeof (RpsDumper_t), -RpsPyt_Dumper);
     rps_the_dumper = dumper;
     dumper->du_magic = RPS_DUMPER_MAGIC;
+    dumper->du_callframe = frame;
     char *realdirn = realpath (dirn, NULL);
     if (!realdirn)
       RPS_FATAL ("realpath failed for %s", dirn);
@@ -280,10 +334,9 @@ rps_dump_heap (const char *dirn)
   if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
     RPS_FATAL ("too many %d spaces to dump into %s", nbspace,
 	       rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam));
-  /* once every object is known, dump them by space */
-  RPS_FATAL
-    ("unimplemented rps_dump_heap to %s with %u spaces for %u objects and %u globals (scancnt=%ld)",
-     rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam), nbspace, nbobj,
-     rps_nb_global_root_objects (), scancnt);
+  for (int spix = 0; spix < nbspace; spix++)
+    rps_dump_one_space (dumper, spix, rps_set_nth_member (spaceset, spix),
+			universet);
+  dumper->du_callframe = NULL;
   rps_the_dumper = NULL;
 }				/* end rps_dump_heap */

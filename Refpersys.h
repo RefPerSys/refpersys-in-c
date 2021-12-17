@@ -960,12 +960,16 @@ extern volatile bool rps_agenda_is_running (void);
 
 ////////////////////////////////////////////////////////////////
 extern void rps_load_initial_heap (void);
-extern void rps_dump_heap (const char *dir);	/// dump into DIR or
-						/// else
+extern void rps_dump_heap (rps_callframe_t * frame, const char *dir);	/// dump into DIR or
+						/// else into
 						/// rps_dump_directory
 extern void rps_abort (void) __attribute__((noreturn));
 extern void rps_backtrace_print (struct backtrace_state *state, int skip,
 				 FILE * f);
+
+extern void rps_emit_gplv3plus_notice (FILE * fil, const char *name,
+				       const char *lineprefix,
+				       const char *linesuffix);
 
 extern void rps_fatal_stop_at (const char *fil, int lineno)
   __attribute__((noreturn));
