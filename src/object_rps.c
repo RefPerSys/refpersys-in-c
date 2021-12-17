@@ -986,6 +986,7 @@ rps_object_put_payload (RpsObject_t * obj, void *payl)
 	(*oldremover) (obj, oldpayl, oldremdata);
     }
   obj->ob_payload = newpayl;
+  newpayl->payl_owner = obj;
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end of rps_object_put_payload */

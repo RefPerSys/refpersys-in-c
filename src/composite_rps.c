@@ -1057,7 +1057,7 @@ rps_payldeque_pop_last (RpsDequeOb_t * payldeq)
 	  break;
 	}
     }
- end:
+end:
   return resob;
 }				/* end rps_payldeque_pop_last */
 
