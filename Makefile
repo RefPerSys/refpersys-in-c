@@ -62,9 +62,15 @@ RPS_TSTAMP:=generated/__timestamp
 # the GCC compiler (at least GCC 9, preferably GCC 11, see gcc.gnu.org ....)
 CC := gcc
 
-CPROFILEFLAGS=
+
+## extra compile flags (debugging, profiling, etc); in particular use CXTRAFLAGS=-fsanitize=address
+CXTRAFLAGS=
+
+## extra link flags
+LINKXTRAFLAGS=
+
 ## should be changed later to -Og, once loading succeeds
-CFLAGS := -O0 -ggdb3 $(CPROFILEFLAGS)
+CFLAGS := -O0 -ggdb3 $(CXTRAFLAGS)
 
 ## preprocessor flags for gcc
 CPPFLAGS += $(RPS_PKG_CFLAGS) \
