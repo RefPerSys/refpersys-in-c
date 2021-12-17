@@ -884,7 +884,11 @@ rps_payldeque_pop_first (RpsDequeOb_t * payldeq)
     return NULL;
   struct rps_dequeob_link_st *firstlink = payldeq->deqob_first;
   if (!firstlink)
-    goto end;
+    {
+      RPS_ASSERT (payldeq->deqob_last == NULL);
+      RPS_ASSERT (payldeq->zm_length == 0);
+      goto end;
+    }
   RPS_ASSERT (payldeq->zm_length > 0);
   RPS_ASSERT (firstlink->dequeob_prev == NULL);
   for (int i = 0; i < RPS_DEQUE_CHUNKSIZE; i++)
@@ -1031,10 +1035,13 @@ rps_payldeque_pop_last (RpsDequeOb_t * payldeq)
   RpsObject_t *resob = NULL;
   if (!payldeq || RPS_ZONED_MEMORY_TYPE (payldeq) != -RpsPyt_DequeOb)
     return NULL;
-
   struct rps_dequeob_link_st *lastlink = payldeq->deqob_last;
   if (!lastlink)
-    goto end;
+    {
+      RPS_ASSERT (payldeq->deqob_last == NULL);
+      RPS_ASSERT (payldeq->zm_length == 0);
+      goto end;
+    }
   RPS_ASSERT (lastlink->dequeob_next == NULL);
   for (int i = RPS_DEQUE_CHUNKSIZE - 1; i >= 0; i--)
     {
@@ -1053,7 +1060,8 @@ rps_payldeque_pop_last (RpsDequeOb_t * payldeq)
 	      else
 		secondlink->dequeob_next = NULL;
 	      free (lastlink);
-	    }
+	    };
+	  payldeq->zm_length--;
 	  break;
 	}
     }
