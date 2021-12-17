@@ -216,21 +216,21 @@ enum
 {
   //// this enumeration needs to be in generated C code of course....
   RpsPyt__NONE,
-  RpsPyt_CallFrame,		/* call frames */
-  RpsPyt_Loader,		/* the initial loader */
-  RpsPyt_AttrTable,		/* associate objects to values */
-  RpsPyt_StringBuf,		/* mutable string buffer */
-  RpsPyt_Symbol,		/* symbol */
-  RpsPyt_ClassInfo,		/* class */
-  RpsPyt_MutableSetOb,		/* mutable set of objects */
-  RpsPyt_DequeOb,		/* double ended queue of objects */
-  RpsPyt_Tasklet,		/* tasklet in agenda */
-  RpsPyt_Agenda,		/* the agenda */
-  RpsPyt_StringDict,		/* string dictionary associating names
+  RpsPyt_CallFrame,		/* #1 call frames */
+  RpsPyt_Loader,		/* #2 the initial loader */
+  RpsPyt_AttrTable,		/* #3 associate objects to values */
+  RpsPyt_StringBuf,		/* #4 mutable string buffer */
+  RpsPyt_Symbol,		/* #5 symbol */
+  RpsPyt_ClassInfo,		/* #6 class information */
+  RpsPyt_MutableSetOb,		/* #7 mutable set of objects */
+  RpsPyt_DequeOb,		/* #8 double ended queue of objects */
+  RpsPyt_Tasklet,		/* #9 tasklet in agenda */
+  RpsPyt_Agenda,		/* #10 the agenda */
+  RpsPyt_StringDict,		/* #11 string dictionary associating names
 				   to values */
-  RpsPyt_HashTblObj,		/* hashtable of objects */
-  RpsPyt_Space,			/* space payload */
-  RpsPyt_Dumper,		/* dumper payload */
+  RpsPyt_HashTblObj,		/* #12 hashtable of objects */
+  RpsPyt_Space,			/* #13 space payload */
+  RpsPyt_Dumper,		/* #14 dumper payload */
   RpsPyt__LAST
 };
 
