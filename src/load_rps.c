@@ -805,10 +805,11 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
       if (objcount % 8 == 0)
 	{
 	  rps_check_all_objects_buckets_are_valid ();
-	  if (objcount % 16 == 0) {
+	  if (objcount % 16 == 0)
+	    {
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
-  mallopt (M_CHECK_ACTION, 03);
-	  }
+	      mallopt (M_CHECK_ACTION, 03);
+	    }
 	  // if (objcount % 16 == 0)
 	  //  printf
 	  //    ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
