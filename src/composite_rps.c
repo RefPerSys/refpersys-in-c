@@ -891,7 +891,7 @@ rps_payldeque_length (RpsDequeOb_t * payldeq)
 
 
 int
-rps_object_deque_length (RpsObject_t * obq)
+rps_object_deque_length (RpsObject_t * obj)
 {
   int ln = 0;
   if (!obj)
