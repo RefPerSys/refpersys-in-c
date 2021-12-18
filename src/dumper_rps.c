@@ -98,10 +98,16 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
 {
   RPS_ASSERT (du && du->du_magic == RPS_DUMPER_MAGIC);
   RPS_ASSERT (ob && rps_is_valid_object (ob));
+  RPS_ASSERT (du->du_spaceht
+	      && du->du_spaceht->htbob_magic == RPS_HTBOB_MAGIC);
   pthread_mutex_lock (&ob->ob_mtx);
   rps_dumper_scan_object (du, ob->ob_class);
   if (ob->ob_space)
-    rps_dumper_scan_object (du, ob->ob_space);
+    {
+      RPS_ASSERT (rps_is_valid_object (ob->ob_space));
+      (void) rps_hash_tbl_ob_add (du->du_spaceht, ob->ob_space);
+      rps_dumper_scan_object (du, ob->ob_space);
+    }
   /// scan the table of attributes
   {
     RpsAttrTable_t *atbl = ob->ob_attrtable;
@@ -314,6 +320,8 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
   }
   dumper->du_visitedht =	//
     rps_hash_tbl_ob_create (16 + 3 * rps_nb_global_root_objects ());
+  dumper->du_spaceht =		//
+    rps_hash_tbl_ob_create (3 + rps_nb_global_root_objects () / 5);
   dumper->du_deque =		//
     rps_deque_for_dumper (dumper);
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
@@ -324,6 +332,10 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
   RpsObject_t *curob = NULL;
   long scancnt = 0;
+  RPS_ASSERT (dumper->du_spaceht
+	      && rps_hash_tbl_is_valid (dumper->du_spaceht));
+  RPS_ASSERT (dumper->du_visitedht
+	      && rps_hash_tbl_is_valid (dumper->du_visitedht));
   /* loop to scan visited, but unscanned objects */
   while ((curob = rps_payldeque_pop_first (dumper->du_deque)) != NULL)
     {
@@ -331,10 +343,16 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
       memset (oidbuf, 0, sizeof (oidbuf));
       scancnt++;
       rps_oid_to_cbuf (curob->ob_id, oidbuf);
-      printf ("dump scan internal#%ld oid %s, remaining %d [%s:%d]\n",
-	      scancnt, oidbuf, rps_payldeque_length (dumper->du_deque),
-	      __FILE__, __LINE__);
+      printf ("dump scan internal#%ld oid %s %s remaining %d [%s:%d]\n",
+	      scancnt, oidbuf,
+	      curob->ob_space ? "!" : "°",
+	      rps_payldeque_length (dumper->du_deque), __FILE__, __LINE__);
       rps_dumper_scan_internal_object (dumper, curob);
+      if (scancnt % 16 == 0)
+	{
+	  RPS_ASSERT (rps_hash_tbl_ob_cardinal (dumper->du_spaceht) > 0);
+	  RPS_ASSERT (rps_hash_tbl_ob_cardinal (dumper->du_visitedht) > 0);
+	}
     };
   const RpsSetOb_t *universet =
     rps_hash_tbl_set_elements (dumper->du_visitedht);
@@ -342,6 +360,8 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
     rps_hash_tbl_set_elements (dumper->du_spaceht);
   unsigned nbspace = rps_set_cardinal (spaceset);
   unsigned nbobj = rps_set_cardinal (universet);
+  printf ("dump_heap nbspace=%u nbobj=%u [%s:%d]\n", nbspace, nbobj, __FILE__,
+	  __LINE__);
   /* Temporarily we cannot deal with many spaces.... Should be fixed
      by generating C code later... */
   if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
