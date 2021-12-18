@@ -248,7 +248,8 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   char tempathbuf[256];
   memset (tempathbuf, 0, sizeof (tempathbuf));
   snprintf (tempathbuf, sizeof (tempathbuf),
-	    "%s/%s-p%d~", du->du_dirnam, filnambuf, (int) getpid ());
+	    "%s/%s-p%d~", rps_stringv_utf8bytes ((RpsValue_t) du->du_dirnam),
+	    filnambuf, (int) getpid ());
   int cardspace = 0;
   int carduniv = rps_set_cardinal (universet);
   du->du_htcurspace = rps_hash_tbl_ob_create (carduniv / 2 + 10);
@@ -312,6 +313,10 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
     char *realdirn = realpath (dirn, NULL);
     if (!realdirn)
       RPS_FATAL ("realpath failed for %s", dirn);
+    char tempathbuf[256];
+    memset (tempathbuf, 0, sizeof (tempathbuf));
+    snprintf (tempathbuf, sizeof (tempathbuf), "%s/persistore", realdirn);
+    g_mkdir_with_parents (tempathbuf, 0750);
     dumper->du_dirnam = rps_alloc_string (realdirn);
     printf ("\n**Start dumping into %s git %s [%s:%d]\n",
 	    realdirn, _rps_git_short_id, __FILE__, __LINE__);
