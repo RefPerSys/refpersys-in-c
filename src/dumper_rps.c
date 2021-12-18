@@ -352,6 +352,7 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
 	{
 	  RPS_ASSERT (rps_hash_tbl_ob_cardinal (dumper->du_spaceht) > 0);
 	  RPS_ASSERT (rps_hash_tbl_ob_cardinal (dumper->du_visitedht) > 0);
+	  putchar ('\n');	/* to ease debugging. TODO, remove it! */
 	}
     };
   const RpsSetOb_t *universet =
