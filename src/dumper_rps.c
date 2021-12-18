@@ -251,14 +251,15 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
       const RpsObject_t *curob = rps_set_nth_member (universet, oix);
       RPS_ASSERT (rps_is_valid_object (curob));
       bool goodob = false;
-      pthread_mutex_lock (&((RpsObject_t*)curob)->ob_mtx);
+      pthread_mutex_lock (&((RpsObject_t *) curob)->ob_mtx);
       goodob = curob->ob_space == spacob;
-      pthread_mutex_unlock (&((RpsObject_t*)curob)->ob_mtx);
+      pthread_mutex_unlock (&((RpsObject_t *) curob)->ob_mtx);
       if (goodob)
 	rps_hash_tbl_ob_add (du->du_htcurspace, curob);
     };
   const RpsSetOb_t *curspaceset =
     rps_hash_tbl_set_elements (du->du_htcurspace);
+  unsigned spacesize = rps_set_cardinal (curspaceset);
   FILE *spfil = du->du_spacedescr[spix].sp_file = fopen (tempathbuf, "w");
   if (!spfil)
     RPS_FATAL ("failed to open %s - %m", tempathbuf);
@@ -266,6 +267,18 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   rps_emit_gplv3plus_notice (spfil, filnambuf, "///", "");
   fprintf (spfil, "\n\n");
   fflush (spfil);
+  fprintf (spfil, "///!!! prologue of RefPerSys space file:\n");
+  fprintf (spfil, "{\n");
+  fprintf (spfil, " \"format\" : \"%s\",\n", RPS_MANIFEST_FORMAT);
+  fprintf (spfil, " \"nbobjects\" : %u,\n", spacesize);
+  fprintf (spfil, " \"spaceid\" : \"%s\",\n", spacid);
+  fprintf (spfil, "}\n");
+  fflush (spfil);
+  for (int oix = 0; oix < (int) spacesize; oix++)
+    {
+      const RpsObject_t *curob = rps_set_nth_member (curspaceset, oix);
+      RPS_ASSERT (rps_is_valid_object (curob));
+    }
   RPS_FATAL ("incomplete rps_dump_one_space %s", tempathbuf);
 #warning incomplete rps_dump_one_space
   du->du_htcurspace = NULL;
