@@ -132,11 +132,14 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
   rps_object_array_qsort (arrcpy, (int) nbob);
   int card = 0;
   bool duplicate = false;
-  for (int ix = 0; ix < (int) nbob - 1; ix++)
-    if (arrcpy[ix + 1] != arrcpy[ix])
-      card++;
-    else
-      duplicate = true;
+  if (nbob == 1 && arrcpy[0])
+    card = 1;
+  else
+    for (int ix = 0; ix < (int) nbob - 1; ix++)
+      if (arrcpy[ix + 1] != arrcpy[ix])
+	card++;
+      else
+	duplicate = true;
   set =
     RPS_ALLOC_ZONE (sizeof (RpsSetOb_t) + (card * sizeof (RpsObject_t *)),
 		    RPS_TYPE_SET);
