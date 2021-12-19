@@ -308,10 +308,19 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   pthread_mutex_lock (&obj->ob_mtx);
   fprintf (spfil, "\n\n//+ob%s\n", obidbuf);
   const RpsObject_t *obclas = obj->ob_class;
+  RpsClassInfo_t *paylcla = NULL;
+  RpsSymbol_t *paylsycla = NULL;
   if (obclas)
+    paylcla = rps_get_object_payload_of_type (obclas, -RpsPyt_ClassInfo);
+  if (paylcla && paylcla->pclass_symbol)
     {
-#warning very incomplete rps_dump_object_in_space
-    };
+      paylsycla =
+	rps_get_object_payload_of_type (paylcla->pclass_symbol,
+					-RpsPyt_Symbol);
+      if (paylsycla && paylsycla->symb_name)
+	fprintf (spfil, "//∈%s\n",
+		 rps_stringv_utf8bytes (paylsycla->symb_name));
+    }
   fprintf (spfil, "{\n");
   fprintf (spfil, "}\n//-ob%s\n", obidbuf);
   pthread_mutex_unlock (&obj->ob_mtx);
