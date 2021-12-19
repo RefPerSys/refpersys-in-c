@@ -82,6 +82,9 @@ void rps_dump_one_space (RpsDumper_t * du, int spix,
 			 const RpsObject_t * spacob,
 			 const RpsSetOb_t * universet);
 
+void rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
+			       const RpsObject_t * obj);
+
 bool
 rps_is_valid_dumper (RpsDumper_t * du)
 {
@@ -285,12 +288,33 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
     {
       const RpsObject_t *curob = rps_set_nth_member (curspaceset, oix);
       RPS_ASSERT (rps_is_valid_object (curob));
+      rps_dump_object_in_space (du, spix, spfil, curob);
+      fflush (spfil);
     }
-  RPS_FATAL ("incomplete rps_dump_one_space %s", tempathbuf);
-#warning incomplete rps_dump_one_space
   du->du_htcurspace = NULL;
 }				/* end rps_dump_one_space */
 
+void
+rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
+			  const RpsObject_t * obj)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
+  RPS_ASSERT (spfil != NULL);
+  RPS_ASSERT (rps_is_valid_object (obj));
+  char obidbuf[32];
+  memset (obidbuf, 0, sizeof (obidbuf));
+  rps_oid_to_cbuf (obj->ob_id, obidbuf);
+  pthread_mutex_lock (&obj->ob_mtx);
+  fprintf (spfil, "\n\n//+ob%s\n", obidbuf);
+  const RpsObject_t *obclas = obj->ob_class;
+  if (obclas)
+    {
+#warning very incomplete rps_dump_object_in_space
+    }
+  fprintf (spfil, "}//-ob%s\\n", obidbuf);
+  pthread_mutex_unlock (&obj->ob_mtx);
+}				/* end rps_dump_object_in_space */
 
 #warning a lot of dumping routines are missing here
 void
