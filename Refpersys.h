@@ -680,7 +680,7 @@ extern RpsSymbol_t *rps_register_symbol (const char *name);
 
 
 /****************************************************************
- * Class information payload
+ * Class information payload for RpsPyt_ClassInfo
  ****************************************************************/
 #define RPSFIELDS_PAYLOAD_CLASSINFO				\
   RPSFIELDS_OWNED_PAYLOAD;					\
