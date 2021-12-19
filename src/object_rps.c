@@ -155,6 +155,30 @@ end:
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_object_reserve_components */
 
+void *
+rps_get_object_payload_of_type (RpsObject_t * obj, int paylty)
+{
+  struct rps_owned_payload_st *payl = NULL;
+  if (!rps_is_valid_object (obj))
+    return NULL;
+  pthread_mutex_lock (&obj->ob_mtx);
+  {
+    struct rps_owned_payload_st *obpayl = obj->ob_payload;
+    if (obpayl)
+      {
+	if (paylty > 0 && rps_zoned_memory_type (obpayl) == paylty)
+	  {
+	    payl = obpayl;
+	  }
+	else if (paylty == 0)
+	  payl = obpayl;
+      }
+  }
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return payl;
+}				/* end rps_get_object_payload_of_type */
+
 
 bool
 rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2)

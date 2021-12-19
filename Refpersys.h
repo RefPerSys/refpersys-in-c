@@ -564,6 +564,10 @@ extern RpsObject_t *rps_get_loaded_object_by_oid (RpsLoader_t * ld,
 						  const RpsOid oid);
 extern RpsValue_t rps_get_object_attribute (RpsObject_t * ob,
 					    RpsObject_t * obattr);
+// In a given object, get its payload if it has type paylty; accepts
+// any payload if paylty is 0.  For example:
+// rps_get_object_payload_of_type(obclass, RpsPyt_ClassInfo);
+extern void *rps_get_object_payload_of_type (RpsObject_t * ob, int paylty);
 extern void rps_check_all_objects_buckets_are_valid (void);
 extern void rps_object_reserve_components (RpsObject_t * obj,
 					   unsigned nbcomp);
@@ -571,7 +575,6 @@ extern void rps_add_global_root_object (RpsObject_t * obj);
 extern void rps_remove_global_root_object (RpsObject_t * obj);
 extern unsigned rps_nb_global_root_objects (void);
 extern const RpsSetOb_t *rps_set_of_global_root_objects (void);
-
 
 
 

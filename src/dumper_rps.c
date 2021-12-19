@@ -311,8 +311,9 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   if (obclas)
     {
 #warning very incomplete rps_dump_object_in_space
-    }
-  fprintf (spfil, "}//-ob%s\\n", obidbuf);
+    };
+  fprintf (spfil, "{\n");
+  fprintf (spfil, "}\n//-ob%s\n", obidbuf);
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_dump_object_in_space */
 
