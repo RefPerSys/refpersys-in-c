@@ -83,7 +83,7 @@ void rps_dump_one_space (RpsDumper_t * du, int spix,
 			 const RpsSetOb_t * universet);
 
 void rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
-			       const RpsObject_t * obj);
+			       const RpsObject_t * obj, int obix);
 
 bool
 rps_is_valid_dumper (RpsDumper_t * du)
@@ -288,7 +288,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
     {
       const RpsObject_t *curob = rps_set_nth_member (curspaceset, oix);
       RPS_ASSERT (rps_is_valid_object (curob));
-      rps_dump_object_in_space (du, spix, spfil, curob);
+      rps_dump_object_in_space (du, spix, spfil, curob, oix);
       fflush (spfil);
     }
   du->du_htcurspace = NULL;
@@ -296,7 +296,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
 
 void
 rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
-			  const RpsObject_t * obj)
+			  const RpsObject_t * obj, int oix)
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
@@ -312,19 +312,27 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   RpsSymbol_t *paylsycla = NULL;
   if (obclas)
     paylcla = rps_get_object_payload_of_type (obclas, -RpsPyt_ClassInfo);
-  if (paylcla && paylcla->pclass_symbol)
+  if (paylcla)
     {
-      paylsycla =
-	rps_get_object_payload_of_type (paylcla->pclass_symbol,
-					-RpsPyt_Symbol);
-      if (paylsycla && paylsycla->symb_name)
-	fprintf (spfil, "//∈%s\n",
-		 rps_stringv_utf8bytes (paylsycla->symb_name));
+      printf ("dump#%d %s paylcla@%p [%s:%d]\n",
+	      oix, obidbuf, paylcla, __FILE__, __LINE__);
+      if (paylcla->pclass_symbol)
+	{
+	  paylsycla =
+	    rps_get_object_payload_of_type (paylcla->pclass_symbol,
+					    -RpsPyt_Symbol);
+	  if (paylsycla && paylsycla->symb_name)
+	    fprintf (spfil, "//∈%s\n",
+		     rps_stringv_utf8bytes (paylsycla->symb_name));
+	}
     }
+  else
+    printf ("dump#%d %s nonclass [%s:%d]\n", oix, obidbuf, __FILE__, __LINE__);
   fprintf (spfil, "{\n");
   fprintf (spfil, "}\n//-ob%s\n", obidbuf);
   pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_dump_object_in_space */
+
 
 #warning a lot of dumping routines are missing here
 void
