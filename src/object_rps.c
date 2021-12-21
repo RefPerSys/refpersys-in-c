@@ -166,11 +166,9 @@ rps_get_object_payload_of_type (RpsObject_t * obj, int paylty)
     struct rps_owned_payload_st *obpayl = obj->ob_payload;
     if (obpayl)
       {
-	if (paylty > 0 && rps_zoned_memory_type (obpayl) == paylty)
-	  {
-	    payl = obpayl;
-	  }
-	else if (paylty == 0)
+	if (paylty == 0)
+	  payl = obpayl;
+	else if (paylty != 0 && rps_zoned_memory_type (obpayl) == paylty)
 	  payl = obpayl;
       }
   }

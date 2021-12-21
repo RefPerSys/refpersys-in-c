@@ -327,7 +327,8 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
 	}
     }
   else
-    printf ("dump#%d %s nonclass [%s:%d]\n", oix, obidbuf, __FILE__, __LINE__);
+    printf ("dump#%d %s nonclass [%s:%d]\n", oix, obidbuf, __FILE__,
+	    __LINE__);
   fprintf (spfil, "{\n");
   fprintf (spfil, "}\n//-ob%s\n", obidbuf);
   pthread_mutex_unlock (&obj->ob_mtx);
