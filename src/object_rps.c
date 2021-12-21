@@ -1032,7 +1032,7 @@ rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
   json_t *jsclassmethdict = json_object_get (jv, "class_methodict");
   json_t *jsclassname = json_object_get (jv, "class_name");
   json_t *jsclasssuper = json_object_get (jv, "class_super");
-  json_t *jsclasssymb = json_object_get (jv, "class_symbol");
+  json_t *jsclasssymb = json_object_get (jv, "class_symb");
   RPS_ASSERT (jsclassmethdict != NULL);
   RPS_ASSERT (jsclassname != NULL);
   RPS_ASSERT (jsclasssuper != NULL);
