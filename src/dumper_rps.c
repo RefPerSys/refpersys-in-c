@@ -307,34 +307,40 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
   pthread_mutex_lock (&obj->ob_mtx);
   fprintf (spfil, "\n\n//+ob%s\n", obidbuf);
-  const RpsObject_t *obclas = obj->ob_class;
-  RpsClassInfo_t *paylcla = NULL;
-  RpsSymbol_t *paylsycla = NULL;
-  if (obclas)
-    paylcla = rps_get_object_payload_of_type (obclas, -RpsPyt_ClassInfo);
-  if (paylcla)
-    {
-      char obclaidbuf[32];
-      memset (obclaidbuf, 0, sizeof (obclaidbuf));
-      rps_oid_to_cbuf(obclas->ob_id, obclaidbuf);
-      printf ("dump#%d %s obcla %s paylcla@%p [%s:%d]\n",
-	      oix, obidbuf, obclaidbuf, paylcla, __FILE__, __LINE__);
-      if (paylcla->pclass_symbol)
-	{
-	  paylsycla =
-	    rps_get_object_payload_of_type (paylcla->pclass_symbol,
-					    -RpsPyt_Symbol);
-	  if (paylsycla && paylsycla->symb_name)
-	    fprintf (spfil, "//∈%s\n",
-		     rps_stringv_utf8bytes (paylsycla->symb_name));
-	}
-    }
-  else
-    printf ("dump#%d %s nonclass [%s:%d]\n", oix, obidbuf, __FILE__,
-	    __LINE__);
-  fprintf (spfil, "{\n");
-  fprintf (spfil, "}\n//-ob%s\n", obidbuf);
-  pthread_mutex_unlock (&obj->ob_mtx);
+    const RpsObject_t *obclas = obj->ob_class;
+    RpsClassInfo_t *paylcla = NULL;
+    RpsSymbol_t *paylsycla = NULL;
+    if (obclas)
+      paylcla = rps_get_object_payload_of_type (obclas, -RpsPyt_ClassInfo);
+    if (paylcla)
+      {
+	char obclaidbuf[32];
+	memset (obclaidbuf, 0, sizeof (obclaidbuf));
+	rps_oid_to_cbuf(obclas->ob_id, obclaidbuf);
+	printf ("dump#%d %s obcla %s paylcla@%p [%s:%d]\n",
+		oix, obidbuf, obclaidbuf, paylcla, __FILE__, __LINE__);
+	if (paylcla->pclass_symbol)
+	  {
+	    char obsymidbuf[32];
+	    memset (obsymidbuf, 0, sizeof (obsymidbuf));
+	    rps_oid_to_cbuf(paylcla->pclass_symbol->ob_id, obsymidbuf);
+	    printf ("dump#%d %s obcla %s pclass_symbol %s  [%s:%d]\n",
+		    oix, obidbuf, obclaidbuf, obsymidbuf,
+		    __FILE__, __LINE__);
+	    paylsycla =
+	      rps_get_object_payload_of_type (paylcla->pclass_symbol,
+					      -RpsPyt_Symbol);
+	    if (paylsycla && paylsycla->symb_name)
+	      fprintf (spfil, "//∈%s\n",
+		       rps_stringv_utf8bytes (paylsycla->symb_name));
+	  }
+      }
+    else
+      printf ("dump#%d %s nonclass [%s:%d]\n", oix, obidbuf, __FILE__,
+	      __LINE__);
+    fprintf (spfil, "{\n");
+    fprintf (spfil, "}\n//-ob%s\n", obidbuf);
+    pthread_mutex_unlock (&obj->ob_mtx);
 }				/* end rps_dump_object_in_space */
 
 
