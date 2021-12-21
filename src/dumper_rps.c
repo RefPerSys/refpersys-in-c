@@ -314,8 +314,11 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
     paylcla = rps_get_object_payload_of_type (obclas, -RpsPyt_ClassInfo);
   if (paylcla)
     {
-      printf ("dump#%d %s paylcla@%p [%s:%d]\n",
-	      oix, obidbuf, paylcla, __FILE__, __LINE__);
+      char obclaidbuf[32];
+      memset (obclaidbuf, 0, sizeof (obclaidbuf));
+      rps_oid_to_cbuf(obclas->ob_id, obclaidbuf);
+      printf ("dump#%d %s obcla %s paylcla@%p [%s:%d]\n",
+	      oix, obidbuf, obclaidbuf, paylcla, __FILE__, __LINE__);
       if (paylcla->pclass_symbol)
 	{
 	  paylsycla =
