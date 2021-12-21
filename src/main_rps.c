@@ -483,10 +483,10 @@ rps_emit_gplv3plus_notice (FILE * fil, const char *name,
 	   "%s  but WITHOUT ANY WARRANTY; without even the implied warranty of %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
   fprintf (fil,
-	   "%s  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \n",
+	   "%s  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
   fprintf (fil,
-	   "%s  GNU General Public License for more details. \n",
+	   "%s  GNU General Public License for more details. %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
   fprintf (fil,
 	   "%s %s\n",
