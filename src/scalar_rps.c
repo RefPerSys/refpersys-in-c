@@ -310,6 +310,15 @@ rps_load_json (const json_t * js, RpsLoader_t * ld)
   return rps_alloc_json (jv);
 }				/* end rps_load_json */
 
+const json_t *
+rps_json_value (RpsValue_t val)
+{
+  if (rps_value_type (val) != RPS_TYPE_JSON)
+    return NULL;
+  const RpsJson_t *vj = (const RpsJson_t *) val;
+  return vj->json;
+}				/* end rps_json_value */
+
 const RpsGtkWidget_t *
 rps_alloc_gtk_widget (GtkWidget * widg)
 {
