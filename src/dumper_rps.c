@@ -241,7 +241,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
-  RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)spacob));
+  RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) spacob));
   char spacid[32];
   memset (spacid, 0, sizeof (spacid));
   rps_oid_to_cbuf (spacob->ob_id, spacid);
@@ -260,13 +260,13 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   for (int oix = 0; oix < carduniv; oix++)
     {
       const RpsObject_t *curob = rps_set_nth_member (universet, oix);
-      RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)curob));
+      RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) curob));
       bool goodob = false;
       pthread_mutex_lock (&((RpsObject_t *) curob)->ob_mtx);
       goodob = curob->ob_space == spacob;
       pthread_mutex_unlock (&((RpsObject_t *) curob)->ob_mtx);
       if (goodob)
-	rps_hash_tbl_ob_add (du->du_htcurspace, (RpsObject_t*)curob);
+	rps_hash_tbl_ob_add (du->du_htcurspace, (RpsObject_t *) curob);
     };
   const RpsSetOb_t *curspaceset =
     rps_hash_tbl_set_elements (du->du_htcurspace);
@@ -288,13 +288,28 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   for (int oix = 0; oix < (int) spacesize; oix++)
     {
       const RpsObject_t *curob = rps_set_nth_member (curspaceset, oix);
-      RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)curob));
+      RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) curob));
       rps_dump_object_in_space (du, spix, spfil, curob, oix);
       fflush (spfil);
     }
   du->du_htcurspace = NULL;
 }				/* end rps_dump_one_space */
 
+json_t *
+rps_dump_json_for_object (RpsDumper_t * du, const RpsObject_t * ob)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  if (!ob)
+    return json_null ();
+  RPS_ASSERT (rps_is_valid_object (ob));
+  char obidbuf[32];
+  memset (obidbuf, 0, sizeof (obidbuf));
+  rps_oid_to_cbuf (ob->ob_id, obidbuf);
+  return json_string (obidbuf);
+}				/* end rps_dump_json_for_object */
+
+/// This function should be compatible with conventions followed by
+/// rps_loader_json_to_value function in file loader_rps.c
 json_t *
 rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 {
@@ -306,11 +321,49 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
   switch (vtyp)
     {
     case RPS_TYPE_INT:
+      jres = json_integer (rps_value_to_integer (val));
+      break;
     case RPS_TYPE_STRING:
+      jres = json_string (rps_stringv_utf8bytes (val));
+      break;
     case RPS_TYPE_JSON:
+      jres = json_object ();
+      json_object_set (jres, "vtype", json_string ("json"));
+      json_object_set (jres, "json", (json_t *) rps_json_value (val));
+      break;
     case RPS_TYPE_GTKWIDGET:
+      jres = json_null ();
+      break;
     case RPS_TYPE_TUPLE:
+      jres = json_object ();
+      json_object_set (jres, "vtype", json_string ("tuple"));
+      {
+	json_t *jsarr = json_array ();
+	json_object_set (jres, "tuple", jsarr);
+	unsigned tusiz = rps_vtuple_size (val);
+	for (int ix = 0; ix < (int) tusiz; ix++)
+	  {
+	    json_t *jscomp =
+	      rps_dump_json_for_object (du, rps_vtuple_nth (val, ix));
+	    json_array_append_new (jsarr, jscomp);
+	  }
+      }
+      break;
     case RPS_TYPE_SET:
+      jres = json_object ();
+      json_object_set (jres, "vtype", json_string ("set"));
+      {
+	json_t *jsarr = json_array ();
+	json_object_set (jres, "set", jsarr);
+	unsigned card = rps_set_cardinal (val);
+	for (int ix = 0; ix < (int) card; ix++)
+	  {
+	    json_t *jscomp =
+	      rps_dump_json_for_object (du, rps_set_nth_member (val, ix));
+	    json_array_append_new (jsarr, jscomp);
+	  }
+      }
+      break;
     case RPS_TYPE_CLOSURE:
     case RPS_TYPE_OBJECT:
     case RPS_TYPE_FILE:
@@ -331,7 +384,7 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
   RPS_ASSERT (spfil != NULL);
-  RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)obj));
+  RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) obj));
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
@@ -344,7 +397,9 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   memset (obclaidbuf, 0, sizeof (obclaidbuf));
   rps_oid_to_cbuf (obclas->ob_id, obclaidbuf);
   if (obclas)
-    paylcla = rps_get_object_payload_of_type ((RpsObject_t*)obclas, -RpsPyt_ClassInfo);
+    paylcla =
+      rps_get_object_payload_of_type ((RpsObject_t *) obclas,
+				      -RpsPyt_ClassInfo);
   if (paylcla)
     {
       /***- 
@@ -369,7 +424,8 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
 					    -RpsPyt_Symbol);
 	  if (paylsycla && paylsycla->symb_name)
 	    fprintf (spfil, "//∈%s\n",
-		     rps_stringv_utf8bytes ((RpsValue_t)(paylsycla->symb_name)));
+		     rps_stringv_utf8bytes ((RpsValue_t)
+					    (paylsycla->symb_name)));
 	}
     }
   json_t *jsob = json_object ();
