@@ -127,7 +127,7 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
     RPS_ALLOC_ZEROED ((nbcomp + 1) * sizeof (RpsObject_t *));
   int nbob = 0;
   for (int ix = 0; ix < nbcomp; ix++)
-    if (arr[ix] && rps_is_valid_object (arr[ix]))
+    if (arr[ix] && rps_is_valid_object ((RpsObject_t *) (arr[ix])))
       arrcpy[nbob++] = arr[ix];
   rps_object_array_qsort (arrcpy, (int) nbob);
   int card = 0;
@@ -197,7 +197,7 @@ rps_set_index (const RpsSetOb_t * setv, const RpsObject_t * ob)
     return -1;
   if (rps_value_type ((RpsValue_t) setv) != RPS_TYPE_SET)
     return -1;
-  if (!rps_is_valid_object (ob))
+  if (!rps_is_valid_object ((RpsObject_t *) ob))
     return -1;
   unsigned card = setv->zm_length;
   int lo = 0, hi = (int) card - 1;
@@ -207,8 +207,9 @@ rps_set_index (const RpsSetOb_t * setv, const RpsObject_t * ob)
       const RpsObject_t *obmidelem = setv->set_elem[md];
       if (obmidelem == ob)
 	return md;
-      RPS_ASSERT (obmidelem && rps_is_valid_object (obmidelem));
-      if (rps_object_less (ob, obmidelem))
+      RPS_ASSERT (obmidelem
+		  && rps_is_valid_object ((RpsObject_t *) obmidelem));
+      if (rps_object_less ((RpsObject_t *) ob, (RpsObject_t *) obmidelem))
 	hi = md;
       else
 	lo = md;
