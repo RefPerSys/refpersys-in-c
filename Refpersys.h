@@ -451,6 +451,10 @@ const RpsClosure_t *rps_closure_meta_make (RpsObject_t * conn,
 const RpsClosure_t *rps_closure_array_make (RpsObject_t * conn,
 					    RpsValue_t meta, unsigned arity,
 					    RpsValue_t * cvalarr);
+const RpsObject_t *rps_closure_connective (RpsValue_t val);
+RpsValue_t rps_closure_get_closed_value (RpsValue_t val, int ix);
+RpsValue_t rps_closure_meta (RpsValue_t);
+unsigned rps_closure_size (RpsValue_t);
 
 /* TODO: closure application code should be declared. The ob_routaddr
    of clos_conn is holding the C function pointer to be called. The

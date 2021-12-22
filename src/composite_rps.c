@@ -217,7 +217,8 @@ rps_set_index (const RpsSetOb_t * setv, const RpsObject_t * ob)
   for (int ix = lo; ix < hi; ix++)
     {
       const RpsObject_t *obmidelem = setv->set_elem[ix];
-      RPS_ASSERT (obmidelem && rps_is_valid_object (obmidelem));
+      RPS_ASSERT (obmidelem
+		  && rps_is_valid_object ((RpsObject_t*)obmidelem));
       if (obmidelem == ob)
 	return ix;
     };
@@ -338,6 +339,45 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
 
 
 
+const RpsObject_t *
+rps_closure_connective (RpsValue_t val)
+{
+  if (rps_value_type (val) != RPS_TYPE_CLOSURE)
+    return NULL;
+  const RpsClosure_t *clos = (const RpsClosure_t *) val;
+  return clos->clos_conn;
+}				/* end rps_closure_connective */
+
+RpsValue_t
+rps_closure_get_closed_value (RpsValue_t val, int ix)
+{
+  if (rps_value_type (val) != RPS_TYPE_CLOSURE)
+    return RPS_NULL_VALUE;
+  const RpsClosure_t *clos = (const RpsClosure_t *) val;
+  if (ix < 0)
+    ix += clos->zm_length;
+  if (ix >= 0 && ix < clos->zm_length)
+    return clos->clos_val[ix];
+  return RPS_NULL_VALUE;
+}				/* end rps_closure_value */
+
+RpsValue_t
+rps_closure_meta (RpsValue_t val)
+{
+  if (rps_value_type (val) != RPS_TYPE_CLOSURE)
+    return RPS_NULL_VALUE;
+  const RpsClosure_t *clos = (const RpsClosure_t *) val;
+  return clos->clos_meta;
+}				/* end rps_closure_meta */
+
+unsigned
+rps_closure_size (RpsValue_t val)
+{
+  if (rps_value_type (val) != RPS_TYPE_CLOSURE)
+    return RPS_NULL_VALUE;
+  const RpsClosure_t *clos = (const RpsClosure_t *) val;
+  return clos->zm_length;
+}				/* end rps_closure_size */
 
 RpsValue_t
 rps_closure_apply_v (rps_callframe_t * callerframe, const RpsClosure_t * clos,
