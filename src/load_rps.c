@@ -531,6 +531,10 @@ rps_loader_json_to_object (RpsLoader_t * ld, json_t * jv)
   return obres;
 }				/* end rps_loader_json_to_object */
 
+
+
+/// This function should be compatible with conventions followed by
+/// rps_dump_json_for_value function in file dumper_rps.c
 RpsValue_t
 rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 {
@@ -608,10 +612,18 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 	      return (RpsValue_t) clos;
 	    }
 	}
-      else
+      else if (!strcmp (strvtyp, "json"))
+	{
+	  return rps_alloc_json (json_object_get (jv, "json"));
+	}
+      else if (!strcmp (strvtyp, "tuple"))
+	{
+	  json_t *jstuple = json_object_get (jv, "tuple");
+	  /* TODO: code load of tuples */
+	}
 #warning incomplete rps_loader_json_to_value
-	RPS_FATAL ("incomplete rps_loader_json_to_value \n... json %s",
-		   json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
+      RPS_FATAL ("incomplete rps_loader_json_to_value \n... json %s",
+		 json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
     corruptedjson:
       RPS_FATAL ("rps_loader_json_to_value corrupted ...\n... json %s",
 		 json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
