@@ -365,6 +365,10 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       }
       break;
     case RPS_TYPE_CLOSURE:
+      jres = json_object ();
+      json_object_set (jres, "vtype", json_string ("closure"));
+#warning incomplete dump of closure
+      break;
     case RPS_TYPE_OBJECT:
     case RPS_TYPE_FILE:
       RPS_FATAL ("unimplemented value to dump type#%u @%p", (int) vtyp,
