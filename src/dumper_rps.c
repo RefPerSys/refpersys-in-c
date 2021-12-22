@@ -209,7 +209,8 @@ rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
     case RPS_TYPE_FILE:
       return;
     default:
-      RPS_FATAL ("unexpected value type#%u @%p", (int) vtyp, (void *) val);
+      RPS_FATAL ("unexpected value to scan type#%u @%p", (int) vtyp,
+		 (void *) val);
     }
 }				/* end rps_dumper_scan_value */
 
@@ -240,7 +241,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
-  RPS_ASSERT (rps_is_valid_object (spacob));
+  RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)spacob));
   char spacid[32];
   memset (spacid, 0, sizeof (spacid));
   rps_oid_to_cbuf (spacob->ob_id, spacid);
@@ -259,13 +260,13 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   for (int oix = 0; oix < carduniv; oix++)
     {
       const RpsObject_t *curob = rps_set_nth_member (universet, oix);
-      RPS_ASSERT (rps_is_valid_object (curob));
+      RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)curob));
       bool goodob = false;
       pthread_mutex_lock (&((RpsObject_t *) curob)->ob_mtx);
       goodob = curob->ob_space == spacob;
       pthread_mutex_unlock (&((RpsObject_t *) curob)->ob_mtx);
       if (goodob)
-	rps_hash_tbl_ob_add (du->du_htcurspace, curob);
+	rps_hash_tbl_ob_add (du->du_htcurspace, (RpsObject_t*)curob);
     };
   const RpsSetOb_t *curspaceset =
     rps_hash_tbl_set_elements (du->du_htcurspace);
@@ -287,12 +288,41 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   for (int oix = 0; oix < (int) spacesize; oix++)
     {
       const RpsObject_t *curob = rps_set_nth_member (curspaceset, oix);
-      RPS_ASSERT (rps_is_valid_object (curob));
+      RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)curob));
       rps_dump_object_in_space (du, spix, spfil, curob, oix);
       fflush (spfil);
     }
   du->du_htcurspace = NULL;
 }				/* end rps_dump_one_space */
+
+json_t *
+rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
+{
+  json_t *jres = NULL;
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  if (depth > RPS_MAX_VALUE_DEPTH)
+    RPS_FATAL ("too deep %u value to dump @%p", depth, (void *) val);
+  enum RpsType vtyp = rps_value_type (val);
+  switch (vtyp)
+    {
+    case RPS_TYPE_INT:
+    case RPS_TYPE_STRING:
+    case RPS_TYPE_JSON:
+    case RPS_TYPE_GTKWIDGET:
+    case RPS_TYPE_TUPLE:
+    case RPS_TYPE_SET:
+    case RPS_TYPE_CLOSURE:
+    case RPS_TYPE_OBJECT:
+    case RPS_TYPE_FILE:
+      RPS_FATAL ("unimplemented value to dump type#%u @%p", (int) vtyp,
+		 (void *) val);
+#warning rps_dump_json_for_value unimplemented
+    default:
+      RPS_FATAL ("unexpected value to dump type#%u @%p", (int) vtyp,
+		 (void *) val);
+    }
+  return jres;			//NOT REACHED YET
+}				/* end of rps_dump_json_for_value */
 
 void
 rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
@@ -301,48 +331,57 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
   RPS_ASSERT (spfil != NULL);
-  RPS_ASSERT (rps_is_valid_object (obj));
+  RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)obj));
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
-  pthread_mutex_lock (&obj->ob_mtx);
-  fprintf (spfil, "\n\n//+ob%s\n", obidbuf);
-    const RpsObject_t *obclas = obj->ob_class;
-    RpsClassInfo_t *paylcla = NULL;
-    RpsSymbol_t *paylsycla = NULL;
-    if (obclas)
-      paylcla = rps_get_object_payload_of_type (obclas, -RpsPyt_ClassInfo);
-    if (paylcla)
-      {
-	/***- 
-	char obclaidbuf[32];
-	memset (obclaidbuf, 0, sizeof (obclaidbuf));
-	rps_oid_to_cbuf(obclas->ob_id, obclaidbuf);
-	printf ("dump#%d %s obcla %s paylcla@%p [%s:%d]\n",
-		oix, obidbuf, obclaidbuf, paylcla, __FILE__, __LINE__);
-	-***/
-	if (paylcla->pclass_symbol)
-	  {
-	    /***-
-	    char obsymidbuf[32];
-	    memset (obsymidbuf, 0, sizeof (obsymidbuf));
-	    rps_oid_to_cbuf(paylcla->pclass_symbol->ob_id, obsymidbuf);
-	    printf ("dump#%d %s obcla %s pclass_symbol %s  [%s:%d]\n",
-		    oix, obidbuf, obclaidbuf, obsymidbuf,
-		    __FILE__, __LINE__);
-	    -***/
-	    paylsycla =
-	      rps_get_object_payload_of_type (paylcla->pclass_symbol,
-					      -RpsPyt_Symbol);
-	    if (paylsycla && paylsycla->symb_name)
-	      fprintf (spfil, "//∈%s\n",
-		       rps_stringv_utf8bytes (paylsycla->symb_name));
-	  }
-      }
-#warning rps_dump_object_in_space should create a JSON object, fill it, annd dump it piece by piece
-    fprintf (spfil, "{\n");
-    fprintf (spfil, "}\n//-ob%s\n", obidbuf);
-    pthread_mutex_unlock (&obj->ob_mtx);
+  pthread_mutex_lock (&(((RpsObject_t *) obj)->ob_mtx));
+  fprintf (spfil, "\n\n(//+ob%s\n", obidbuf);
+  const RpsObject_t *obclas = obj->ob_class;
+  RpsClassInfo_t *paylcla = NULL;
+  RpsSymbol_t *paylsycla = NULL;
+  char obclaidbuf[32];
+  memset (obclaidbuf, 0, sizeof (obclaidbuf));
+  rps_oid_to_cbuf (obclas->ob_id, obclaidbuf);
+  if (obclas)
+    paylcla = rps_get_object_payload_of_type ((RpsObject_t*)obclas, -RpsPyt_ClassInfo);
+  if (paylcla)
+    {
+      /***- 
+	  char obclaidbuf[32];
+	  memset (obclaidbuf, 0, sizeof (obclaidbuf));
+	  rps_oid_to_cbuf(obclas->ob_id, obclaidbuf);
+	  printf ("dump#%d %s obcla %s paylcla@%p [%s:%d]\n",
+	  oix, obidbuf, obclaidbuf, paylcla, __FILE__, __LINE__);
+	  -***/
+      if (paylcla->pclass_symbol)
+	{
+	  /***-
+	      char obsymidbuf[32];
+	      memset (obsymidbuf, 0, sizeof (obsymidbuf));
+	      rps_oid_to_cbuf(paylcla->pclass_symbol->ob_id, obsymidbuf);
+	      printf ("dump#%d %s obcla %s pclass_symbol %s  [%s:%d]\n",
+	      oix, obidbuf, obclaidbuf, obsymidbuf,
+	      __FILE__, __LINE__);
+	      -***/
+	  paylsycla =
+	    rps_get_object_payload_of_type (paylcla->pclass_symbol,
+					    -RpsPyt_Symbol);
+	  if (paylsycla && paylsycla->symb_name)
+	    fprintf (spfil, "//∈%s\n",
+		     rps_stringv_utf8bytes ((RpsValue_t)(paylsycla->symb_name)));
+	}
+    }
+  json_t *jsob = json_object ();
+  json_object_set_new (jsob, "oid", json_string (obidbuf));
+  json_object_set_new (jsob, "mtime", json_real (obj->ob_mtime));
+  json_object_set_new (jsob, "class", json_string (obclaidbuf));
+#warning rps_dump_object_in_space should fill jsob, annd dump it piece by piece
+  fprintf (spfil, "{\n");
+  // TODO take care when duming the "mtime" field to emit only it with
+  // two decimal digits. Since clock is in practice inaccurate.
+  fprintf (spfil, "}\n//-ob%s\n", obidbuf);
+  pthread_mutex_unlock (&((RpsObject_t *) obj)->ob_mtx);
 }				/* end rps_dump_object_in_space */
 
 

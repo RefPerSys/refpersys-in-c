@@ -204,6 +204,9 @@ extern void rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val,
 extern void rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob);
 extern void rps_dumper_scan_internal_object (RpsDumper_t * du,
 					     RpsObject_t * ob);
+extern json_t *rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val,
+					unsigned depth);
+
 ///// hash of strings
 extern RpsHash_t rps_hash_cstr (const char *s);
 
