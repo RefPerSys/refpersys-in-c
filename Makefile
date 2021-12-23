@@ -56,7 +56,7 @@ INDENT= indent
 # Generated timestamp file prefix
 RPS_TSTAMP:=generated/__timestamp
 
-.PHONY: all clean objects indent redump load tarball
+.PHONY: all clean objects indent redump load tarball testdump
 .SECONDARY: $(RPS_TSTAMP).c
 
 # the GCC compiler (at least GCC 9, preferably GCC 11, see gcc.gnu.org ....)
@@ -120,3 +120,9 @@ src/%_rps.o: src/%_rps.c Refpersys.h kavl.h
 
 refpersys: objects $(RPS_TSTAMP).o
 	$(LINK.c) $(LDFLAGS) $(RPS_C_OBJECTS) $(RPS_TSTAMP).o $(LDLIBES) -o $@
+
+
+## a test for dumping
+testdump: refpersys
+	-/bin/rm -rf /tmp/rpsdump
+	./refpersys -D /tmp/rpsdump
