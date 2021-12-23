@@ -218,7 +218,7 @@ rps_set_index (const RpsSetOb_t * setv, const RpsObject_t * ob)
     {
       const RpsObject_t *obmidelem = setv->set_elem[ix];
       RPS_ASSERT (obmidelem
-		  && rps_is_valid_object ((RpsObject_t*)obmidelem));
+		  && rps_is_valid_object ((RpsObject_t *) obmidelem));
       if (obmidelem == ob)
 	return ix;
     };
