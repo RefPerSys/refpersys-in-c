@@ -719,6 +719,8 @@ extern RpsClosure_t *rps_obclass_get_method (RpsObject_t * obcla,
 					     RpsObject_t * selob);
 
 extern rps_payload_remover_t rps_classinfo_payload_remover;
+extern rps_payload_dump_scanner_t rps_classinfo_payload_dump_scanner;
+extern rps_payload_dump_serializer_t rps_classinfo_payload_dump_serializer;
 
 
 /****************************************************************

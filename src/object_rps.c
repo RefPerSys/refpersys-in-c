@@ -1212,8 +1212,30 @@ rps_classinfo_payload_remover (RpsObject_t * ob,
   /// TODO: should we also clear the zm_length, zm_xtra fields?
 }				/* end rps_classinfo_payload_remover */
 
-#warning missing rps_classinfo_payload_scanner routine
-#warning missing rps_classinfo_payload_serializer routine
+
+void
+rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
+				    struct rps_owned_payload_st *payl,
+				    void *data)
+{
+#warning unimplemented rps_classinfo_payload_dump_scanner
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_FATAL
+    ("rps_classinfo_payload_dump_scanner unimplemented payl@%p data @%p",
+     payl, data);
+}				/* end rps_classinfo_payload_dump_scanner */
+
+void
+rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
+				       struct rps_owned_payload_st *payl,
+				       json_t * json, void *data)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_FATAL
+    ("rps_classinfo_payload_dump_scanner unimplemented  payl@%p data @%p json %s",
+     payl, data, json_dumps (json, JSON_INDENT (2) | JSON_SORT_KEYS));
+#warning unimplemented rps_classinfo_payload_dump_serializer
+}				/* end rps_classinfo_payload_dump_serializer  */
 
 
 
