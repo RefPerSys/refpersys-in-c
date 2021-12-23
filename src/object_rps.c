@@ -1063,6 +1063,132 @@ rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
   rps_object_put_payload (obj, clinf);
 }				/* end rpsldpy_classinfo */
 
+
+bool
+rps_is_valid_classinfo (const RpsClassInfo_t * clinf)
+{
+  return clinf != NULL && rps_zoned_memory_type (clinf) == -RpsPyt_ClassInfo;
+}				/* end rps_is_valid_classinfo */
+
+RpsObject_t *
+rps_classinfo_super (const RpsClassInfo_t * clinf)
+{
+  if (!rps_is_valid_classinfo (clinf))
+    return NULL;
+  if (clinf->pclass_magic != RPS_CLASSINFO_MAGIC)
+    return NULL;
+  return clinf->pclass_super;
+}				/* end rps_classinfo_super */
+
+
+RpsObject_t *
+rps_classinfo_symbol (const RpsClassInfo_t * clinf)
+{
+  if (!rps_is_valid_classinfo (clinf))
+    return NULL;
+  if (clinf->pclass_magic != RPS_CLASSINFO_MAGIC)
+    return NULL;
+  return clinf->pclass_symbol;
+}				/* end rps_classinfo_symbol */
+
+RpsAttrTable_t *
+rps_classinfo_methdict (const RpsClassInfo_t * clinf)
+{
+  if (!rps_is_valid_classinfo (clinf))
+    return NULL;
+  if (clinf->pclass_magic != RPS_CLASSINFO_MAGIC)
+    return NULL;
+  return clinf->pclass_methdict;
+}				/* end rps_classinfo_methdict */
+
+RpsClosure_t *
+rps_classinfo_get_method (const RpsClassInfo_t * clinf, RpsObject_t * selob)
+{
+  if (!rps_is_valid_classinfo (clinf))
+    return NULL;
+  if (!rps_is_valid_object (selob))
+    return NULL;
+  if (!clinf->pclass_methdict)
+    return NULL;
+  RpsValue_t valmeth = rps_attr_table_find (clinf->pclass_methdict, selob);
+  if (!valmeth)
+    return NULL;
+  if (rps_value_type (valmeth) != RPS_TYPE_CLOSURE)
+    return NULL;
+  return (RpsClosure_t *) valmeth;
+}				/* end rps_classinfo_get_method */
+
+RpsObject_t *
+rps_obclass_super (RpsObject_t * obcla)
+{
+  RpsObject_t *obres = NULL;
+  if (!obcla || !rps_is_valid_object (obcla))
+    return NULL;
+  pthread_mutex_lock (&obcla->ob_mtx);
+  RpsClassInfo_t *clinf =
+    rps_get_object_payload_of_type (obcla, -RpsPyt_ClassInfo);
+  if (!clinf)
+    goto end;
+  obres = rps_classinfo_super (clinf);
+end:
+  pthread_mutex_unlock (&obcla->ob_mtx);
+  return obres;
+}				/* end rps_obclass_super */
+
+RpsObject_t *
+rps_obclass_symbol (RpsObject_t * obcla)
+{
+  RpsObject_t *obres = NULL;
+  if (!obcla || !rps_is_valid_object (obcla))
+    return NULL;
+  pthread_mutex_lock (&obcla->ob_mtx);
+  RpsClassInfo_t *clinf =
+    rps_get_object_payload_of_type (obcla, -RpsPyt_ClassInfo);
+  if (!clinf)
+    goto end;
+  obres = rps_classinfo_symbol (clinf);
+end:
+  pthread_mutex_unlock (&obcla->ob_mtx);
+  return obres;
+}				/* end rps_obclass_symbol */
+
+RpsAttrTable_t *
+rps_obclass_methdict (RpsObject_t * obcla)
+{
+  RpsAttrTable_t *atbl = NULL;
+  if (!obcla || !rps_is_valid_object (obcla))
+    return NULL;
+  pthread_mutex_lock (&obcla->ob_mtx);
+  RpsClassInfo_t *clinf =
+    rps_get_object_payload_of_type (obcla, -RpsPyt_ClassInfo);
+  if (!clinf)
+    goto end;
+  atbl = rps_classinfo_methdict (clinf);
+end:
+  pthread_mutex_unlock (&obcla->ob_mtx);
+  return atbl;
+}				/* end rps_obclass_methdict */
+
+RpsClosure_t *
+rps_obclass_get_method (RpsObject_t * obcla, RpsObject_t * selob)
+{
+  RpsClosure_t *clores = NULL;
+  if (!obcla || !rps_is_valid_object (obcla))
+    return NULL;
+  if (!selob || !rps_is_valid_object (selob))
+    return NULL;
+  pthread_mutex_lock (&obcla->ob_mtx);
+  RpsClassInfo_t *clinf =
+    rps_get_object_payload_of_type (obcla, -RpsPyt_ClassInfo);
+  if (!clinf)
+    goto end;
+  clores = rps_classinfo_get_method (clinf, selob);
+end:
+  pthread_mutex_unlock (&obcla->ob_mtx);
+  return clores;
+}				/* end rps_obclass_get_method */
+
+
 /// rps_classinfo_payload_remover is a rps_payload_remover_t for classinfo
 /// TODO: it should be registered (in main) by rps_register_payload_removal
 void
@@ -1088,5 +1214,7 @@ rps_classinfo_payload_remover (RpsObject_t * ob,
 
 #warning missing rps_classinfo_payload_scanner routine
 #warning missing rps_classinfo_payload_serializer routine
+
+
 
 /*************** end of file object_rps.c ****************/

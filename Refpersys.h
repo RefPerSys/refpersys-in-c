@@ -705,7 +705,18 @@ struct RpsPayl_ClassInfo_st
 };
 typedef struct RpsPayl_ClassInfo_st RpsClassInfo_t;
 
+extern bool rps_is_valid_classinfo (const RpsClassInfo_t * clinf);
+extern RpsObject_t *rps_classinfo_super (const RpsClassInfo_t * clinf);
+extern RpsObject_t *rps_classinfo_symbol (const RpsClassInfo_t * clinf);
+extern RpsAttrTable_t *rps_classinfo_methdict (const RpsClassInfo_t * clinf);
+extern RpsClosure_t *rps_classinfo_get_method (const RpsClassInfo_t * clinf,
+					       RpsObject_t * selob);
 
+extern RpsObject_t *rps_obclass_super (RpsObject_t * obcla);
+extern RpsObject_t *rps_obclass_symbol (RpsObject_t * obcla);
+extern RpsAttrTable_t *rps_obclass_methdict (RpsObject_t * obcla);
+extern RpsClosure_t *rps_obclass_get_method (RpsObject_t * obcla,
+					     RpsObject_t * selob);
 
 extern rps_payload_remover_t rps_classinfo_payload_remover;
 
