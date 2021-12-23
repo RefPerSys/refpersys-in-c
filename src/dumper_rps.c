@@ -367,19 +367,48 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
     case RPS_TYPE_CLOSURE:
       jres = json_object ();
       json_object_set (jres, "vtype", json_string ("closure"));
-#warning incomplete dump of closure
+      {
+	unsigned clsiz = rps_closure_size (val);
+	json_t *jsclarr = json_array ();
+	json_t *jsconn =
+	  rps_dump_json_for_object (du, rps_closure_connective (val));
+	json_object_set (jres, "env", jsclarr);
+	json_object_set (jres, "fn", jsconn);
+	for (int ix = 0; ix < (int) clsiz; ix++)
+	  {
+	    json_t *jsclval =
+	      rps_dump_json_for_object (du,
+					rps_closure_get_closed_value (val,
+								      ix));
+	    json_array_append_new (jsclarr, jscomp);
+	  }
+	RpsValue_t clmeta = rps_closure_meta (val);
+	if (clmeta != RPS_NULL_VALUE)
+	  {
+	    json_t *jsmeta = rps_dump_json_for_value (du, clmeta, depth + 1);
+	    json_object_set (jres, "meta", jsmeta);
+	  }
+      }
       break;
     case RPS_TYPE_OBJECT:
+      {
+	json_t *jsob = rps_dump_json_for_object (du, (RpsObject_t *) val);
+	jres = json_object ();
+	json_object_set (jres, "vtype", json_string ("object"));
+	json_object_set (jres, "object", jres);
+      }
+      break;
     case RPS_TYPE_FILE:
-      RPS_FATAL ("unimplemented value to dump type#%u @%p", (int) vtyp,
-		 (void *) val);
-#warning rps_dump_json_for_value unimplemented
+      jres = json_null ();
+      break;
     default:
       RPS_FATAL ("unexpected value to dump type#%u @%p", (int) vtyp,
 		 (void *) val);
     }
-  return jres;			//NOT REACHED YET
+  return jres;
 }				/* end of rps_dump_json_for_value */
+
+
 
 void
 rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
