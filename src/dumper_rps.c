@@ -467,9 +467,28 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   json_object_set_new (jsob, "class", json_string (obclaidbuf));
 #warning rps_dump_object_in_space should fill jsob, annd dump it piece by piece
   fprintf (spfil, "{\n");
-  // TODO take care when duming the "mtime" field to emit only it with
-  // two decimal digits. Since clock is in practice inaccurate.
+  const char*curkey = NULL;
+  json_t*jsva = NULL;
+  int nbat = json_object_size(jsob);
+  int cnt = 0;
+  json_object_foreach(jsob, curkey, jsva) {
+    RPS_ASSERT(jsva != NULL);
+    // We take care when duming the "mtime" field to emit only it with
+    // two decimal digits. Since clock is in practice inaccurate.
+    if (!strcmp(curkey, "mtime")) {
+      fprintf(spfil, " \"mtime\" : ");
+      json_dumpf(jsva, spfil, JSON_REAL_PRECISION(2));
+    } else {
+      fprintf(spfil, " \"%s\" : ", curkey);
+      json_dumpf(jsva, spfil,
+		 JSON_INDENT(2)|JSON_SORT_KEYS|JSON_REAL_PRECISION(12));
+    }
+    if (cnt < nbat) fputs(",\n", spfil);
+    cnt++;
+  }
   fprintf (spfil, "}\n//-ob%s\n", obidbuf);
+  fflush (spfil);
+  json_decrefp(&jsob);
   pthread_mutex_unlock (&((RpsObject_t *) obj)->ob_mtx);
 }				/* end rps_dump_object_in_space */
 
