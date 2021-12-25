@@ -340,11 +340,13 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       {
 	json_t *jsarr = json_array ();
 	json_object_set (jres, "tuple", jsarr);
-	unsigned tusiz = rps_vtuple_size (val);
+	unsigned tusiz = rps_vtuple_size ((RpsTupleOb_t *) val);
 	for (int ix = 0; ix < (int) tusiz; ix++)
 	  {
 	    json_t *jscomp =
-	      rps_dump_json_for_object (du, rps_vtuple_nth (val, ix));
+	      rps_dump_json_for_object (du,
+					rps_vtuple_nth ((RpsTupleOb_t *) val,
+							ix));
 	    json_array_append_new (jsarr, jscomp);
 	  }
       }
@@ -355,11 +357,11 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       {
 	json_t *jsarr = json_array ();
 	json_object_set (jres, "set", jsarr);
-	unsigned card = rps_set_cardinal (val);
+	unsigned card = rps_set_cardinal ((const RpsSetOb_t *) val);
 	for (int ix = 0; ix < (int) card; ix++)
 	  {
-	    json_t *jscomp =
-	      rps_dump_json_for_object (du, rps_set_nth_member (val, ix));
+	    json_t *jscomp = rps_dump_json_for_object (du,
+						       rps_set_nth_member ((const RpsSetOb_t *) val, ix));
 	    json_array_append_new (jsarr, jscomp);
 	  }
       }
@@ -368,21 +370,23 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       jres = json_object ();
       json_object_set (jres, "vtype", json_string ("closure"));
       {
-	unsigned clsiz = rps_closure_size (val);
+	unsigned clsiz = rps_closure_size ((const RpsClosure_t *) val);
 	json_t *jsclarr = json_array ();
-	json_t *jsconn =
-	  rps_dump_json_for_object (du, rps_closure_connective (val));
+	json_t *jsconn = rps_dump_json_for_object (du,
+						   rps_closure_connective ((const RpsClosure_t *) val));
 	json_object_set (jres, "env", jsclarr);
 	json_object_set (jres, "fn", jsconn);
 	for (int ix = 0; ix < (int) clsiz; ix++)
 	  {
-	    json_t *jsclval = rps_dump_json_for_object (du,
-							rps_closure_get_closed_value
-							(val,
-							 ix));
+	    json_t *jsclval =	//
+	      rps_dump_json_for_object (du,
+					rps_closure_get_closed_value ((const
+								       RpsClosure_t
+								       *) val,
+								      ix));
 	    json_array_append_new (jsclarr, jsclval);
 	  }
-	RpsValue_t clmeta = rps_closure_meta (val);
+	RpsValue_t clmeta = rps_closure_meta ((const RpsClosure_t *) val);
 	if (clmeta != RPS_NULL_VALUE)
 	  {
 	    json_t *jsmeta = rps_dump_json_for_value (du, clmeta, depth + 1);
@@ -467,28 +471,34 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   json_object_set_new (jsob, "class", json_string (obclaidbuf));
 #warning rps_dump_object_in_space should fill jsob, annd dump it piece by piece
   fprintf (spfil, "{\n");
-  const char*curkey = NULL;
-  json_t*jsva = NULL;
-  int nbat = json_object_size(jsob);
+  const char *curkey = NULL;
+  json_t *jsva = NULL;
+  int nbat = json_object_size (jsob);
   int cnt = 0;
-  json_object_foreach(jsob, curkey, jsva) {
-    RPS_ASSERT(jsva != NULL);
+  json_object_foreach (jsob, curkey, jsva)
+  {
+    RPS_ASSERT (jsva != NULL);
     // We take care when duming the "mtime" field to emit only it with
     // two decimal digits. Since clock is in practice inaccurate.
-    if (!strcmp(curkey, "mtime")) {
-      fprintf(spfil, " \"mtime\" : ");
-      json_dumpf(jsva, spfil, JSON_REAL_PRECISION(2));
-    } else {
-      fprintf(spfil, " \"%s\" : ", curkey);
-      json_dumpf(jsva, spfil,
-		 JSON_INDENT(2)|JSON_SORT_KEYS|JSON_REAL_PRECISION(12));
-    }
-    if (cnt < nbat) fputs(",\n", spfil);
+    if (!strcmp (curkey, "mtime"))
+      {
+	fprintf (spfil, " \"mtime\" : ");
+	json_dumpf (jsva, spfil, JSON_REAL_PRECISION (2) | JSON_ENCODE_ANY);
+      }
+    else
+      {
+	fprintf (spfil, " \"%s\" : ", curkey);
+	json_dumpf (jsva, spfil,
+		    JSON_INDENT (2) | JSON_SORT_KEYS |
+		    JSON_REAL_PRECISION (12) | JSON_ENCODE_ANY);
+      }
+    if (cnt < nbat)
+      fputs (",\n", spfil);
     cnt++;
   }
   fprintf (spfil, "}\n//-ob%s\n", obidbuf);
   fflush (spfil);
-  json_decrefp(&jsob);
+  json_decrefp (&jsob);
   pthread_mutex_unlock (&((RpsObject_t *) obj)->ob_mtx);
 }				/* end rps_dump_object_in_space */
 
