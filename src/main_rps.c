@@ -583,5 +583,95 @@ main (int argc, char **argv)
 }				/* end of main function */
 
 
+//// This function computes the closure to send a given method (by its
+//// selector SELOB) to some non-nil value VAL.  It is inefficient, and
+//// should be replaced by better generated C code.
+RpsClosure_t *
+rps_value_compute_method_closure (RpsValue_t val, const RpsObject_t * selob)
+{
+  RpsClosure_t *closres = NULL;
+  char smallbuf[16];
+  RpsOid clasid = { 0, 0 };
+  RpsObject_t *clasob = NULL;
+  const char *clidstr = NULL;
+  if (val == RPS_NULL_VALUE)
+    return NULL;
+  if (!selob || !rps_is_valid_object (selob))
+    return NULL;
+  memset (smallbuf, 0, sizeof (smallbuf));
+  switch (rps_value_type (val))
+    {
+    case RPS_TYPE_INT:
+      clasob = RPS_ROOT_OB (_2A2mrPpR3Qf03p6o5b);	//int∈class
+      clidstr = "_2A2mrPpR3Qf03p6o5b";
+      break;
+    case RPS_TYPE_DOUBLE:
+      clasob = RPS_ROOT_OB (_98sc8kSOXV003i86w5);	//double∈class
+      clidstr = "_98sc8kSOXV003i86w5";
+      break;
+    case RPS_TYPE_STRING:
+      clasob = RPS_ROOT_OB (_62LTwxwKpQ802SsmjE);	//string∈class
+      clidstr = "_62LTwxwKpQ802SsmjE";
+      break;
+    case RPS_TYPE_JSON:
+      clasob = RPS_ROOT_OB (_3GHJQW0IIqS01QY8qD);	//json∈class
+      clidstr = "_3GHJQW0IIqS01QY8qD";
+      break;
+    case RPS_TYPE_TUPLE:
+      clasob = RPS_ROOT_OB (_6NVM7sMcITg01ug5TC);	//tuple∈class
+      clidstr = "_6NVM7sMcITg01ug5TC";
+      break;
+    case RPS_TYPE_SET:
+      clasob = RPS_ROOT_OB (_6JYterg6iAu00cV9Ye);	//set∈class
+      clidstr = "_6JYterg6iAu00cV9Ye";
+      break;
+    case RPS_TYPE_CLOSURE:
+      clasob = RPS_ROOT_OB (_4jISxMJ4PYU0050nUl);	//closure∈class
+      clidstr = "_4jISxMJ4PYU0050nUl";
+      break;
+    case RPS_TYPE_OBJECT:
+      {
+	RpsObject_t *curob = (RpsObject_t *) val;
+	pthread_mutex_lock (&curob->ob_mtx);
+	clasob = curob->ob_class;
+	pthread_mutex_unlock (&curob->ob_mtx);
+      }
+      break;
+    case RPS_TYPE_FILE:
+      clidstr = "?*file*?";
+      goto unimplemented;
+    case RPS_TYPE_GTKWIDGET:
+      clidstr = "?*gtkwidget?*";
+      goto unimplemented;
+#warning rps_value_compute_method_closure unimplemented for GTKWIDGET and FILE
+    default:
+      snprintf (smallbuf, sizeof (smallbuf), "?*#%u#*?",
+		(unsigned) rps_value_type (val));
+      clidstr = smallbuf;
+    unimplemented:
+      RPS_FATAL
+	("rps_value_compute_method_closure unimplemented for val@%p %s",
+	 (void *) val, clidstr);
+    }
+  if (!clasob && clidstr && clidstr[0] == '_')
+    {
+#warning rps_value_compute_method_closure unimplemented for known clidstr
+    }
+  int cnt = 0;
+  // Even with buggy heap, we don't want to loop indefinitely.... It
+  // is likely that we will just loop less than a dozen of times.
+  while (clasob != NULL && cnt < 100)
+    {
+    /*** TODO:
+	 lock the clasob;
+	 get its payload; it should be a classinfo;
+	 get the closure in the method dict;
+	 if not fount proceed to superclass
+    ***/
+#warning rps_value_compute_method_closure unimplemented
+      cnt++;
+    }
+  return closres;
+}				/* end rps_value_compute_method_closure */
 
 /************** end of file main_rps.c ****************/

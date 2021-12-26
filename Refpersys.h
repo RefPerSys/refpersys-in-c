@@ -1,4 +1,3 @@
-
 /****************************************************************
  * file Refpersys.h
  * SPDX-License-Identifier: GPL-3.0-or-later
@@ -717,6 +716,11 @@ extern RpsObject_t *rps_obclass_symbol (RpsObject_t * obcla);
 extern RpsAttrTable_t *rps_obclass_methdict (RpsObject_t * obcla);
 extern RpsClosure_t *rps_obclass_get_method (RpsObject_t * obcla,
 					     RpsObject_t * selob);
+
+//// given some non-nil value, return the closure to send a method of given selector
+extern RpsClosure_t *rps_value_compute_method_closure (RpsValue_t val,
+						       const RpsObject_t *
+						       selob);
 
 extern rps_payload_remover_t rps_classinfo_payload_remover;
 extern rps_payload_dump_scanner_t rps_classinfo_payload_dump_scanner;

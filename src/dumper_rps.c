@@ -301,7 +301,7 @@ rps_dump_json_for_object (RpsDumper_t * du, const RpsObject_t * ob)
   RPS_ASSERT (rps_is_valid_dumper (du));
   if (!ob)
     return json_null ();
-  RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)ob));
+  RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) ob));
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (ob->ob_id, obidbuf);
@@ -343,10 +343,9 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	unsigned tusiz = rps_vtuple_size ((RpsTupleOb_t *) val);
 	for (int ix = 0; ix < (int) tusiz; ix++)
 	  {
-	    json_t *jscomp =
-	      rps_dump_json_for_object (du,
-					rps_vtuple_nth ((RpsTupleOb_t *) val,
-							ix));
+	    json_t *jscomp = rps_dump_json_for_object (du,
+						       rps_vtuple_nth ((RpsTupleOb_t *) val,
+								       ix));
 	    json_array_append_new (jsarr, jscomp);
 	  }
       }
@@ -373,7 +372,8 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	unsigned clsiz = rps_closure_size (val);
 	json_t *jsclarr = json_array ();
 	json_t *jsconn = rps_dump_json_for_object (du,
-						   rps_closure_connective (val));
+						   rps_closure_connective
+						   (val));
 	json_object_set (jres, "env", jsclarr);
 	json_object_set (jres, "fn", jsconn);
 	for (int ix = 0; ix < (int) clsiz; ix++)
@@ -470,6 +470,9 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   json_object_set_new (jsob, "mtime", json_real (obj->ob_mtime));
   json_object_set_new (jsob, "class", json_string (obclaidbuf));
 #warning rps_dump_object_in_space should fill jsob, annd dump it piece by piece
+  /*** TODO: Use rps_value_compute_method_closure to get a closure
+       dumping the object, otherwise do a "physical" dump.
+  ***/
   fprintf (spfil, "{\n");
   const char *curkey = NULL;
   json_t *jsva = NULL;
@@ -480,9 +483,9 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
     RPS_ASSERT (jsva != NULL);
     // We take care when duming the "mtime" field to emit only it with
     // two decimal digits. Since clock is in practice inaccurate.
-    if (!strcmp (curkey, "mtime") && json_is_real(jsva))
+    if (!strcmp (curkey, "mtime") && json_is_real (jsva))
       {
-	fprintf (spfil, " \"mtime\" : %.2f", json_real_value(jsva));
+	fprintf (spfil, " \"mtime\" : %.2f", json_real_value (jsva));
       }
     else
       {
@@ -494,7 +497,7 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
     if (cnt < nbat - 1)
       fputs (",\n", spfil);
     else
-      fputc('\n', spfil);
+      fputc ('\n', spfil);
     cnt++;
   }
   fprintf (spfil, "}\n//-ob%s\n", obidbuf);
