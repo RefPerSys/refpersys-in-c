@@ -655,20 +655,30 @@ rps_value_compute_method_closure (RpsValue_t val, const RpsObject_t * selob)
     }
   if (!clasob && clidstr && clidstr[0] == '_')
     {
-#warning rps_value_compute_method_closure unimplemented for known clidstr
+      const char *end = NULL;
+      clasid = rps_cstr_to_oid (clidstr, &end);
+      if (end && *end == (char) 0)
+	clasob = rps_find_object_by_oid (clasid);
     }
   int cnt = 0;
   // Even with buggy heap, we don't want to loop indefinitely.... It
   // is likely that we will just loop less than a dozen of times.
-  while (clasob != NULL && cnt < 100)
+  while (clasob != NULL && cnt < 100 && !closres)
     {
-    /*** TODO:
-	 lock the clasob;
-	 get its payload; it should be a classinfo;
-	 get the closure in the method dict;
-	 if not fount proceed to superclass
-    ***/
-#warning rps_value_compute_method_closure unimplemented
+      RpsClassInfo_t *clinf = NULL;
+      RpsObject_t *superob = NULL;
+      pthread_mutex_lock (&clasob->ob_mtx);
+      clinf = rps_get_object_payload_of_type (clasob, -RpsPyt_ClassInfo);
+      if (clinf && clinf->pclass_magic == RPS_CLASSINFO_MAGIC)
+	{
+	  closres = rps_classinfo_get_method (clinf, selob);
+	}
+      if (!closres)
+	{
+	  superob = clinf->pclass_super;
+	}
+      pthread_mutex_unlock (&clasob->ob_mtx);
+      clasob = superob;
       cnt++;
     }
   return closres;
