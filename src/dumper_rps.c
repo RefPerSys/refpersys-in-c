@@ -106,7 +106,7 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
   char oidbuf[32];
   memset (oidbuf, 0, sizeof (oidbuf));
   rps_oid_to_cbuf (ob->ob_id, oidbuf);
-  RPS_NLDEBUG (DUMP, "start scan-internal-ob %s", oidbuf);
+  RPS_DEBUG_NLPRINTF (DUMP, "start scan-internal-ob %s", oidbuf);
   pthread_mutex_lock (&ob->ob_mtx);
   rps_dumper_scan_object (du, ob->ob_class);
   if (ob->ob_space)
@@ -156,7 +156,7 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
   };
 end:
   pthread_mutex_unlock (&ob->ob_mtx);
-  RPS_DEBUG (DUMP, "end scan-internal-ob %s\n", oidbuf);
+  RPS_DEBUG_PRINTF (DUMP, "end scan-internal-ob %s\n", oidbuf);
 }				/* end rps_dumper_scan_internal_object */
 
 
@@ -170,7 +170,7 @@ rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
     RPS_FATAL ("too deep %u value to scan @%p", depth, (void *) val);
   enum RpsType vtyp = rps_value_type (val);
   RPS_DEBUG_PRINTF (DUMP, "scan-val depth %u val %s %#lx", depth,
-		    rps_value_str ((int) vtyp), val);
+		    rps_type_str ((int) vtyp), val);
   switch (vtyp)
     {
     case RPS_TYPE_INT:
@@ -259,7 +259,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   char spacid[32];
   memset (spacid, 0, sizeof (spacid));
   rps_oid_to_cbuf (spacob->ob_id, spacid);
-  RPS_NLDEBUG_PRINTF (DUMP, "start dump-one-space spix#%d %s", spix, spacid);
+  RPS_DEBUG_NLPRINTF (DUMP, "start dump-one-space spix#%d %s", spix, spacid);
   char filnambuf[128];
   memset (filnambuf, 0, sizeof (filnambuf));
   snprintf (filnambuf, sizeof (filnambuf), "persistore/sp%s-rps.json",
@@ -405,11 +405,10 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	for (int ix = 0; ix < (int) clsiz; ix++)
 	  {
 	    json_t *jsclval =	//
-	      rps_dump_json_for_object (du,
-					rps_closure_get_closed_value ((const
-								       RpsClosure_t
-								       *) val,
-								      ix));
+	      rps_dump_json_for_object 
+	      (du,
+	       rps_closure_get_closed_value ((const RpsClosure_t  *) val,
+					     ix));
 	    json_array_append_new (jsclarr, jsclval);
 	  }
 	RpsValue_t clmeta = rps_closure_meta ((const RpsClosure_t *) val);
