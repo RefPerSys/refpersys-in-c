@@ -134,6 +134,79 @@ extern int rps_index_of_prime (int64_t n);
 extern int64_t rps_prime_above (int64_t n);
 extern int64_t rps_prime_below (int64_t n);
 
+
+
+
+
+/////////////////////////////////////////////////////////
+///// DEBUGGING SUPPORT
+
+extern void rps_set_debug (const char *dbglev);
+
+/// keep the debug options in alphabetical order
+#define RPS_DEBUG_OPTIONS(dbgmacro) \
+  dbgmacro(CMD)                     \
+  dbgmacro(DUMP)                    \
+  dbgmacro(GARBAGE_COLLECTOR)       \
+  dbgmacro(GENERATED_CODE)          \
+  dbgmacro(WEB)                     \
+  dbgmacro(LOAD)                    \
+  dbgmacro(LOWREP)                  \
+  dbgmacro(MISC)                    \
+  dbgmacro(MSGSEND)                 \
+  dbgmacro(PARSE)                   \
+  dbgmacro(PARSE_STRING)            \
+  dbgmacro(REPL)                    \
+  dbgmacro(COMPL_REPL)              \
+  dbgmacro(LOW_REPL)                \
+  dbgmacro(GUI)                     \
+				/*end RPS_DEBUG_OPTIONS */
+
+#define RPS_DEBUG_OPTION_DEFINE(dbgopt) RPS_DEBUG_##dbgopt,
+
+extern unsigned rps_debug_flags;
+
+
+enum Rps_Debug
+{
+  RPS_DEBUG__NONE,
+  // expands to RPS_DEBUG_CMD, RPS_DEBUG_DUMP, RPS_DEBUG_GARBAGE_COLLECTOR...
+  RPS_DEBUG_OPTIONS (RPS_DEBUG_OPTION_DEFINE) RPS_DEBUG__LAST
+};
+
+// so we could code  RPS_DEBUG_PRINTF(NEVER, ....)
+#define RPS_DEBUG_NEVER RPS_DEBUG__NONE
+
+#define RPS_DEBUG_ENABLED(dbgopt) (rps_debug_flags & (1 << RPS_DEBUG_##dbgopt))
+
+
+/// debug print to stderr; if FLINE is negative, print a
+/// newline before.... If FMT starts with a |, print the backtrace...
+void
+rps_debug_printf_at (const char *fname, int fline, enum Rps_Debug dbgopt,
+		     const char *fmt, ...)
+__attribute__((format (printf, 4, 5)));
+
+
+#define RPS_DEBUG_PRINTF_AT(fname, fline, dbgopt, fmt, ...)      \
+do                                                               \
+  {                                                              \
+    if (RPS_DEBUG_ENABLED(dbgopt))                               \
+      rps_debug_printf_at(fname, fline, RPS_DEBUG_##dbgopt, fmt, \
+                          ##__VA_ARGS__);                        \
+  }                                                              \
+while (0)
+
+
+#define RPS_DEBUG_PRINTF_AT_BIS(fname, fline, dbgopt, fmt, ...)  \
+   RPS_DEBUG_PRINTF_AT(fname, fline, dbgopt, fmt, ##__VA_ARGS__)
+
+#define RPS_DEBUG_PRINTF(dbgopt, fmt, ...) \
+  RPS_DEBUG_PRINTF_AT_BIS(__FILE__, __LINE__, dbgopt, fmt, ##__VA_ARGS__)
+
+#define RPS_DEBUG_NLPRINTF(dbgopt, fmt, ...) \
+  RPS_DEBUG_PRINTF_AT_BIS(__FILE__, -__LINE__, dbgopt, fmt, ##__VA_ARGS__)
+
 /// both backtrace_full and backtrace_simple callbacks are continuing with a 0 return code:
 enum RpsBacktrace
 {

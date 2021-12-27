@@ -44,7 +44,7 @@ bool rps_with_gui;
 bool rps_terminal_is_escaped;
 bool rps_terminal_has_stderr;
 bool rps_terminal_has_stdout;
-
+unsigned rps_debug_flags;
 
 struct backtrace_state *rps_backtrace_common_state;
 const char *rps_progname;
@@ -410,6 +410,70 @@ rps_gettid (void)
 {
   return syscall (SYS_gettid, 0L);
 }				/* end rps_gettid */
+
+
+void
+rps_debug_printf_at (const char *filname, int fline, enum Rps_Debug dbgopt,
+		     const char *fmt, ...)
+{
+  if (((1 << dbgopt) & rps_debug_flags) == 0)
+    return;
+  if (!fmt)
+    return;
+  FILE *dbgf = stderr;
+  bool wantbacktrace = false;
+  if (fmt[0] == '|')
+    {
+      wantbacktrace = true;
+      fmt++;
+    };
+  flockfile (dbgf);
+  bool ismainth = rps_main_thread_handle == pthread_self ();
+  char threadbfr[24];
+  memset (threadbfr, 0, sizeof (threadbfr));
+  if (!filname)
+    filname = "?";
+  if (fline < 0)
+    {
+      fputc ('\n', dbgf);
+      fline = -fline;
+    }
+  if (ismainth)
+    strcpy (threadbfr, "▬!$");	//U+25AC BLACK RECTANGLE
+  else
+    {
+      char thrbuf[16];
+      memset (thrbuf, 0, sizeof (thrbuf));
+      pthread_getname_np (pthread_self (), thrbuf, sizeof (thrbuf) - 1);
+      snprintf (threadbfr, sizeof (threadbfr),
+		// U+2045 LEFT SQUARE BRACKET WITH QUILL
+		"⁅%s:%d⁆"
+		// U+2046 RIGHT SQUARE BRACKET WITH QUILL
+		, thrbuf, (int) rps_gettid ());
+    }
+  fprintf (dbgf, "°%s°%s:%d:", threadbfr, filname, fline);
+  switch (dbgopt)
+    {
+#define RPS_DEBUG_OUTOPTMAC(Dopt) case RPS_DEBUG_##Dopt: fputs(#Dopt,dbgf); break;
+      RPS_DEBUG_OPTIONS (RPS_DEBUG_OUTOPTMAC)
+#undef RPS_DEBUG_OUTOPTMAC
+    }
+  fprintf (dbgf, "@%.2f:", rps_clocktime (CLOCK_REALTIME));
+  va_list arglst;
+  va_start (arglst, fmt);
+  vfprintf (dbgf, fmt, arglst);
+  va_end (arglst);
+  fputc ('\n', dbgf);
+  if (wantbacktrace)
+    {
+      fputs ("|||\n", dbgf);
+      rps_backtrace_print (rps_backtrace_common_state, 1, dbgf);
+      fputc ('\n', dbgf);
+    }
+  fflush (dbgf);
+  funlockfile (dbgf);
+}				/* end rps_debug_printf_at */
+
 
 
 double
