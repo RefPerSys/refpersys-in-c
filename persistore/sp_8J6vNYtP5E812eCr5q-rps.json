@@ -20,7 +20,7 @@
 ///!!! prologue of RefPerSys space file:
 {
  "format" : "RefPerSysFormat2021A",
- "nbobjects" : 195,
+ "nbobjects" : 196,
  "spaceid" : "_8J6vNYtP5E812eCr5q"
 }
 
@@ -2945,6 +2945,22 @@
 }
 //-ob_6vcJz35mTam01zYLjL
 
+
+//+ob_6FSANbZbPmZNb2JeVi
+//∈named_selector
+{
+ "attrs" : 
+ [
+  {
+   "at" : "_1EBVGSfW2m200z18rx",
+   "va" : "dump_object"
+  }
+ ],
+ "class" : "_0cSUtWqTYdZ00mjeNR",
+ "mtime" : 1588063841.5,
+ "oid" : "_6FSANbZbPmZNb2JeVi"
+}
+//-ob_6FSANbZbPmZNb2JeVi
 
 //+ob_6JbWqOsjX5T03M1eGM
 //∈symbol

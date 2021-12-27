@@ -67,6 +67,10 @@
    "obj" : "_0Z23UbC0G9b01WZZPN"
   },
   {
+   "nam" : "dump_object",
+   "obj" : "_6FSANbZbPmZNb2JeVi"
+  },
+  {
    "nam" : "meta_variable",
    "obj" : "_1oPsaaqITVi03OYZb9"
   },
@@ -223,6 +227,7 @@
   "_6gxiw0snqrX01tZWW9",
   "_6ulDdOP2ZNr001cqVZ",
   "_6vcJz35mTam01zYLjL",
+     "_6FSANbZbPmZNb2JeVi",
   "_6JbWqOsjX5T03M1eGM",
   "_6JYterg6iAu00cV9Ye",
   "_6NVM7sMcITg01ug5TC",
@@ -250,7 +255,7 @@
  "origitid" : "e8af0c67e8da2dbf13e13d0bc52a2d33e0b86d86",
  "plugins" : [],
  "spaceset" : [ "_8J6vNYtP5E812eCr5q" ],
- "totalobjectnumber" : 195
+ "totalobjectnumber" : 196
 }
 
 //// end of RefPerSys manifest file
