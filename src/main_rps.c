@@ -38,6 +38,7 @@
 bool rps_running_in_batch;
 bool rps_showing_version;
 bool rps_showing_types;
+bool rps_showing_debug_help;
 bool rps_with_gui;
 
 /* The following terminal globals are declared in include/terminal_rps.h */
@@ -51,6 +52,9 @@ const char *rps_progname;
 void *rps_dlhandle;
 const char *rps_load_directory;
 const char *rps_dump_directory;
+const char *rps_debug_str_load;
+const char *rps_debug_str_after;
+
 int rps_nb_threads;
 GOptionEntry rps_gopt_entries[] = {
   {"load-directory", 'L', 0, G_OPTION_ARG_FILENAME, &rps_load_directory,
@@ -65,6 +69,12 @@ GOptionEntry rps_gopt_entries[] = {
    "dump heap into directory DIR", "DIR"},
   {"nb-threads", 'T', 0, G_OPTION_ARG_INT, &rps_nb_threads,
    "set number of agenda threads to NBTHREADS", "NBTHREADS"},
+  {"debug-load", 0, 0, G_OPTION_ARG_STRING, &rps_debug_str_load,
+   "set debugging flags for loading to DBGFLAGS", "DBGFLAGS"},
+  {"debug-after", 0, 0, G_OPTION_ARG_STRING, &rps_debug_str_after,
+   "set debugging flags after loading to DBGFLAGS", "DBGFLAGS"},
+  {"debug-help", 0, 0, G_OPTION_ARG_NONE, &rps_showing_debug_help,
+   "show possible debug levels", NULL},
   {"gui", 'G', 0, G_OPTION_ARG_NONE, &rps_with_gui,
    "start a graphical interface with GTK", NULL},
   {NULL}
@@ -94,6 +104,37 @@ rps_hostname (void)
     gethostname (hnambuf, sizeof (hnambuf) - 1);
   return hnambuf;
 }				// end rps_hostname
+
+
+
+void
+rps_set_debug (const char *dbglev)
+{
+  if (!dbglev)
+    return;
+  const char *comma = NULL;
+  char dbglevstr[32];
+  for (const char *pc = dbglev; pc; pc = comma ? (comma + 1) : NULL)
+    {
+      comma = strchr (pc, ',');
+      memset (dbglevstr, 0, sizeof (dbglevstr));
+      if (comma)
+	strncpy (dbglevstr, pc,
+		 ((comma - pc) <
+		  sizeof (dbglevstr)) ? (comma - pc) : (sizeof (dbglevstr) -
+							1));
+      else
+	strncpy (dbglevstr, pc, sizeof (dbglevstr) - 1);
+      dbglevstr[sizeof (dbglevstr) - 1] = (char) 0;
+#define RPS_SETDEBUGMAC(Opt) if (!strcmp(#Opt,dbglevstr)) {	\
+      rps_debug_flags |= RPS_DEBUG_##Opt;			\
+      printf("debug flag " #Opt "\n");				\
+    }
+      RPS_DEBUG_OPTIONS (RPS_SETDEBUGMAC);
+#undef RPS_SETDEBUGMAC
+    }
+}				/* end rps_set_debug */
+
 
 void
 rps_show_version_info (int argc, char **argv)
@@ -412,6 +453,8 @@ rps_gettid (void)
 }				/* end rps_gettid */
 
 
+static long rps_dbgcnt;
+
 void
 rps_debug_printf_at (const char *filname, int fline, enum Rps_Debug dbgopt,
 		     const char *fmt, ...)
@@ -451,7 +494,9 @@ rps_debug_printf_at (const char *filname, int fline, enum Rps_Debug dbgopt,
 		// U+2046 RIGHT SQUARE BRACKET WITH QUILL
 		, thrbuf, (int) rps_gettid ());
     }
-  fprintf (dbgf, "°%s°%s:%d:", threadbfr, filname, fline);
+  if (rps_dbgcnt % 16 == 0)
+    fputc ('\n', dbgf);
+  fprintf (dbgf, "°%s°%s:%d#%ld", threadbfr, filname, fline, rps_dbgcnt);
   switch (dbgopt)
     {
 #define RPS_DEBUG_OUTOPTMAC(Dopt) case RPS_DEBUG_##Dopt: fputs(#Dopt,dbgf); break;
@@ -471,6 +516,7 @@ rps_debug_printf_at (const char *filname, int fline, enum Rps_Debug dbgopt,
       fputc ('\n', dbgf);
     }
   fflush (dbgf);
+  rps_dbgcnt++;
   funlockfile (dbgf);
 }				/* end rps_debug_printf_at */
 
@@ -614,6 +660,15 @@ main (int argc, char **argv)
       rps_show_version_info (argc, argv);
       exit (EXIT_SUCCESS);
     };
+  if (rps_showing_debug_help)
+    {
+      printf ("%s: possible debug levels are", rps_progname);
+#define RPS_DEBUG_OUTSHOWMAC(Dopt) fputs(" " #Dopt, stdout);
+      RPS_DEBUG_OPTIONS (RPS_DEBUG_OUTSHOWMAC);
+#undef RPS_DEBUG_OUTSHOWMAC
+      putchar ('\n');
+      fflush (NULL);
+    };
   if (rps_showing_types)
     {
       rps_show_types_info ();
@@ -637,7 +692,17 @@ main (int argc, char **argv)
       rps_terminal_has_stderr = isatty (STDERR_FILENO);
       rps_terminal_has_stdout = isatty (STDOUT_FILENO);
     }
+  if (rps_debug_str_load)
+    {
+      printf ("setting debug before load to %s\n", rps_debug_str_load);
+      rps_set_debug (rps_debug_str_load);
+    }
   rps_load_initial_heap ();
+  if (rps_debug_str_after)
+    {
+      printf ("setting debug after load to %s\n", rps_debug_str_after);
+      rps_set_debug (rps_debug_str_after);
+    }
   if (rps_nb_threads > 0)
     rps_run_agenda (rps_nb_threads);
   if (rps_with_gui)

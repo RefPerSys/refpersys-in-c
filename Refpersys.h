@@ -144,22 +144,19 @@ extern int64_t rps_prime_below (int64_t n);
 extern void rps_set_debug (const char *dbglev);
 
 /// keep the debug options in alphabetical order
-#define RPS_DEBUG_OPTIONS(dbgmacro) \
-  dbgmacro(CMD)                     \
-  dbgmacro(DUMP)                    \
-  dbgmacro(GARBAGE_COLLECTOR)       \
-  dbgmacro(GENERATED_CODE)          \
-  dbgmacro(WEB)                     \
-  dbgmacro(LOAD)                    \
-  dbgmacro(LOWREP)                  \
-  dbgmacro(MISC)                    \
-  dbgmacro(MSGSEND)                 \
-  dbgmacro(PARSE)                   \
-  dbgmacro(PARSE_STRING)            \
-  dbgmacro(REPL)                    \
-  dbgmacro(COMPL_REPL)              \
-  dbgmacro(LOW_REPL)                \
-  dbgmacro(GUI)                     \
+#define RPS_DEBUG_OPTIONS(dbgmacro)		\
+  dbgmacro(CMD)					\
+  dbgmacro(CODEGEN)				\
+  dbgmacro(DUMP)				\
+  dbgmacro(GARBCOLL)				\
+  dbgmacro(GUI)                                 \
+  dbgmacro(LOAD)				\
+  dbgmacro(LOWREP)				\
+  dbgmacro(MISC)				\
+  dbgmacro(MSGSEND)				\
+  dbgmacro(PARSE)				\
+  dbgmacro(REPL)				\
+  dbgmacro(WEB)
 				/*end RPS_DEBUG_OPTIONS */
 
 #define RPS_DEBUG_OPTION_DEFINE(dbgopt) RPS_DEBUG_##dbgopt,
