@@ -612,6 +612,12 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 	      return (RpsValue_t) clos;
 	    }
 	}
+      else if (!strcmp (strvtyp, "string"))
+	{
+	  json_t *jstr = json_object_get (jv, "string");
+	  if (json_is_string (jstr))
+	    return (RpsValue_t) rps_alloc_string (jstr);
+	}
       else if (!strcmp (strvtyp, "json"))
 	{
 	  return rps_alloc_json (json_object_get (jv, "json"));
