@@ -103,6 +103,10 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
   RPS_ASSERT (ob && rps_is_valid_object (ob));
   RPS_ASSERT (du->du_spaceht
 	      && du->du_spaceht->htbob_magic == RPS_HTBOB_MAGIC);
+  char oidbuf[32];
+  memset (oidbuf, 0, sizeof (oidbuf));
+  rps_oid_to_cbuf (ob->ob_id, oidbuf);
+  RPS_NLDEBUG (DUMP, "start scan-internal-ob %s", oidbuf);
   pthread_mutex_lock (&ob->ob_mtx);
   rps_dumper_scan_object (du, ob->ob_class);
   if (ob->ob_space)
@@ -152,6 +156,7 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
   };
 end:
   pthread_mutex_unlock (&ob->ob_mtx);
+  RPS_DEBUG (DUMP, "end scan-internal-ob %s\n", oidbuf);
 }				/* end rps_dumper_scan_internal_object */
 
 
@@ -164,6 +169,8 @@ rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
   if (depth > RPS_MAX_VALUE_DEPTH)
     RPS_FATAL ("too deep %u value to scan @%p", depth, (void *) val);
   enum RpsType vtyp = rps_value_type (val);
+  RPS_DEBUG_PRINTF (DUMP, "scan-val depth %u val %s %#lx", depth,
+		    rps_value_str ((int) vtyp), val);
   switch (vtyp)
     {
     case RPS_TYPE_INT:
@@ -223,6 +230,9 @@ rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
   if (!ob)
     return;
   RPS_ASSERT (rps_is_valid_object (ob));
+  char obid[32];
+  memset (obid, 0, sizeof (obid));
+  rps_oid_to_cbuf (ob->ob_id, obid);
   bool absent = rps_hash_tbl_ob_add (du->du_visitedht, ob);
   if (ob->ob_space)
     (void) rps_hash_tbl_ob_add (du->du_spaceht, ob->ob_space);
@@ -233,6 +243,10 @@ rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
     {
       rps_payldeque_push_last (du->du_deque, ob);
     }
+  if (absent)
+    RPS_DEBUG_PRINTF (DUMP, "scan new object %s", obid);
+  else
+    RPS_DEBUG_PRINTF (DUMP, "scan known object %s", obid);
 }				/* end rps_dumper_scan_object */
 
 void
@@ -245,6 +259,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   char spacid[32];
   memset (spacid, 0, sizeof (spacid));
   rps_oid_to_cbuf (spacob->ob_id, spacid);
+  RPS_NLDEBUG_PRINTF (DUMP, "start dump-one-space spix#%d %s", spix, spacid);
   char filnambuf[128];
   memset (filnambuf, 0, sizeof (filnambuf));
   snprintf (filnambuf, sizeof (filnambuf), "persistore/sp%s-rps.json",
@@ -293,6 +308,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
       fflush (spfil);
     }
   du->du_htcurspace = NULL;
+  RPS_DEBUG_PRINTF (DUMP, "end dump-one-space spix#%d %s\n", spix, spacid);
 }				/* end rps_dump_one_space */
 
 json_t *
@@ -324,7 +340,17 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       jres = json_integer (rps_value_to_integer (val));
       break;
     case RPS_TYPE_STRING:
-      jres = json_string (rps_stringv_utf8bytes (val));
+      {
+	const char *by = rps_stringv_utf8bytes (val);
+	if (by && by[0] != '_')
+	  jres = json_string (by);
+	else
+	  {
+	    jres = json_object ();
+	    json_object_set (jres, "vtype", json_string ("string"));
+	    json_object_set (jres, "string", json_string (by));
+	  }
+      }
       break;
     case RPS_TYPE_JSON:
       jres = json_object ();
@@ -513,6 +539,7 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
 {
   if (!dirn)
     dirn = rps_dump_directory;
+  RPS_DEBUG_NLPRINTF (DUMP, "| start dumping to %s", dirn);
   if (rps_agenda_is_running ())
     RPS_FATAL ("cannot dump heap into %s while agenda is running", dirn);
   RpsDumper_t *dumper = NULL;
