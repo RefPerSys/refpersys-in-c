@@ -60,7 +60,7 @@ GOptionEntry rps_gopt_entries[] = {
   {"version", 0, 0, G_OPTION_ARG_NONE, &rps_showing_version,
    "show version information and default options", NULL},
   {"show-types", 0, 0, G_OPTION_ARG_NONE, &rps_showing_types,
-   "show type information", NULL},
+   "show type information and more (some random oids)", NULL},
   {"dump", 'D', 0, G_OPTION_ARG_FILENAME, &rps_dump_directory,
    "dump heap into directory DIR", "DIR"},
   {"nb-threads", 'T', 0, G_OPTION_ARG_INT, &rps_nb_threads,
