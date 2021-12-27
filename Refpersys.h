@@ -230,6 +230,9 @@ enum RpsType
   RPS_TYPE__LAST
 };
 
+
+const char *rps_type_str (int ty);
+
 /* maximal value depth before encountering objects:*/
 #define RPS_MAX_VALUE_DEPTH 64
 

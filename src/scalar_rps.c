@@ -80,6 +80,70 @@ rps_hash_cstr (const char *s)
   return h;
 }				/* end rps_hash_cstr */
 
+
+const char *
+rps_type_str (int ty)
+{
+  switch (ty)
+    {
+    case RPS_TYPE__NONE:
+      return "?None?";
+    case RPS_TYPE_INT:
+      return "Int";
+    case RPS_TYPE_DOUBLE:
+      return "Double";
+    case RPS_TYPE_STRING:
+      return "String";
+    case RPS_TYPE_JSON:
+      return "Json";
+    case RPS_TYPE_GTKWIDGET:
+      return "GtkWidget";
+    case RPS_TYPE_TUPLE:
+      return "Tuple";
+    case RPS_TYPE_SET:
+      return "Set";
+    case RPS_TYPE_CLOSURE:
+      return "Closure";
+    case RPS_TYPE_OBJECT:
+      return "Object";
+    case -RpsPyt_CallFrame:
+      return "/CallFrame";
+    case -RpsPyt_Loader:
+      return "/Loader";
+    case -RpsPyt_AttrTable:
+      return "/AttrTable";
+    case -RpsPyt_StringBuf:
+      return "/StringBuf";
+    case -RpsPyt_Symbol:
+      return "/Symbol";
+    case -RpsPyt_ClassInfo:
+      return "/ClassInfo";
+    case -RpsPyt_MutableSetOb:
+      return "/MutableSetOb";
+    case -RpsPyt_DequeOb:
+      return "/DequeOb";
+    case -RpsPyt_Tasklet:
+      return "/Tasklet";
+    case -RpsPyt_Agenda:
+      return "/Agenda";
+    case -RpsPyt_StringDict:
+      return "/StringDict";
+    case -RpsPyt_HashTblObj:
+      return "/HashTblObj";
+    case -RpsPyt_Space:
+      return "/Space";
+    case -RpsPyt_Dumper:
+      return "/Dumper";
+    default:
+      {
+	static _Thread_local char buf[16];
+	memset (buf, 0, sizeof (buf));
+	snprintf (buf, sizeof (buf), "??ty%d?", ty);
+	return buf;
+      }
+    }
+}				/* end rps_type_str */
+
 RpsHash_t
 rps_hash_double (double x)
 {
