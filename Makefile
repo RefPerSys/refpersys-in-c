@@ -125,4 +125,4 @@ refpersys: objects $(RPS_TSTAMP).o
 ## a test for dumping
 testdump: refpersys
 	-/bin/rm -rf /tmp/rpsdump
-	./refpersys -D /tmp/rpsdump
+	./refpersys --debug-after=DUMP --dump=/tmp/rpsdump
