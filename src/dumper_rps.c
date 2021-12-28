@@ -607,8 +607,7 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
     rps_hash_tbl_set_elements (dumper->du_spaceht);
   unsigned nbspace = rps_set_cardinal (spaceset);
   unsigned nbobj = rps_set_cardinal (universet);
-  printf ("dump_heap nbspace=%u nbobj=%u [%s:%d]\n", nbspace, nbobj, __FILE__,
-	  __LINE__);
+  RPS_DEBUG_NLPRINTF(DUMP,"dump_heap nbspace=%u nbobj=%u\n", nbspace, nbobj);
   /* Temporarily we cannot deal with many spaces.... Should be fixed
      by generating C code later... */
   if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
