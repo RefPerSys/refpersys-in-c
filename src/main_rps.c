@@ -127,7 +127,7 @@ rps_set_debug (const char *dbglev)
 	strncpy (dbglevstr, pc, sizeof (dbglevstr) - 1);
       dbglevstr[sizeof (dbglevstr) - 1] = (char) 0;
 #define RPS_SETDEBUGMAC(Opt) if (!strcmp(#Opt,dbglevstr)) {	\
-      rps_debug_flags |= RPS_DEBUG_##Opt;			\
+      rps_debug_flags |= 1 << RPS_DEBUG_##Opt;			\
       printf("debug flag " #Opt "\n");				\
     }
       RPS_DEBUG_OPTIONS (RPS_SETDEBUGMAC);
@@ -496,7 +496,7 @@ rps_debug_printf_at (const char *filname, int fline, enum Rps_Debug dbgopt,
     }
   if (rps_dbgcnt % 16 == 0)
     fputc ('\n', dbgf);
-  fprintf (dbgf, "°%s°%s:%d#%ld", threadbfr, filname, fline, rps_dbgcnt);
+  fprintf (dbgf, "°%s°%s:%d#%ld;", threadbfr, filname, fline, rps_dbgcnt);
   switch (dbgopt)
     {
 #define RPS_DEBUG_OUTOPTMAC(Dopt) case RPS_DEBUG_##Dopt: fputs(#Dopt,dbgf); break;
