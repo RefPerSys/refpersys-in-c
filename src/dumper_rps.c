@@ -276,12 +276,24 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
     {
       const RpsObject_t *curob = rps_set_nth_member (universet, oix);
       RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) curob));
+      char curid[32];
+      memset (curid, 0, sizeof (curid));
+      rps_oid_to_cbuf (spacob->ob_id, curid);
       bool goodob = false;
       pthread_mutex_lock (&((RpsObject_t *) curob)->ob_mtx);
       goodob = curob->ob_space == spacob;
       pthread_mutex_unlock (&((RpsObject_t *) curob)->ob_mtx);
       if (goodob)
-	rps_hash_tbl_ob_add (du->du_htcurspace, (RpsObject_t *) curob);
+	{
+	  rps_hash_tbl_ob_add (du->du_htcurspace, (RpsObject_t *) curob);
+	  RPS_DEBUG_PRINTF (DUMP,
+			    " dump-one-space spix#%d oix#%d goodob id %s",
+			    spix, oix, curid);
+	}
+      else
+	RPS_DEBUG_PRINTF (DUMP,
+			  " dump-one-space spix#%d oix#%d otherob id %s",
+			  spix, oix, curid);
     };
   const RpsSetOb_t *curspaceset =
     rps_hash_tbl_set_elements (du->du_htcurspace);
@@ -405,10 +417,11 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	for (int ix = 0; ix < (int) clsiz; ix++)
 	  {
 	    json_t *jsclval =	//
-	      rps_dump_json_for_object 
-	      (du,
-	       rps_closure_get_closed_value ((const RpsClosure_t  *) val,
-					     ix));
+	      rps_dump_json_for_object (du,
+					rps_closure_get_closed_value ((const
+								       RpsClosure_t
+								       *) val,
+								      ix));
 	    json_array_append_new (jsclarr, jsclval);
 	  }
 	RpsValue_t clmeta = rps_closure_meta ((const RpsClosure_t *) val);
@@ -589,25 +602,25 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
       memset (oidbuf, 0, sizeof (oidbuf));
       scancnt++;
       rps_oid_to_cbuf (curob->ob_id, oidbuf);
-      printf ("dump scan internal#%ld oid %s %s remaining %d [%s:%d]\n",
-	      scancnt, oidbuf,
-	      curob->ob_space ? "!" : "°",
-	      rps_payldeque_length (dumper->du_deque), __FILE__, __LINE__);
+      RPS_DEBUG_PRINTF (DUMP, "dump scan internal#%ld oid %s %s remaining %d",
+			scancnt, oidbuf,
+			curob->ob_space ? "!" : "°",
+			rps_payldeque_length (dumper->du_deque));
       rps_dumper_scan_internal_object (dumper, curob);
       if (scancnt % 16 == 0)
 	{
 	  RPS_ASSERT (rps_hash_tbl_ob_cardinal (dumper->du_spaceht) > 0);
 	  RPS_ASSERT (rps_hash_tbl_ob_cardinal (dumper->du_visitedht) > 0);
-	  putchar ('\n');	/* to ease debugging. TODO, remove it! */
 	}
-    };
+    };				/* end while du_deque not empty */
   const RpsSetOb_t *universet =
     rps_hash_tbl_set_elements (dumper->du_visitedht);
   const RpsSetOb_t *spaceset =	//
     rps_hash_tbl_set_elements (dumper->du_spaceht);
   unsigned nbspace = rps_set_cardinal (spaceset);
   unsigned nbobj = rps_set_cardinal (universet);
-  RPS_DEBUG_NLPRINTF(DUMP,"dump_heap nbspace=%u nbobj=%u\n", nbspace, nbobj);
+  RPS_DEBUG_NLPRINTF (DUMP, "dump_heap nbspace=%u nbobj=%u\n", nbspace,
+		      nbobj);
   /* Temporarily we cannot deal with many spaces.... Should be fixed
      by generating C code later... */
   if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
