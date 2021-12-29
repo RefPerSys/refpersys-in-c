@@ -30,6 +30,8 @@
 #include "Refpersys.h"
 /* for mallopt: */
 #include <malloc.h>
+/* https://www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html */
+#include <printf.h>
 /* for KLIB,  Adelson-Velsky and Landis generic balanced trees from
     http://attractivechaos.github.io/klib/ see also
     https://en.wikipedia.org/wiki/AVL_tree */
@@ -81,6 +83,35 @@ GOptionEntry rps_gopt_entries[] = {
 };
 
 extern void rps_show_types_info (void);
+
+
+
+//////////////////////////////////////////////////////////////////
+//// printf customization: %V prints a value
+int
+rps_custom_print_value (FILE * oute, const struct printf_info *info,
+			const void *const *args)
+{
+}				/* end rps_custom_print_value */
+
+int
+rps_custom_arginfo_value (const struct printf_info *info, size_t n,
+			  int *argtypes)
+{
+}				/* end rps_custom_arginfo_value */
+
+//// printf customization: %O prints an object by its oid
+int
+rps_custom_print_object (FILE * oute, const struct printf_info *info,
+			 const void *const *args)
+{
+}				/* end rps_custom_print_object */
+
+int
+rps_custom_arginfo_object (const struct printf_info *info, size_t n,
+			   int *argtypes)
+{
+}				/* end rps_custom_arginfo_object */
 
 //////////////////////////////////////////////////////////////////
 /// C code can refer to root objects
