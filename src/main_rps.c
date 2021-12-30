@@ -213,6 +213,18 @@ rps_custom_print_value (FILE * outf, const struct printf_info *info,
 	return ln;
       }
     case RPS_TYPE_GTKWIDGET:
+      {
+	GtkWidget *widg = rps_gtk_widget_value (val);
+	RPS_ASSERT (widg != NULL);
+	GtkWidgetClass *wcla = GTK_WIDGET_GET_CLASS (widg);
+	RPS_ASSERT (wcla != NULL);
+	char buf[64];
+	memset (buf, 0, sizeof (buf));
+	snprintf (buf, sizeof (buf), "%s@%p",
+		  gtk_widget_class_get_css_name (wcla), widg);
+	int ln = fprintf (outf, "GTKWIDGET %s", buf);
+	return ln;
+      }
     case RPS_TYPE_TUPLE:
     case RPS_TYPE_SET:
     case RPS_TYPE_CLOSURE:
