@@ -398,7 +398,7 @@ rps_alloc_gtk_widget (GtkWidget * widg)
   RpsGtkWidget_t *vw = RPS_NULL_VALUE;
   RpsHash_t h = 0;
   if (widg == NULL)
-    return NULL;
+    return RPS_NULL_VALUE;
   vw = RPS_ALLOC_ZONE (sizeof (RpsGtkWidget_t), RPS_TYPE_GTKWIDGET);
   h = 17 + (((uintptr_t) widg) % 45000931);
   if (h == 0)
