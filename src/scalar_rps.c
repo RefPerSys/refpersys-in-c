@@ -360,7 +360,27 @@ rps_json_hash (const json_t * js)
   return h;
 }				/* end rps_json_hash */
 
+const RpsFile_t *
+rps_alloc_plain_file (FILE * f)
+{
+  if (!f)
+    return NULL;
+  RpsFile_t *vf = RPS_ALLOC_ZONE (sizeof (RpsFile_t), RPS_TYPE_FILE);
+  RpsHash_t h = ((uintptr_t) f % 1234567927) + 17;
+  RPS_ASSERT (h > 0);
+  vf->zv_hash = (RpsHash_t) h;
+  vf->fileh = f;
+  return vf;
+}				/* end rps_alloc_plain_file */
 
+
+FILE *
+rps_file_of_value (RpsValue_t val)
+{
+  if (rps_value_type (val) != RPS_TYPE_FILE)
+    return NULL;
+  return ((RpsFile_t *) val)->fileh;
+}				/* end rps_file_of_value */
 
 const RpsJson_t *
 rps_alloc_json (const json_t * js)

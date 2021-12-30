@@ -594,6 +594,23 @@ intptr_t rps_closure_apply_i (rps_callframe_t * callerframe,
 			      RpsValue_t arg3);
 
 /****************************************************************
+ * Boxed FILE handle.
+ ****************************************************************/
+#define RPSFIELDS_FILE \
+  RPSFIELDS_ZONED_VALUE; \
+  /* we probably need more fields here... */ \
+  FILE*fileh;
+
+struct RpsZoneFile_st
+{
+  RPSFIELDS_FILE;
+};
+typedef struct RpsZoneFile_st RpsFile_t;	/* for RPS_TYPE_FILE */
+// allocate a file handle
+const RpsFile_t *rps_alloc_plain_file (FILE * f);
+FILE *rps_file_of_value (RpsValue_t val);
+
+/****************************************************************
  * Mutable and mutexed heavy objects.
  * ==================================
  *
