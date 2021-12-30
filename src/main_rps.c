@@ -226,7 +226,69 @@ rps_custom_print_value (FILE * outf, const struct printf_info *info,
 	return ln;
       }
     case RPS_TYPE_TUPLE:
+      {
+	const RpsTupleOb_t *tupv = (const RpsTupleOb_t *) val;
+	int ln = 1;
+	if (fputc ('[', outf) < 0)
+	  return -1;
+	int tsiz = (int) rps_vtuple_size (tupv);
+	for (int tix = 0; tix < tsiz; tix++)
+	  {
+	    const RpsObject_t *compob = rps_vtuple_nth (tupv, tix);
+	    if (tix > 0)
+	      {
+		if (fputc (',', outf) < 0)
+		  return ln;
+		ln++;
+	      };
+	    if (!compob)
+	      {
+		if (fputc ('_', outf) < 0)
+		  return ln;
+		ln++;
+	      }
+	    else
+	      {
+		char bufid[32];
+		memset (bufid, 0, sizeof (bufid));
+		rps_oid_to_cbuf (compob->ob_id, bufid);
+		if (fputs (bufid, outf) < 0)
+		  return ln;
+		ln += strlen (bufid);
+	      }
+	  }			/* end for tix in tupv */
+	if (fputc (']', outf) < 0)
+	  return -1;
+	return ln + 1;
+      }
     case RPS_TYPE_SET:
+      {
+	const RpsSetOb_t *setv = (const RpsSetOb_t *) val;
+	int card = (int) rps_set_cardinal (setv);
+	int ln = 1;
+	if (fputc ('{', outf) < 0)
+	  return -1;
+	for (int eix = 0; eix < card; eix++)
+	  {
+	    const RpsObject_t *obelem = rps_set_nth_member (setv, eix);
+	    RPS_ASSERT (obelem != NULL && rps_is_valid_object (obelem));
+	    if (eix > 0)
+	      {
+		if (fputc (';', outf) < 0)
+		  return ln;
+		ln++;
+	      };
+	    char bufid[32];
+	    memset (bufid, 0, sizeof (bufid));
+	    rps_oid_to_cbuf (obelem->ob_id, bufid);
+	    if (fputs (bufid, outf) < 0)
+	      return ln;
+	    ln += strlen (bufid);
+	  }
+	if (fputc ('}', outf) < 0)
+	  return -1;
+	return ln + 1;
+      }
     case RPS_TYPE_CLOSURE:
     case RPS_TYPE_OBJECT:
     case RPS_TYPE_FILE:
