@@ -203,6 +203,15 @@ rps_custom_print_value (FILE * outf, const struct printf_info *info,
 	return ln + 1;
       }
     case RPS_TYPE_JSON:
+      {
+	const json_t *js = rps_json_value (val);
+	RPS_ASSERT (js != NULL);
+	char *jbuf =
+	  json_dumps (js, JSON_COMPACT | JSON_SORT_KEYS | JSON_ENCODE_ANY);
+	int ln = fprintf (outf, "JSON %s", jbuf);
+	free (jbuf);
+	return ln;
+      }
     case RPS_TYPE_GTKWIDGET:
     case RPS_TYPE_TUPLE:
     case RPS_TYPE_SET:
