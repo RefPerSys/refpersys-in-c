@@ -441,7 +441,9 @@ struct RpsZoneGtkWidget_st
   RPSFIELDS_GTKWIDGET;
 };
 typedef struct RpsZoneGtkWidget_st RpsGtkWidget_t;	/* for RPS_GTKWIDGET */
-const RpsGtkWidget_t *rps_alloc_gtk_widget (GtkWidget *);
+RpsValue_t rps_alloc_gtk_widget (GtkWidget *);
+GtkWidget *rps_gtk_widget_value (RpsValue_t val);
+
 // no load routine for GtkWidget
 
 

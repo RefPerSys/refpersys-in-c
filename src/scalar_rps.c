@@ -392,10 +392,10 @@ rps_json_value (RpsValue_t val)
   return vj->json;
 }				/* end rps_json_value */
 
-const RpsGtkWidget_t *
+RpsValue_t
 rps_alloc_gtk_widget (GtkWidget * widg)
 {
-  RpsGtkWidget_t *vw = NULL;
+  RpsGtkWidget_t *vw = RPS_NULL_VALUE;
   RpsHash_t h = 0;
   if (widg == NULL)
     return NULL;
@@ -406,9 +406,17 @@ rps_alloc_gtk_widget (GtkWidget * widg)
   RPS_ASSERT (h != 0);
   vw->zv_hash = h;
   vw->gtk_widget = widg;
-  return vw;
+  return (RpsValue_t) vw;
 }				/* end rps_alloc_gtk_widget */
 
+GtkWidget *
+rps_gtk_widget_value (RpsValue_t val)
+{
+  if (rps_value_type (val) != RPS_TYPE_GTKWIDGET)
+    return NULL;
+  const RpsGtkWidget_t *vw = (RpsGtkWidget_t *) val;
+  return vw->gtk_widget;
+}				/* end rps_gtk_widget_value */
 
 const RpsString_t *
 rps_alloc_string (const char *str)
