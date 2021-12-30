@@ -87,11 +87,131 @@ extern void rps_show_types_info (void);
 
 
 //////////////////////////////////////////////////////////////////
-//// printf customization: %V prints a value
+//// Our printf customization: %V prints a value
+//// See www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html
 int
-rps_custom_print_value (FILE * oute, const struct printf_info *info,
+rps_custom_print_value (FILE * outf, const struct printf_info *info,
 			const void *const *args)
 {
+  RpsValue_t val = *(const RpsValue_t *) (args[0]);
+  if (val == RPS_NULL_VALUE)
+    {
+      if (fputs ("__", outf) < 0)
+	return -1;
+      else
+	return 2;
+    };
+  switch (rps_value_type (val))
+    {
+    case RPS_TYPE_INT:		/* tagged int */
+      {
+	intptr_t iv = rps_tagged_integer_value (val);
+	int ln = fprintf (outf, "%lld", (long long) iv);
+	return ln;
+      }
+    case RPS_TYPE_DOUBLE:
+      {
+	double x = rps_double_value (val);
+	int ln = fprintf (outf, "#%g", x);
+	return ln;
+      }
+    case RPS_TYPE_STRING:
+      {
+	const char *str = rps_stringv_utf8bytes (val);
+	RPS_ASSERT (g_utf8_validate (str, -1, NULL));
+	if (fputc ('"', outf) < 0)
+	  return -1;
+	int ln = 1;
+	for (const char *pc = str; *pc; pc = g_utf8_next_char (pc))
+	  {
+	    gunichar uc = g_utf8_get_char (pc);
+	    switch (uc)
+	      {
+	      case '\"':
+		if (fputs ("\\\"", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\'':
+		if (fputs ("\\'", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\\':
+		if (fputs ("\\\\", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\n':
+		if (fputs ("\\n", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\r':
+		if (fputs ("\\r", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\t':
+		if (fputs ("\\t", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\v':
+		if (fputs ("\\v", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\f':
+		if (fputs ("\\f", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\b':
+		if (fputs ("\\b", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      case '\e':
+		if (fputs ("\\e", outf) < 0)
+		  return -1;
+		ln += 2;
+		break;
+	      default:
+		if (uc < 127)
+		  {
+		    if (fputc ((char) uc, outf) < 0)
+		      return -1;
+		    ln += 1;
+		  }
+		else
+		  {
+		    char cbuf[16];
+		    memset (cbuf, 0, sizeof (cbuf));
+		    int nby = g_utf8_next_char (pc) - pc;
+		    strncpy (cbuf, pc, nby);
+		    int lc = fputs (cbuf, outf);
+		    if (lc < 0)
+		      return -1;
+		    ln += lc;
+		  }
+		break;
+	      }
+	  }
+	if (fputc ('"', outf) < 0)
+	  return -1;
+	return ln + 1;
+      }
+    case RPS_TYPE_JSON:
+    case RPS_TYPE_GTKWIDGET:
+    case RPS_TYPE_TUPLE:
+    case RPS_TYPE_SET:
+    case RPS_TYPE_CLOSURE:
+    case RPS_TYPE_OBJECT:
+    case RPS_TYPE_FILE:
+#warning rps_custom_print_value unimplemented
+      RPS_FATAL ("unimplemented rps_custom_print_value");
+    }
 }				/* end rps_custom_print_value */
 
 int
