@@ -87,13 +87,15 @@ extern void rps_show_types_info (void);
 
 
 //////////////////////////////////////////////////////////////////
+#define RPS_PRINT_MAX_DEPTH 6
 //// Our printf customization: %V prints a value
 //// See www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html
+////
+//// An internal recursive printing function
 int
-rps_custom_print_value (FILE * outf, const struct printf_info *info,
-			const void *const *args)
+rps_rec_print_value (FILE * outf, const struct printf_info *info,
+		     RpsValue_t val, unsigned depth)
 {
-  RpsValue_t val = *(const RpsValue_t *) (args[0]);
   if (val == RPS_NULL_VALUE)
     {
       if (fputs ("__", outf) < 0)
@@ -101,6 +103,8 @@ rps_custom_print_value (FILE * outf, const struct printf_info *info,
       else
 	return 2;
     };
+  if (depth > RPS_PRINT_MAX_DEPTH)
+    return fputs ("?...?", outf);
   switch (rps_value_type (val))
     {
     case RPS_TYPE_INT:		/* tagged int */
@@ -290,12 +294,84 @@ rps_custom_print_value (FILE * outf, const struct printf_info *info,
 	return ln + 1;
       }
     case RPS_TYPE_CLOSURE:
+      {
+	const RpsClosure_t *closv = (const RpsClosure_t *) val;
+	const RpsObject_t *connob = rps_closure_connective (val);
+	RpsValue_t metav = rps_closure_meta (val);
+	int csiz = (int) rps_closure_size (val);
+	RPS_ASSERT (rps_is_valid_object (connob));
+	char bufid[32];
+	memset (bufid, 0, sizeof (bufid));
+	rps_oid_to_cbuf (connob->ob_id, bufid);
+	int ln = fprintf (outf, "CLOSURE %s", bufid);
+	if (ln < 0)
+	  return -1;
+	if (metav != RPS_NULL_VALUE)
+	  {
+	    if (fputs ("µ", outf) > 0)
+	      ln += strlen ("µ");
+	    else
+	      return -1;
+	    int lmeta = rps_rec_print_value (outf, info, metav, 2 + depth);
+	    if (lmeta > 0)
+	      ln += lmeta;
+	  };
+	if (fputs ("(", outf) > 0)
+	  ln += 1;
+	else
+	  return -1;
+	for (int cix = 0; cix < csiz; cix++)
+	  {
+	    RpsValue_t clv = rps_closure_get_closed_value (val, cix);
+	    if (cix > 0)
+	      if (fputs (",", outf) > 0)
+		ln += 1;
+	      else
+		return -1;
+	    int lclo = rps_rec_print_value (outf, info, clv, 1 + depth);
+	    if (lclo < 0)
+	      return -1;
+	    ln += lclo;
+	  }
+	if (fputs (")", outf) > 0)
+	  ln += 1;
+	else
+	  return -1;
+	return ln;
+      }
     case RPS_TYPE_OBJECT:
+      {
+	const RpsObject_t *ob = (const RpsObject_t *) val;
+	char bufid[32];
+	memset (bufid, 0, sizeof (bufid));
+	rps_oid_to_cbuf (ob->ob_id, bufid);
+	int lob = fputs (bufid, outf);
+	if (lob < 0)
+	  return -1;
+	return lob;
+      }
     case RPS_TYPE_FILE:
-#warning rps_custom_print_value unimplemented
-      RPS_FATAL ("unimplemented rps_custom_print_value");
+      {
+	const RpsFile_t *filv = (const RpsFile_t *) val;
+	int fd = fileno (filv);
+	if (fd > 0)
+	  return fprintf (outf, "FILE#%d", fd);
+	else
+	  return fprintf (outf, "FILE@%p", filv);
+      }
+    default:
+      return fprintf (outf, "BOGUS %p", (void *) val);
     }
-}				/* end rps_custom_print_value */
+}				/* end rps_rec_print_value */
+
+//// Our printf customization: %V prints a value
+//// See www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html
+int
+rps_custom_print_value (FILE * outf, const struct printf_info *info,
+			RpsValue_t val)
+{
+  return rps_rec_print_value (outf, info, val, 0);
+}
 
 int
 rps_custom_arginfo_value (const struct printf_info *info, size_t n,
@@ -959,7 +1035,7 @@ rps_value_compute_method_closure (RpsValue_t val, const RpsObject_t * selob)
   const char *clidstr = NULL;
   if (val == RPS_NULL_VALUE)
     return NULL;
-  if (!selob || !rps_is_valid_object (selob))
+  if (!selob || !rps_is_valid_object ((RpsObject_t *) selob))
     return NULL;
   memset (smallbuf, 0, sizeof (smallbuf));
   switch (rps_value_type (val))
