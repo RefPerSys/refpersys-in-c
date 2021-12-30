@@ -380,7 +380,8 @@ RpsHash_t rps_hash_double (double x);
 const RpsDouble_t *rps_alloc_boxed_double (double x);
 // load a boxed double
 const RpsDouble_t *rps_load_boxed_double (json_t * js, RpsLoader_t * ld);
-
+// return NAN if not double
+double rps_double_value (RpsValue_t val);
 
 
 /****************************************************************

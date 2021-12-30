@@ -171,6 +171,15 @@ rps_alloc_boxed_double (double x)
   return dblv;
 }				/* end rps_alloc_boxed_double */
 
+double
+rps_double_value (RpsValue_t val)
+{
+  if (rps_value_type (val) != RPS_TYPE_DOUBLE)
+    return NAN;
+  const RpsDouble_t *dv = (const RpsDouble_t *) val;
+  return dv->dbl_val;
+}				/* end rps_double_value */
+
 RpsValue_t
 rps_tagged_integer_value (intptr_t i)
 {
