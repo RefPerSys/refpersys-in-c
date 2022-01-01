@@ -8,7 +8,7 @@
  *      It supports objects
  *
  *
- *      © Copyright 2019 - 2021 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2022 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -827,6 +827,28 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
 }				/* end rps_get_loaded_object_by_oid */
 
 
+/// function to dump object attributes, has a signature compatible with rps_apply_dumpj_sigt
+RpsValue_t
+rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
+				const RpsClosure_t * clos,
+				RpsDumper_t * du,
+				RpsValue_t dumpedobv, json_t * js)
+{
+  RPS_FATAL ("unimplemented rpscloj_dump_object_attributes");
+#warning unimplemented rpscloj_dump_object_attributes
+}				/* end of rpscloj_dump_object_attributes */
+
+
+/// function to dump object components, has a signature compatible with rps_apply_dumpj_sigt
+RpsValue_t
+rpscloj_dump_object_components (rps_callframe_t * callerframe,
+				const RpsClosure_t * clos,
+				RpsDumper_t * du,
+				RpsValue_t dumpedobv, json_t * js)
+{
+  RPS_FATAL ("unimplemented rpscloj_dump_object_components");
+#warning unimplemented rpscloj_dump_object_components
+}				/* end of rpscloj_dump_object_attributes */
 
 
 static pthread_mutex_t rps_payload_mtx =
