@@ -250,7 +250,7 @@ rps_attr_table_find (const RpsAttrTable_t * tbl, RpsObject_t * obattr)
   intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
   unsigned tbllen = tbl->zm_length;
   int lo = 0, hi = (int) tbllen - 1;
-  while (lo < hi + 4)
+  while (lo + 4 < hi)
     {
       int mi = (lo + hi) / 2;
       RpsObject_t *curattr = tbl->attr_entries[mi].ent_attr;
