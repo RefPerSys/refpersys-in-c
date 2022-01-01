@@ -764,8 +764,10 @@ extern RpsAttrTable_t *rps_attr_table_put (RpsAttrTable_t * tbl,
 					   RpsValue_t val);
 extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 					      RpsObject_t * obattr);
-
-
+extern unsigned rps_attr_table_size (const RpsAttrTable_t * tbl);
+extern const RpsSetOb_t *rps_attr_table_set_of_attributes (const
+							   RpsAttrTable_t *
+							   tbl);
 /****************************************************************
  * Owned symbol payload
  ****************************************************************/

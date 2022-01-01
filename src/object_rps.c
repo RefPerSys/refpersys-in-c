@@ -316,6 +316,7 @@ rps_attr_table_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
     return tbl;
   if (!tbl)
     tbl = rps_alloc_empty_attr_table (2);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   if (rps_attr_table_entry_put (tbl, obattr, val))
     return tbl;
   RpsAttrTable_t *old_tbl = tbl;
@@ -341,6 +342,7 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
     return tbl;
   if (!tbl)
     return NULL;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   RpsAttrTable_t *old_tbl = tbl;
   int oldprimix = old_tbl->zm_xtra;
   intptr_t oldtblsiz = rps_prime_of_index (oldprimix);
@@ -407,8 +409,36 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 }				/* end rps_attr_table_remove */
 
 
+unsigned
+rps_attr_table_size (const RpsAttrTable_t * tbl)
+{
+  if (!tbl)
+    return 0;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
+  return tbl->zm_length;
+}				/* end rps_attr_table_size */
 
-
+const RpsSetOb_t *
+rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
+{
+  RpsSetOb_t *setv = NULL;
+  if (!tbl)
+    return NULL;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
+  unsigned tsiz = rps_attr_table_size (tbl);
+  RpsObject_t **obarr =
+    RPS_ALLOC_ZEROED ((tsiz + 1) * sizeof (RpsObject_t *));
+  int cnt = 0;
+  for (int eix = 0; eix < (int) tsiz; eix++)
+    {
+      if (tbl->attr_entries[eix].ent_attr != (RpsObject_t *) NULL
+	  && tbl->attr_entries[eix].ent_attr != RPS_HTB_EMPTY_SLOT)
+	obarr[cnt++] = tbl->attr_entries[eix].ent_attr;
+    };
+  setv = rps_alloc_set_sized (obarr, cnt);
+  free (obarr);
+  return setv;
+}				/* end  rps_attr_table_set_of_attributes */
 
 
 /*****************************************************************
@@ -834,6 +864,13 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
 				RpsDumper_t * du,
 				RpsValue_t dumpedobv, json_t * js)
 {
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (rps_value_type (dumpedobv) == RPS_TYPE_OBJECT);
+  RpsObject_t *obdump = (RpsObject_t *) dumpedobv;
+  RPS_ASSERT (json_is_object (js));
+  if (!obdump->ob_attrtable)
+    return obdump;
+
   RPS_FATAL ("unimplemented rpscloj_dump_object_attributes");
 #warning unimplemented rpscloj_dump_object_attributes
 }				/* end of rpscloj_dump_object_attributes */
@@ -846,6 +883,10 @@ rpscloj_dump_object_components (rps_callframe_t * callerframe,
 				RpsDumper_t * du,
 				RpsValue_t dumpedobv, json_t * js)
 {
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (rps_value_type (dumpedobv) == RPS_TYPE_OBJECT);
+  RpsObject_t *obdump = (RpsObject_t *) dumpedobv;
+  RPS_ASSERT (json_is_object (js));
   RPS_FATAL ("unimplemented rpscloj_dump_object_components");
 #warning unimplemented rpscloj_dump_object_components
 }				/* end of rpscloj_dump_object_attributes */
