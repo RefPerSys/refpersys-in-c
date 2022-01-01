@@ -81,6 +81,28 @@ end:
   return res;
 }				/* end rps_get_object_attribute */
 
+RpsValue_t
+rps_get_object_component (RpsObject_t * obj, int ix)
+{
+  RpsValue_t res = RPS_NULL_VALUE;
+  if (!obj)
+    return RPS_NULL_VALUE;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  pthread_mutex_lock (&obj->ob_mtx);
+  unsigned nbc = obj->ob_nbcomp;
+  RPS_ASSERT (nbc <= obj->ob_compsize);
+  if (ix < 0)
+    ix += (int) nbc;
+  if (ix >= 0 && ix < nbc)
+    {
+      RPS_ASSERT (obj->ob_comparr);
+      res = obj->ob_comparr[ix];
+    };
+end:
+  pthread_mutex_unlock (&obj->ob_mtx);
+  return res;
+}				/* end rps_get_object_component */
+
 void
 rps_put_object_attribute (RpsObject_t * obj, RpsObject_t * obattr,
 			  RpsValue_t val)
@@ -864,12 +886,13 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
 				RpsDumper_t * du,
 				RpsValue_t dumpedobv, json_t * js)
 {
+  /* The dumped object is locked by caller... */
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (rps_value_type (dumpedobv) == RPS_TYPE_OBJECT);
   RpsObject_t *obdump = (RpsObject_t *) dumpedobv;
   RPS_ASSERT (json_is_object (js));
   if (!obdump->ob_attrtable)
-    return obdump;
+    return (RpsValue_t) obdump;
   const RpsSetOb_t *setattrs =
     rps_attr_table_set_of_attributes (obdump->ob_attrtable);
   json_t *jsarr = json_array ();
@@ -890,10 +913,10 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
       json_array_append_new (jsarr, jent);
     }
   // setattrs should not leak, we can free it explicitly
-  memset(setattrs, 0, sizeof(setattrs));
+  memset (setattrs, 0, sizeof (setattrs));
   free (setattrs);
   json_object_set (js, "attributes", jsarr);
-  return obdump;
+  return (RpsValue_t) obdump;
 }				/* end of rpscloj_dump_object_attributes */
 
 
@@ -904,10 +927,19 @@ rpscloj_dump_object_components (rps_callframe_t * callerframe,
 				RpsDumper_t * du,
 				RpsValue_t dumpedobv, json_t * js)
 {
+  /* The dumped object is locked by caller... */
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (rps_value_type (dumpedobv) == RPS_TYPE_OBJECT);
   RpsObject_t *obdump = (RpsObject_t *) dumpedobv;
   RPS_ASSERT (json_is_object (js));
+  unsigned nbc = obdump->ob_nbcomp;
+  if (nbcomp == 0)
+    return (RpsValue_t) obdump;
+  json_t *jsarr = json_array ();
+  for (int cix = 0; cix < (int) nbc; cix++)
+    {
+      RpsValue_t compv = rps_get_object_component (obdump, cix);
+    }
   RPS_FATAL ("unimplemented rpscloj_dump_object_components");
 #warning unimplemented rpscloj_dump_object_components
 }				/* end of rpscloj_dump_object_attributes */

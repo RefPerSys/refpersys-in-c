@@ -677,6 +677,7 @@ extern RpsObject_t *rps_get_loaded_object_by_oid (RpsLoader_t * ld,
 						  const RpsOid oid);
 extern RpsValue_t rps_get_object_attribute (RpsObject_t * ob,
 					    RpsObject_t * obattr);
+extern RpsValue_t rps_get_object_component (RpsObject_t * ob, int ix);
 // In a given object, get its payload if it has type paylty; accepts
 // any payload if paylty is 0.  For example:
 // rps_get_object_payload_of_type(obclass, RpsPyt_ClassInfo);
