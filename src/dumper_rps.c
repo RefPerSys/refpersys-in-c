@@ -12,7 +12,7 @@
  *      Abhishek Chakravarti <abhishek@taranjali.org>
  *      Nimesh Neema <nimeshneema@gmail.com>
  *
- *      © Copyright 2019 - 2021 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2022 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -336,6 +336,53 @@ rps_dump_json_for_object (RpsDumper_t * du, const RpsObject_t * ob)
   return json_string (obidbuf);
 }				/* end rps_dump_json_for_object */
 
+
+bool
+rps_is_dumpable_value (RpsDumper_t * du, RpsValue_t val)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  enum RpsType vtyp = rps_value_type (val);
+  switch (vtyp)
+    {
+    case RPS_TYPE_INT:
+      return true;
+    case RPS_TYPE_STRING:
+      return true;
+    case RPS_TYPE_DOUBLE:
+      return true;
+    case RPS_TYPE_JSON:
+      return true;
+    case RPS_TYPE_GTKWIDGET:
+      return false;
+    case RPS_TYPE_TUPLE:
+      return true;
+    case RPS_TYPE_SET:
+      return true;
+    case RPS_TYPE_CLOSURE:
+      {
+	const RpsClosure_t *closv = val;
+	return rps_is_dumpable_object (du, closv->clos_conn);
+      };
+    case RPS_TYPE_OBJECT:
+      return rps_is_dumpable_object (du, (RpsObject_t *) val);
+    case RPS_TYPE_FILE:
+      return false;
+    default:
+      RPS_FATAL ("corrupted value type#%d for %p", (int) vtyp, (void *) val);
+    }
+}				/* end rps_is_dumpable_value */
+
+bool
+rps_is_dumpable_object (RpsDumper_t * du, RpsObject_t * ob)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (rps_is_valid_object (ob));
+  if (!ob->ob_space)
+    return false;
+#warning rps_is_dumpable_object could test more features.... perhaps lack of some "undumpable" attribute?
+  return true;
+}				/* end of rps_is_dumpable_object */
+
 /// This function should be compatible with conventions followed by
 /// rps_loader_json_to_value function in file loader_rps.c
 json_t *
@@ -350,6 +397,9 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
     {
     case RPS_TYPE_INT:
       jres = json_integer (rps_value_to_integer (val));
+      break;
+    case RPS_TYPE_DOUBLE:
+      jres = json_real (rps_double_value (val));
       break;
     case RPS_TYPE_STRING:
       {
@@ -511,6 +561,9 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   /*** TODO: Use rps_value_compute_method_closure to get a closure
        dumping the object, otherwise do a "physical" dump.
   ***/
+  const RpsClosure_t *dumpclos = rps_value_compute_method_closure (obj,
+								   RPS_ROOT_OB (_6FSANbZbPmZNb2JeVi)	//dump_object
+    );
   fprintf (spfil, "{\n");
   const char *curkey = NULL;
   json_t *jsva = NULL;
