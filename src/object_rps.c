@@ -933,15 +933,17 @@ rpscloj_dump_object_components (rps_callframe_t * callerframe,
   RpsObject_t *obdump = (RpsObject_t *) dumpedobv;
   RPS_ASSERT (json_is_object (js));
   unsigned nbc = obdump->ob_nbcomp;
-  if (nbcomp == 0)
+  if (nbc == 0)
     return (RpsValue_t) obdump;
   json_t *jsarr = json_array ();
   for (int cix = 0; cix < (int) nbc; cix++)
     {
       RpsValue_t compv = rps_get_object_component (obdump, cix);
+      json_t* jva = rps_dump_json_for_value(du, compv, 0);
+      json_array_append_new(jsarr, jva);
     }
-  RPS_FATAL ("unimplemented rpscloj_dump_object_components");
-#warning unimplemented rpscloj_dump_object_components
+  json_object_set(js, "comps", jsarr);
+  return (RpsValue_t) obdump;
 }				/* end of rpscloj_dump_object_attributes */
 
 
