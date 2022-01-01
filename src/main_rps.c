@@ -275,7 +275,8 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	for (int eix = 0; eix < card; eix++)
 	  {
 	    const RpsObject_t *obelem = rps_set_nth_member (setv, eix);
-	    RPS_ASSERT (obelem != NULL && rps_is_valid_object ((RpsObject_t*)obelem));
+	    RPS_ASSERT (obelem != NULL
+			&& rps_is_valid_object ((RpsObject_t *) obelem));
 	    if (eix > 0)
 	      {
 		if (fputc (';', outf) < 0)
@@ -299,7 +300,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	const RpsObject_t *connob = rps_closure_connective (val);
 	RpsValue_t metav = rps_closure_meta (val);
 	int csiz = (int) rps_closure_size (val);
-	RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)connob));
+	RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) connob));
 	char bufid[32];
 	memset (bufid, 0, sizeof (bufid));
 	rps_oid_to_cbuf (connob->ob_id, bufid);
@@ -353,7 +354,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
     case RPS_TYPE_FILE:
       {
 	const RpsFile_t *filv = (const RpsFile_t *) val;
-	FILE*fh = filv->fileh;
+	FILE *fh = filv->fileh;
 	int fd = fileno (fh);
 	if (fd > 0)
 	  return fprintf (outf, "FILE#%d", fd);
@@ -1111,7 +1112,7 @@ rps_value_compute_method_closure (RpsValue_t val, const RpsObject_t * selob)
       clinf = rps_get_object_payload_of_type (clasob, -RpsPyt_ClassInfo);
       if (clinf && clinf->pclass_magic == RPS_CLASSINFO_MAGIC)
 	{
-	  closres = rps_classinfo_get_method (clinf, (RpsObject_t*)selob);
+	  closres = rps_classinfo_get_method (clinf, (RpsObject_t *) selob);
 	}
       if (!closres)
 	{
