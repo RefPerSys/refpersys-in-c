@@ -7,7 +7,7 @@
  *      It is almost its only public C11 header file.
  *
  *
- *      © Copyright 2019 - 2021 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2022 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -242,6 +242,7 @@ typedef uint32_t RpsHash_t;
 
 typedef struct RpsZoneObject_st RpsObject_t;	///// forward declaration
 typedef struct RpsPayl_AttrTable_st RpsAttrTable_t;	//// forward declaration
+typedef struct RpsClosure_st RpsClosure_t;	//// forward declaration
 
 /// callback function, by convention returning false to "stop" or "fail" e.g. some iteration
 typedef bool rps_object_callback_sig_t (RpsObject_t * ob, void *data);
@@ -251,6 +252,7 @@ typedef uintptr_t RpsValue_t;
 
 #define RPS_NULL_VALUE ((RpsValue_t)0)
 extern enum RpsType rps_value_type (RpsValue_t val);
+
 /// the loader internals are in file load_rps.c
 typedef struct RpsPayl_Loader_st RpsLoader_t;	///// forward declaration
 extern bool rps_is_valid_loader (RpsLoader_t * ld);
@@ -593,6 +595,17 @@ intptr_t rps_closure_apply_i (rps_callframe_t * callerframe,
 			      RpsValue_t arg1, RpsValue_t arg2,
 			      RpsValue_t arg3);
 
+/// the dumper needs to apply dumping closures to unboxed and modified
+/// json_t... By convention, the returned value is non-null if JS has
+/// been filled/modified....
+typedef RpsValue_t rps_apply_dumpj_sigt (rps_callframe_t * callerframe,
+					 const RpsClosure_t * clos,
+					 RpsDumper_t * du,
+					 RpsValue_t dumpedval, json_t * js);
+RpsValue_t rps_closure_apply_dumpj (rps_callframe_t * callerframe,
+				    const RpsClosure_t * clos,
+				    RpsDumper_t * du,
+				    RpsValue_t dumpedval, json_t * js);
 /****************************************************************
  * Boxed FILE handle.
  ****************************************************************/
@@ -715,7 +728,8 @@ extern void rps_dump_scan_object_payload (RpsDumper_t * du, RpsObject_t * ob);
 extern void rps_dump_serialize_object_payload (RpsDumper_t * du,
 					       RpsObject_t * ob,
 					       json_t * jsob);
-
+extern bool rps_is_dumpable_value (RpsDumper_t * du, RpsValue_t val);
+extern bool rps_is_dumpable_object (RpsDumper_t * du, RpsObject_t * ob);
 
 /****************************************************************
  * Payload for table of ordered attributes (objects) associated to
