@@ -870,9 +870,30 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
   RPS_ASSERT (json_is_object (js));
   if (!obdump->ob_attrtable)
     return obdump;
-
-  RPS_FATAL ("unimplemented rpscloj_dump_object_attributes");
-#warning unimplemented rpscloj_dump_object_attributes
+  const RpsSetOb_t *setattrs =
+    rps_attr_table_set_of_attributes (obdump->ob_attrtable);
+  json_t *jsarr = json_array ();
+  unsigned nbattrs = rps_set_cardinal (setattrs);
+  if (nbattrs == 0)
+    return obdump;
+  for (int aix = 0; aix < (int) nbattrs; aix++)
+    {
+      const RpsObject_t *obattr = rps_set_nth_member (setattrs, aix);
+      if (!rps_is_dumpable_object (du, obattr))
+	continue;
+      RpsValue_t curval = rps_attr_table_find (obdump->ob_attrtable, obattr);
+      if (!rps_is_dumpable_value (du, curval))
+	continue;
+      json_t *jent = json_object ();
+      json_object_set (jent, "at", rps_dump_json_for_object (du, obattr));
+      json_object_set (jent, "va", rps_dump_json_for_value (du, curval, 1));
+      json_array_append_new (jsarr, jent);
+    }
+  // setattrs should not leak, we can free it explicitly
+  memset(setattrs, 0, sizeof(setattrs));
+  free (setattrs);
+  json_object_set (js, "attributes", jsarr);
+  return obdump;
 }				/* end of rpscloj_dump_object_attributes */
 
 
