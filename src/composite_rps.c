@@ -8,7 +8,7 @@
  *      It supports composite values.
  *
  *
- *      © Copyright 2019 - 2021 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2022 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -438,6 +438,23 @@ rps_closure_apply_vi (rps_callframe_t * callerframe,
   return (*(rps_apply_vi_sigt *) routaddr) (callerframe, clos, arg0, arg1,
 					    arg2, arg3);
 }				/* end rps_closure_apply_vi */
+
+RpsValue_t
+rps_closure_apply_dumpj (rps_callframe_t * callerframe,
+			 const RpsClosure_t * clos,
+			 RpsDumper_t * du, RpsValue_t dumpedval, json_t * js)
+{
+  RPS_ASSERT (callerframe == NULL || callerframe->calfr_descr == NULL
+	      || callerframe->calfr_descr->calfrd_magic == RPS_CALLFRD_MAGIC);
+  if (!clos || rps_value_type ((RpsValue_t) clos) != RPS_TYPE_CLOSURE)
+    return RPS_NULL_VALUE;
+  if (!rps_is_valid_dumper (du))
+    return RPS_NULL_VALUE;
+  if (!js)
+    return RPS_NULL_VALUE;
+  RPS_FATAL ("unimplemented rps_closure_apply_dumpj");
+#warning unimplemented rps_closure_apply_dumpj
+}				/* end rps_closure_apply_dumpj */
 
 RpsTwoValues
 rps_closure_apply_twov (rps_callframe_t * callerframe,
