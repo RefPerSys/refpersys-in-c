@@ -599,9 +599,19 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
     );
   if (dumpclos)
     {
-      _.v.resapply = rps_closure_apply_dumpj ((rps_callframe_t *) & _,
-					      dumpclos,
-					      du, (RpsValue_t) obj, jsob);
+      RPS_DEBUG_PRINTF (DUMP, "dumped object %s before applying dump closure",
+			obidbuf);
+      _.v.resapply =
+	rps_closure_apply_dumpj ((rps_callframe_t *) & _, dumpclos, du,
+				 (RpsValue_t) obj, jsob);
+      RPS_DEBUG_PRINTF (DUMP, "dumped object %s after applying dump closure",
+			obidbuf);
+    }
+  else
+    {
+      RPS_DEBUG_PRINTF (DUMP, "dumped object %s without dump closure",
+			obidbuf);
+#warning should dump using rpscloj_dump_object_components & rpscloj_dump_object_attributes
     }
   fprintf (spfil, "{\n");
   const char *curkey = NULL;
