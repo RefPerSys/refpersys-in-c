@@ -939,10 +939,10 @@ rpscloj_dump_object_components (rps_callframe_t * callerframe,
   for (int cix = 0; cix < (int) nbc; cix++)
     {
       RpsValue_t compv = rps_get_object_component (obdump, cix);
-      json_t* jva = rps_dump_json_for_value(du, compv, 0);
-      json_array_append_new(jsarr, jva);
+      json_t *jva = rps_dump_json_for_value (du, compv, 0);
+      json_array_append_new (jsarr, jva);
     }
-  json_object_set(js, "comps", jsarr);
+  json_object_set (js, "comps", jsarr);
   return (RpsValue_t) obdump;
 }				/* end of rpscloj_dump_object_attributes */
 
