@@ -278,7 +278,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
       RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) curob));
       char curid[32];
       memset (curid, 0, sizeof (curid));
-      rps_oid_to_cbuf (spacob->ob_id, curid);
+      rps_oid_to_cbuf (curob->ob_id, curid);
       bool goodob = false;
       pthread_mutex_lock (&((RpsObject_t *) curob)->ob_mtx);
       goodob = curob->ob_space == spacob;
