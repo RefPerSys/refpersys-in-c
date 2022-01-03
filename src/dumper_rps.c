@@ -431,9 +431,9 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	unsigned tusiz = rps_vtuple_size ((RpsTupleOb_t *) val);
 	for (int ix = 0; ix < (int) tusiz; ix++)
 	  {
-	    json_t *jscomp = rps_dump_json_for_object (du,
-						       rps_vtuple_nth ((RpsTupleOb_t *) val,
-								       ix));
+	    RpsObject_t *curob = rps_vtuple_nth ((RpsTupleOb_t *) val, ix);
+	    json_t *jscomp =	//
+	      rps_dump_json_for_object (du, curob);
 	    json_array_append_new (jsarr, jscomp);
 	  }
       }
@@ -447,8 +447,10 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	unsigned card = rps_set_cardinal ((const RpsSetOb_t *) val);
 	for (int ix = 0; ix < (int) card; ix++)
 	  {
-	    json_t *jscomp = rps_dump_json_for_object (du,
-						       rps_set_nth_member ((const RpsSetOb_t *) val, ix));
+	    RpsObject_t *elemob =	//
+	      rps_set_nth_member ((const RpsSetOb_t *) val, ix);
+	    json_t *jscomp =	//
+	      rps_dump_json_for_object (du, elemob);
 	    json_array_append_new (jsarr, jscomp);
 	  }
       }
@@ -459,22 +461,20 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       {
 	unsigned clsiz = rps_closure_size (val);
 	json_t *jsclarr = json_array ();
-	json_t *jsconn = rps_dump_json_for_object (du,
-						   rps_closure_connective
-						   (val));
+	RpsObject_t *connob = rps_closure_connective (val);
+	json_t *jsconn =	//
+	  rps_dump_json_for_object (du, connob);
 	json_object_set (jres, "env", jsclarr);
 	json_object_set (jres, "fn", jsconn);
 	for (int ix = 0; ix < (int) clsiz; ix++)
 	  {
+	    RpsValue_t curclov =	//
+	      rps_closure_get_closed_value (val, ix);
 	    json_t *jsclval =	//
-	      rps_dump_json_for_object (du,
-					rps_closure_get_closed_value ((const
-								       RpsClosure_t
-								       *) val,
-								      ix));
+	      rps_dump_json_for_object (du, curclov);
 	    json_array_append_new (jsclarr, jsclval);
-	  }
-	RpsValue_t clmeta = rps_closure_meta ((const RpsClosure_t *) val);
+	  };
+	RpsValue_t clmeta = rps_closure_meta (val);
 	if (clmeta != RPS_NULL_VALUE)
 	  {
 	    json_t *jsmeta = rps_dump_json_for_value (du, clmeta, depth + 1);
@@ -484,7 +484,8 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       break;
     case RPS_TYPE_OBJECT:
       {
-	json_t *jsob = rps_dump_json_for_object (du, (RpsObject_t *) val);
+	json_t *jsob =		//
+	  rps_dump_json_for_object (du, (RpsObject_t *) val);
 	jres = json_object ();
 	json_object_set (jres, "vtype", json_string ("object"));
 	json_object_set (jres, "object", jres);
@@ -502,20 +503,50 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 
 
 
+struct rpsdumpobject_values_st
+{
+  RpsClosure_t *dumpclos;
+  RpsValue_t resapply;
+};
+
+struct rpsdumpobject_objects_st
+{
+  RpsObject_t *dumpobj;
+  RpsObject_t *classobj;
+  RpsObject_t *symbobj;
+};
+
+const struct rps_callframedescr_st rpscfd_dumpobject_in_space =	//
+{.calfrd_magic = RPS_CALLFRD_MAGIC,
+  .calfrd_nbvalue =
+    sizeof (struct rpsdumpobject_values_st) / sizeof (RpsValue_t),
+  .calfrd_nbobject =
+    sizeof (struct rpsdumpobject_objects_st) / sizeof (RpsObject_t *)
+};
+
 void
 rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
 			  const RpsObject_t * obj, int oix)
 {
+  /* we need some valid callframe */
+  struct dumpobject_call_frame_st
+  {
+    RPSFIELDS_PAYLOAD_PROTOCALLFRAME;
+    struct rpsdumpobject_values_st v;
+    struct rpsdumpobject_objects_st o;
+  } _;
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
   RPS_ASSERT (spfil != NULL);
   RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) obj));
+  _.o.dumpobj = obj;
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
   pthread_mutex_lock (&(((RpsObject_t *) obj)->ob_mtx));
   fprintf (spfil, "\n\n(//+ob%s\n", obidbuf);
   const RpsObject_t *obclas = obj->ob_class;
+  _.o.classobj = obclas;
   RpsClassInfo_t *paylcla = NULL;
   RpsSymbol_t *paylsycla = NULL;
   char obclaidbuf[32];
@@ -536,6 +567,7 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
 	  -***/
       if (paylcla->pclass_symbol)
 	{
+	  _.o.symbobj = paylcla->pclass_symbol;
 	  /***-
 	      char obsymidbuf[32];
 	      memset (obsymidbuf, 0, sizeof (obsymidbuf));
@@ -561,9 +593,16 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   /*** TODO: Use rps_value_compute_method_closure to get a closure
        dumping the object, otherwise do a "physical" dump.
   ***/
-  const RpsClosure_t *dumpclos = rps_value_compute_method_closure (obj,
-								   RPS_ROOT_OB (_6FSANbZbPmZNb2JeVi)	//dump_object
+  const RpsClosure_t *dumpclos = _.v.dumpclos	//
+    = rps_value_compute_method_closure ((RpsValue_t) obj,	//
+					RPS_ROOT_OB (_6FSANbZbPmZNb2JeVi)	//dump_object
     );
+  if (dumpclos)
+    {
+      _.v.resapply = rps_closure_apply_dumpj ((rps_callframe_t *) & _,
+					      dumpclos,
+					      du, (RpsValue_t) obj, jsob);
+    }
   fprintf (spfil, "{\n");
   const char *curkey = NULL;
   json_t *jsva = NULL;
