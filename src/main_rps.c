@@ -370,8 +370,9 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 //// See www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html
 int
 rps_custom_print_value (FILE * outf, const struct printf_info *info,
-			RpsValue_t val)
+			const void *const *args)
 {
+  RpsValue_t val = (*(const RpsValue_t **) (args[0]));
   return rps_rec_print_value (outf, info, val, 0);
 }
 
@@ -379,19 +380,46 @@ int
 rps_custom_arginfo_value (const struct printf_info *info, size_t n,
 			  int *argtypes)
 {
+  if (n > 0)			/* for intptr_t */
+    argtypes[0] = PA_INT | PA_FLAG_PTR;
+  return 1;
 }				/* end rps_custom_arginfo_value */
 
 //// printf customization: %O prints an object by its oid
 int
-rps_custom_print_object (FILE * oute, const struct printf_info *info,
+rps_custom_print_object (FILE * outf, const struct printf_info *info,
 			 const void *const *args)
 {
+  RpsObject_t *ob = (*(const RpsObject_t **) (args[0]));
+  if (!ob)
+    {
+      fputs ("__", outf);
+      return 2;
+    }
+  else if (ob == RPS_HTB_EMPTY_SLOT)
+    {
+      fputs ("_?", outf);
+      return 2;
+    };
+  RPS_ASSERT (rps_is_valid_object (ob));
+  char idbuf[32];
+  memset (idbuf, 0, sizeof (idbuf));
+  rps_oid_to_cbuf (ob->ob_id, idbuf);
+  fputs (idbuf, outf);
+  int ln = strlen (idbuf);
+#warning we may want to add into rps_custom_print_object code to print name of objects with %*O
+  return ln;
 }				/* end rps_custom_print_object */
 
 int
 rps_custom_arginfo_object (const struct printf_info *info, size_t n,
 			   int *argtypes)
 {
+  /* We always take exactly one argument and this is a pointer to the
+     RpsObject_st structure.. */
+  if (n > 0)
+    argtypes[0] = PA_POINTER;
+  return 1;
 }				/* end rps_custom_arginfo_object */
 
 //////////////////////////////////////////////////////////////////
