@@ -953,8 +953,22 @@ rps_emit_gplv3plus_notice (FILE * fil, const char *name,
 }				/* end rps_emit_gplv3plus_notice */
 
 
-static double rps_start_real_clock;
-static double rps_start_cpu_clock;
+static double rps_start_real_clock = NAN;
+static double rps_start_cpu_clock = NAN;
+
+double
+rps_real_time (void)
+{
+  return rps_clocktime (CLOCK_REALTIME) - rps_start_real_clock;
+}
+
+
+double
+rps_process_cpu_time (void)
+{
+  return rps_clocktime (CLOCK_PROCESS_CPUTIME_ID) - rps_start_cpu_clock;
+}
+
 
 void
 rps_exit_handler (void)
@@ -965,8 +979,7 @@ rps_exit_handler (void)
   printf ("\n"
 	  "REFPERSYS git %s exiting process %d/%s on %s - %.2f real %.2f cpu seconds\n",
 	  _rps_git_short_id, (int) getpid (), threadname, rps_hostname (),
-	  rps_clocktime (CLOCK_REALTIME) - rps_start_real_clock,
-	  rps_clocktime (CLOCK_PROCESS_CPUTIME_ID) - rps_start_cpu_clock);
+	  rps_real_time (), rps_process_cpu_time ());
   fflush (NULL);
   if (rps_backtrace_common_state)
     {

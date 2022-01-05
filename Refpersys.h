@@ -1097,6 +1097,9 @@ extern volatile bool rps_agenda_is_running (void);
 
 
 ////////////////////////////////////////////////////////////////
+extern volatile double rps_real_time (void);
+extern volatile double rps_process_cpu_time (void);
+
 extern void rps_load_initial_heap (void);
 extern void rps_dump_heap (rps_callframe_t * frame, const char *dir);	/// dump into DIR or
 						/// else into
