@@ -372,7 +372,7 @@ int
 rps_custom_print_value (FILE * outf, const struct printf_info *info,
 			const void *const *args)
 {
-  RpsValue_t val = *(*(const RpsValue_t **) (args[0]));
+  RpsValue_t val = *((const RpsValue_t *) (args[0]));
   return rps_rec_print_value (outf, info, val, 0);
 }
 
