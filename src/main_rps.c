@@ -378,10 +378,13 @@ rps_custom_print_value (FILE * outf, const struct printf_info *info,
 
 int
 rps_custom_arginfo_value (const struct printf_info *info, size_t n,
-			  int *argtypes)
+			  int *argtypes, int *sizearr)
 {
-  if (n > 0)			/* for intptr_t */
-    argtypes[0] = PA_INT | PA_FLAG_PTR;
+  if (n > 0)
+    {				/* for intptr_t */
+      argtypes[0] = PA_INT | PA_FLAG_PTR;
+      sizearr[0] = sizeof (RpsValue_t);
+    }
   return 1;
 }				/* end rps_custom_arginfo_value */
 
@@ -413,12 +416,15 @@ rps_custom_print_object (FILE * outf, const struct printf_info *info,
 
 int
 rps_custom_arginfo_object (const struct printf_info *info, size_t n,
-			   int *argtypes)
+			   int *argtypes, int *sizearr)
 {
   /* We always take exactly one argument and this is a pointer to the
      RpsObject_st structure.. */
   if (n > 0)
-    argtypes[0] = PA_POINTER;
+    {
+      argtypes[0] = PA_POINTER;
+      sizearr[0] = sizeof (RpsObject_t *);
+    }
   return 1;
 }				/* end rps_custom_arginfo_object */
 
@@ -994,8 +1000,10 @@ main (int argc, char **argv)
   rps_progname = argv[0];
   rps_start_real_clock = rps_clocktime (CLOCK_REALTIME);
   rps_start_cpu_clock = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID);
-  register_printf_specifier('V', rps_custom_print_value, rps_custom_arginfo_value);
-  register_printf_specifier('O', rps_custom_print_object, rps_custom_arginfo_object);
+  register_printf_specifier ('V', rps_custom_print_value,
+			     rps_custom_arginfo_value);
+  register_printf_specifier ('O', rps_custom_print_object,
+			     rps_custom_arginfo_object);
   atexit (rps_exit_handler);
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
