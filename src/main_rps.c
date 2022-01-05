@@ -981,7 +981,7 @@ main (int argc, char **argv)
   rps_progname = argv[0];
   rps_start_real_clock = rps_clocktime (CLOCK_REALTIME);
   rps_start_cpu_clock = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID);
-  at_exit (rps_exit_handler);
+  atexit (rps_exit_handler);
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
   rps_main_thread_handle = pthread_self ();
