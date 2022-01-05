@@ -74,7 +74,7 @@ rps_get_object_attribute (RpsObject_t * obj, RpsObject_t * obattr)
   RpsAttrTable_t *atbl = obj->ob_attrtable;
   if (!atbl)
     goto end;
-  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (atbl) == RpsPyt_AttrTable);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (atbl) == -RpsPyt_AttrTable);
   res = rps_attr_table_find (atbl, obattr);
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
