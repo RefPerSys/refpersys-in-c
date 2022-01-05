@@ -85,6 +85,99 @@ GOptionEntry rps_gopt_entries[] = {
 extern void rps_show_types_info (void);
 
 
+extern int
+rps_print_detailed_object (FILE * outf, const struct printf_info *info,
+			   RpsObject_t * obj, unsigned depth);
+
+int
+rps_print_encoded_string (FILE * outf, const char *str)
+{
+  if (!str)
+    return 0;
+  if (!outf)
+    return 0;
+  if (feof (outf))
+    return -1;
+  int ln = 0;
+  RPS_ASSERT (g_utf8_validate (str, -1, NULL));
+  for (const char *pc = str; *pc; pc = g_utf8_next_char (pc))
+    {
+      gunichar uc = g_utf8_get_char (pc);
+      switch (uc)
+	{
+	case '\"':
+	  if (fputs ("\\\"", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\'':
+	  if (fputs ("\\'", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\\':
+	  if (fputs ("\\\\", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\n':
+	  if (fputs ("\\n", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\r':
+	  if (fputs ("\\r", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\t':
+	  if (fputs ("\\t", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\v':
+	  if (fputs ("\\v", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\f':
+	  if (fputs ("\\f", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\b':
+	  if (fputs ("\\b", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	case '\e':
+	  if (fputs ("\\e", outf) < 0)
+	    return -1;
+	  ln += 2;
+	  break;
+	default:
+	  if (uc < 127)
+	    {
+	      if (fputc ((char) uc, outf) < 0)
+		return -1;
+	      ln += 1;
+	    }
+	  else
+	    {
+	      char cbuf[16];
+	      memset (cbuf, 0, sizeof (cbuf));
+	      int nby = g_utf8_next_char (pc) - pc;
+	      strncpy (cbuf, pc, nby);
+	      int lc = fputs (cbuf, outf);
+	      if (lc < 0)
+		return -1;
+	      ln += lc;
+	    }
+	  break;
+	}
+    }
+  return ln;
+}				/* end rps_print_encoded_string */
 
 //////////////////////////////////////////////////////////////////
 #define RPS_PRINT_MAX_DEPTH 6
@@ -126,82 +219,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	if (fputc ('"', outf) < 0)
 	  return -1;
 	int ln = 1;
-	for (const char *pc = str; *pc; pc = g_utf8_next_char (pc))
-	  {
-	    gunichar uc = g_utf8_get_char (pc);
-	    switch (uc)
-	      {
-	      case '\"':
-		if (fputs ("\\\"", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\'':
-		if (fputs ("\\'", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\\':
-		if (fputs ("\\\\", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\n':
-		if (fputs ("\\n", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\r':
-		if (fputs ("\\r", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\t':
-		if (fputs ("\\t", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\v':
-		if (fputs ("\\v", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\f':
-		if (fputs ("\\f", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\b':
-		if (fputs ("\\b", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      case '\e':
-		if (fputs ("\\e", outf) < 0)
-		  return -1;
-		ln += 2;
-		break;
-	      default:
-		if (uc < 127)
-		  {
-		    if (fputc ((char) uc, outf) < 0)
-		      return -1;
-		    ln += 1;
-		  }
-		else
-		  {
-		    char cbuf[16];
-		    memset (cbuf, 0, sizeof (cbuf));
-		    int nby = g_utf8_next_char (pc) - pc;
-		    strncpy (cbuf, pc, nby);
-		    int lc = fputs (cbuf, outf);
-		    if (lc < 0)
-		      return -1;
-		    ln += lc;
-		  }
-		break;
-	      }
-	  }
+	ln += rps_print_encoded_string (outf, str);
 	if (fputc ('"', outf) < 0)
 	  return -1;
 	return ln + 1;
@@ -243,6 +261,11 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	      {
 		if (fputc (',', outf) < 0)
 		  return ln;
+		if (depth == 0 && tix % 5 == 0)
+		  {
+		    if (fputc ('\n', outf) < 0)
+		      return ln;
+		  };
 		ln++;
 	      };
 	    if (!compob)
@@ -255,10 +278,18 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	      {
 		char bufid[32];
 		memset (bufid, 0, sizeof (bufid));
-		rps_oid_to_cbuf (compob->ob_id, bufid);
-		if (fputs (bufid, outf) < 0)
-		  return ln;
-		ln += strlen (bufid);
+		if (depth == 0)
+		  {
+		    ln +=
+		      rps_print_detailed_object (outf, info, compob, depth);
+		  }
+		else
+		  {
+		    rps_oid_to_cbuf (compob->ob_id, bufid);
+		    if (fputs (bufid, outf) < 0)
+		      return ln;
+		    ln += strlen (bufid);
+		  }
 	      }
 	  }			/* end for tix in tupv */
 	if (fputc (']', outf) < 0)
@@ -274,21 +305,34 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	  return -1;
 	for (int eix = 0; eix < card; eix++)
 	  {
-	    const RpsObject_t *obelem = rps_set_nth_member (setv, eix);
+	    RpsObject_t *obelem =
+	      (RpsObject_t *) rps_set_nth_member (setv, eix);
 	    RPS_ASSERT (obelem != NULL
 			&& rps_is_valid_object ((RpsObject_t *) obelem));
 	    if (eix > 0)
 	      {
 		if (fputc (';', outf) < 0)
 		  return ln;
+		if (depth == 0 && eix % 5 == 0)
+		  {
+		    if (fputc ('\n', outf) < 0)
+		      return ln;
+		  };
 		ln++;
 	      };
 	    char bufid[32];
 	    memset (bufid, 0, sizeof (bufid));
-	    rps_oid_to_cbuf (obelem->ob_id, bufid);
-	    if (fputs (bufid, outf) < 0)
-	      return ln;
-	    ln += strlen (bufid);
+	    if (depth == 0)
+	      {
+		ln += rps_print_detailed_object (outf, info, obelem, depth);
+	      }
+	    else
+	      {
+		rps_oid_to_cbuf (obelem->ob_id, bufid);
+		if (fputs (bufid, outf) < 0)
+		  return ln;
+		ln += strlen (bufid);
+	      }
 	  }
 	if (fputc ('}', outf) < 0)
 	  return -1;
@@ -297,14 +341,12 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
     case RPS_TYPE_CLOSURE:
       {
 	const RpsClosure_t *closv = (const RpsClosure_t *) val;
-	const RpsObject_t *connob = rps_closure_connective (val);
+	RpsObject_t *connob = (RpsObject_t *) rps_closure_connective (val);
 	RpsValue_t metav = rps_closure_meta (val);
 	int csiz = (int) rps_closure_size (val);
 	RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) connob));
-	char bufid[32];
-	memset (bufid, 0, sizeof (bufid));
-	rps_oid_to_cbuf (connob->ob_id, bufid);
-	int ln = fprintf (outf, "CLOSURE %s", bufid);
+	int ln = fprintf (outf, "CLOSURE ");
+	ln += rps_print_detailed_object (outf, info, connob, depth);
 	if (ln < 0)
 	  return -1;
 	if (metav != RPS_NULL_VALUE)
@@ -342,14 +384,21 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
       }
     case RPS_TYPE_OBJECT:
       {
-	const RpsObject_t *ob = (const RpsObject_t *) val;
+	RpsObject_t *ob = (RpsObject_t *) val;
 	char bufid[32];
 	memset (bufid, 0, sizeof (bufid));
-	rps_oid_to_cbuf (ob->ob_id, bufid);
-	int lob = fputs (bufid, outf);
-	if (lob < 0)
-	  return -1;
-	return lob;
+	if (depth == 0)
+	  {
+	    return rps_print_detailed_object (outf, info, ob, depth);
+	  }
+	else
+	  {
+	    rps_oid_to_cbuf (ob->ob_id, bufid);
+	    int lob = fputs (bufid, outf);
+	    if (lob < 0)
+	      return -1;
+	    return lob;
+	  }
       }
     case RPS_TYPE_FILE:
       {
@@ -388,6 +437,51 @@ rps_custom_arginfo_value (const struct printf_info *info, size_t n,
   return 1;
 }				/* end rps_custom_arginfo_value */
 
+
+int
+rps_print_detailed_object (FILE * outf, const struct printf_info *info,
+			   RpsObject_t * obj, unsigned depth)
+{
+  RpsValue_t vname = RPS_NULL_VALUE;
+  RpsValue_t vsurname = RPS_NULL_VALUE;
+  RPS_ASSERT (rps_is_valid_object (obj));
+  char idbuf[32];
+  memset (idbuf, 0, sizeof (idbuf));
+  rps_oid_to_cbuf (obj->ob_id, idbuf);
+  char *str = NULL;
+  fputs (idbuf, outf);
+  int ln = strlen (idbuf);
+  if (depth == 0)
+    {
+      pthread_mutex_lock (&obj->ob_mtx);
+      vname = rps_get_object_attribute (obj, RPS_ROOT_OB (_1EBVGSfW2m200z18rx));	//name∈named_attribute
+      vsurname = rps_get_object_attribute (obj, RPS_ROOT_OB (_4FBkYDlynyC02QtkfG));	//"name"∈named_attribute
+      if ((vname = rps_get_object_attribute (obj, RPS_ROOT_OB (_1EBVGSfW2m200z18rx))) != RPS_NULL_VALUE	//name∈named_attribute
+	  && rps_value_type (vname) == RPS_TYPE_STRING)
+	{
+	  str = rps_stringv_utf8bytes (vname);
+	  fputs ("⁑'", outf);	/* U+2051 TWO ASTERISKS ALIGNED VERTICALLY & SIMPLEQUOTE */
+	  ln += strlen ("⁑'");
+	  ln += rps_print_encoded_string (outf, str);
+	  fputs ("'", outf);
+	  ln++;
+	}
+      else if ((vsurname = rps_get_object_attribute (obj, RPS_ROOT_OB (_4FBkYDlynyC02QtkfG))) != RPS_NULL_VALUE	//"name"∈named_attribute
+	       && rps_value_type (vsurname) == RPS_TYPE_STRING)
+	{
+	  str = rps_stringv_utf8bytes (vsurname);
+	  fputs ("⁑`", outf);
+	  ln += strlen ("⁑`");	/* U+2051 TWO ASTERISKS ALIGNED VERTICALLY & BACKQUOTE */
+	  ln += rps_print_encoded_string (outf, str);
+	  fputs ("`", outf);
+	}
+      pthread_mutex_unlock (&obj->ob_mtx);
+    }
+  return ln;
+}				/* end rps_print_detailed_object */
+
+
+
 //// printf customization: %O prints an object by its oid
 int
 rps_custom_print_object (FILE * outf, const struct printf_info *info,
@@ -405,13 +499,7 @@ rps_custom_print_object (FILE * outf, const struct printf_info *info,
       return 2;
     };
   RPS_ASSERT (rps_is_valid_object (ob));
-  char idbuf[32];
-  memset (idbuf, 0, sizeof (idbuf));
-  rps_oid_to_cbuf (ob->ob_id, idbuf);
-  fputs (idbuf, outf);
-  int ln = strlen (idbuf);
-#warning we may want to add into rps_custom_print_object code to print name of objects with %*O
-  return ln;
+  return rps_print_detailed_object (outf, info, ob, 0);
 }				/* end rps_custom_print_object */
 
 int

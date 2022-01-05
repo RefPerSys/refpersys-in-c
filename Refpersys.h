@@ -1151,11 +1151,14 @@ extern void permit_zone_allocation_at_rps (const char *file, int lineno);
 extern pid_t rps_gettid (void);
 extern double rps_clocktime (clockid_t);
 
+/// returns number of bytes written, and -1 on error
+extern int rps_print_encoded_string (FILE * outf, const char *str);
+
+
 //////////////// tagged integer values
 extern RpsValue_t rps_tagged_integer_value (intptr_t i);
 extern bool rps_is_tagged_integer (const RpsValue_t v);
 extern intptr_t rps_value_to_integer (const RpsValue_t v);	/* gives 0 for a non-tagged integer */
-
 
 /*******************************************************************
  * GTK user interface
