@@ -45,6 +45,8 @@ struct RpsPayl_Dumper_st
   RPSFIELDS_ZONED_VALUE;
   unsigned du_magic;		/* always RPS_DUMPER_MAGIC */
   rps_callframe_t *du_callframe;
+  double du_start_realtime;
+  double du_start_cputime;
   /* The dumper probably needs to contain a big hash table of visited
      objects; a first pass is scanning the heap, starting from global
      roots including the agenda. During the dump only one pthread should
@@ -360,7 +362,7 @@ rps_is_dumpable_value (RpsDumper_t * du, RpsValue_t val)
       return true;
     case RPS_TYPE_CLOSURE:
       {
-	const RpsClosure_t *closv = val;
+	const RpsClosure_t *closv = (RpsClosure_t *) val;
 	return rps_is_dumpable_object (du, closv->clos_conn);
       };
     case RPS_TYPE_OBJECT:
@@ -666,6 +668,8 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
     rps_the_dumper = dumper;
     dumper->du_magic = RPS_DUMPER_MAGIC;
     dumper->du_callframe = frame;
+    dumper->du_start_realtime = rps_real_time ();
+    dumper->du_start_cputime = rps_process_cpu_time ();
     char *realdirn = realpath (dirn, NULL);
     if (!realdirn)
       RPS_FATAL ("realpath failed for %s", dirn);
@@ -723,6 +727,8 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
   unsigned nbobj = rps_set_cardinal (universet);
   RPS_DEBUG_NLPRINTF (DUMP, "dump_heap nbspace=%u nbobj=%u\n", nbspace,
 		      nbobj);
+  RPS_ASSERTPRINTF (nbspace > 0 && nbobj > 0,
+		    "dump_heap invalid nbspace=%u nbobj=%u", nbspace, nbobj);
   /* Temporarily we cannot deal with many spaces.... Should be fixed
      by generating C code later... */
   if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
@@ -732,5 +738,17 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
     rps_dump_one_space (dumper, spix, rps_set_nth_member (spaceset, spix),
 			universet);
   dumper->du_callframe = NULL;
+  printf
+    ("\n** RefPerSys %s dumped into %s directory %d spaces and %d objects in %.4f real %.4f cpu seconds\n\t (%.2f real, %.2f cpu µs/obj)\n",
+     _rps_git_short_id,
+     rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam), nbspace, nbobj,
+     rps_real_time () - dumper->du_start_realtime,
+     rps_process_cpu_time () - dumper->du_start_cputime,
+     1.0e6 * (rps_real_time () - dumper->du_start_realtime) / nbobj,
+     1.0e6 * (rps_process_cpu_time () - dumper->du_start_cputime) / nbobj);
+  fflush (NULL);
   rps_the_dumper = NULL;
 }				/* end rps_dump_heap */
+
+
+/*********** end of file dumper_rps.c **********/
