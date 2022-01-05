@@ -963,7 +963,7 @@ rps_exit_handler (void)
   memset (threadname, 0, sizeof (threadname));
   pthread_getname_np (pthread_self (), threadname, sizeof (threadname));
   printf ("\n"
-	  "REFPERSYS git %s exiting process %d/%s on %s - %.2f real %.2f cpu\n",
+	  "REFPERSYS git %s exiting process %d/%s on %s - %.2f real %.2f cpu seconds\n",
 	  _rps_git_short_id, (int) getpid (), threadname, rps_hostname (),
 	  rps_clocktime (CLOCK_REALTIME) - rps_start_real_clock,
 	  rps_clocktime (CLOCK_PROCESS_CPUTIME_ID) - rps_start_cpu_clock);
