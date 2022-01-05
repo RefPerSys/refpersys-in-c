@@ -749,9 +749,9 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
      1.0e6 * (rps_process_cpu_time () - dumper->du_start_cputime) / nbobj,
      __FILE__, __LINE__);
   fflush (NULL);
-  printf(".... universe set %V\n", (RpsValue_t)universet);
+  printf (".... universe set %V\n", (RpsValue_t) universet);
   fflush (NULL);
-  printf(".... space set %V\n", (RpsValue_t)spaceset);
+  printf (".... space set %V\n", (RpsValue_t) spaceset);
   fflush (NULL);
   rps_the_dumper = NULL;
 }				/* end rps_dump_heap */
