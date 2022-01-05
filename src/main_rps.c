@@ -253,6 +253,8 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	int ln = 1;
 	if (fputc ('[', outf) < 0)
 	  return -1;
+	if (info->prec < 0)
+	  fputc ('\n', outf);
 	int tsiz = (int) rps_vtuple_size (tupv);
 	for (int tix = 0; tix < tsiz; tix++)
 	  {
@@ -261,7 +263,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	      {
 		if (fputc (',', outf) < 0)
 		  return ln;
-		if (depth == 0 && tix % 5 == 0)
+		if ((depth == 0 && tix % 5 == 0) || (info->prec < 0))
 		  {
 		    if (fputc ('\n', outf) < 0)
 		      return ln;
@@ -292,6 +294,8 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 		  }
 	      }
 	  }			/* end for tix in tupv */
+	if (info->prec < 0)
+	  fputc ('\n', outf);
 	if (fputc (']', outf) < 0)
 	  return -1;
 	return ln + 1;
@@ -303,6 +307,8 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	int ln = 1;
 	if (fputc ('{', outf) < 0)
 	  return -1;
+	if (info->prec < 0)
+	  fputc ('\n', outf), ln++;
 	for (int eix = 0; eix < card; eix++)
 	  {
 	    RpsObject_t *obelem =
@@ -313,7 +319,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	      {
 		if (fputc (';', outf) < 0)
 		  return ln;
-		if (depth == 0 && eix % 5 == 0)
+		if ((depth == 0 && eix % 5 == 0) || info->prec < 0)
 		  {
 		    if (fputc ('\n', outf) < 0)
 		      return ln;
@@ -334,6 +340,8 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 		ln += strlen (bufid);
 	      }
 	  }
+	if (info->prec < 0)
+	  fputc ('\n', outf), ln++;
 	if (fputc ('}', outf) < 0)
 	  return -1;
 	return ln + 1;
@@ -363,6 +371,8 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	  ln += 1;
 	else
 	  return -1;
+	if (info->prec < 0)
+	  fputc ('\n', outf), ln++;
 	for (int cix = 0; cix < csiz; cix++)
 	  {
 	    RpsValue_t clv = rps_closure_get_closed_value (val, cix);
@@ -376,6 +386,8 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	      return -1;
 	    ln += lclo;
 	  }
+	if (info->prec < 0)
+	  fputc ('\n', outf), ln++;
 	if (fputs (")", outf) > 0)
 	  ln += 1;
 	else
@@ -414,6 +426,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
       return fprintf (outf, "BOGUS %p", (void *) val);
     }
 }				/* end rps_rec_print_value */
+
 
 //// Our printf customization: %V prints a value
 //// See www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html
