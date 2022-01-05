@@ -1167,9 +1167,25 @@ main (int argc, char **argv)
 	rps_nb_threads = RPS_MAX_NB_THREADS;
     }
   rps_initialize_objects_machinery ();
-#warning other payload routines should be registered here
+  /// support for classinfo payload
   rps_register_payload_removal (RpsPyt_ClassInfo,
 				rps_classinfo_payload_remover, NULL);
+  rps_register_payload_dump_scanner (RpsPyt_ClassInfo,
+				     rps_classinfo_payload_dump_scanner,
+				     NULL);
+  rps_register_payload_dump_serializer (RpsPyt_ClassInfo,
+					rps_classinfo_payload_dump_serializer,
+					NULL);
+  /// support for symbol payload
+  rps_register_payload_removal (RpsPyt_Symbol,
+				rps_symbol_payload_remover, NULL);
+  rps_register_payload_dump_scanner (RpsPyt_Symbol,
+				     rps_symbol_payload_dump_scanner, NULL);
+  rps_register_payload_dump_serializer (RpsPyt_Symbol,
+					rps_symbol_payload_dump_serializer,
+					NULL);
+  ////
+#warning other payload routines should be registered here
   rps_check_all_objects_buckets_are_valid ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;

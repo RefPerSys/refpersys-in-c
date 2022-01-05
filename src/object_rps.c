@@ -1308,7 +1308,7 @@ end:
 
 
 /// rps_classinfo_payload_remover is a rps_payload_remover_t for classinfo
-/// TODO: it should be registered (in main) by rps_register_payload_removal
+/// it has been registered (in main) by rps_register_payload_removal
 void
 rps_classinfo_payload_remover (RpsObject_t * ob,
 			       struct rps_owned_payload_st *clpayl,
@@ -1354,6 +1354,50 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
      payl, data, json_dumps (json, JSON_INDENT (2) | JSON_SORT_KEYS));
 #warning unimplemented rps_classinfo_payload_dump_serializer
 }				/* end rps_classinfo_payload_dump_serializer  */
+
+
+
+/// rps_symbol_payload_remover is a rps_payload_remover_t for symbol
+/// it has been registered (in main) by rps_register_payload_removal
+void
+rps_symbol_payload_remover (RpsObject_t * ob,
+			    struct rps_owned_payload_st *clpayl, void *data)
+{
+  /// the ob has been locked...
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  RPS_ASSERT (clpayl && rps_zoned_memory_type (clpayl) == -RpsPyt_Symbol);
+  RpsSymbol_t *symb = (RpsSymbol_t *) clpayl;
+  symb->payl_owner = NULL;
+  symb->symb_name = NULL;	// will be garbage collected.
+  symb->symb_value = NULL;
+#warning rps_symbol_payload_remover need a code review
+  /// TODO: should we also clear the zm_length, zm_xtra fields?
+}				/* end rps_classinfo_payload_remover */
+
+
+void
+rps_symbol_payload_dump_scanner (RpsDumper_t * du,
+				 struct rps_owned_payload_st *payl,
+				 void *data)
+{
+#warning unimplemented rps_symbol_payload_dump_scanner
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_FATAL
+    ("rps_symbol_payload_dump_scanner unimplemented payl@%p data @%p",
+     payl, data);
+}				/* end rps_symbol_payload_dump_scanner */
+
+void
+rps_symbol_payload_dump_serializer (RpsDumper_t * du,
+				    struct rps_owned_payload_st *payl,
+				    json_t * json, void *data)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_FATAL
+    ("rps_symbol_payload_dump_scanner unimplemented  payl@%p data @%p json %s",
+     payl, data, json_dumps (json, JSON_INDENT (2) | JSON_SORT_KEYS));
+#warning unimplemented rps_symbol_payload_dump_serializer
+}				/* end rps_symbol_payload_dump_serializer  */
 
 
 

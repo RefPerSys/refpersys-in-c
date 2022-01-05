@@ -796,6 +796,10 @@ extern RpsSymbol_t *rps_register_symbol (const char *name);
 
 
 
+extern rps_payload_remover_t rps_symbol_payload_remover;
+extern rps_payload_dump_scanner_t rps_symbol_payload_dump_scanner;
+extern rps_payload_dump_serializer_t rps_symbol_payload_dump_serializer;
+
 /****************************************************************
  * Class information payload for RpsPyt_ClassInfo
  ****************************************************************/
@@ -835,6 +839,7 @@ extern RpsClosure_t *rps_value_compute_method_closure (RpsValue_t val,
 extern rps_payload_remover_t rps_classinfo_payload_remover;
 extern rps_payload_dump_scanner_t rps_classinfo_payload_dump_scanner;
 extern rps_payload_dump_serializer_t rps_classinfo_payload_dump_serializer;
+
 
 
 /****************************************************************
