@@ -471,7 +471,7 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
 	    RpsValue_t curclov =	//
 	      rps_closure_get_closed_value (val, ix);
 	    json_t *jsclval =	//
-	      rps_dump_json_for_object (du, curclov);
+	      rps_dump_json_for_value (du, curclov, depth + 1);
 	    json_array_append_new (jsclarr, jsclval);
 	  };
 	RpsValue_t clmeta = rps_closure_meta (val);
