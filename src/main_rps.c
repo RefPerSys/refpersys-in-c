@@ -372,7 +372,7 @@ int
 rps_custom_print_value (FILE * outf, const struct printf_info *info,
 			const void *const *args)
 {
-  RpsValue_t val = (*(const RpsValue_t **) (args[0]));
+  RpsValue_t val = *(*(const RpsValue_t **) (args[0]));
   return rps_rec_print_value (outf, info, val, 0);
 }
 
@@ -390,7 +390,7 @@ int
 rps_custom_print_object (FILE * outf, const struct printf_info *info,
 			 const void *const *args)
 {
-  RpsObject_t *ob = (*(const RpsObject_t **) (args[0]));
+  RpsObject_t *ob = (*(RpsObject_t **) (args[0]));
   if (!ob)
     {
       fputs ("__", outf);
@@ -994,6 +994,8 @@ main (int argc, char **argv)
   rps_progname = argv[0];
   rps_start_real_clock = rps_clocktime (CLOCK_REALTIME);
   rps_start_cpu_clock = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID);
+  register_printf_specifier('V', rps_custom_print_value, rps_custom_arginfo_value);
+  register_printf_specifier('O', rps_custom_print_object, rps_custom_arginfo_object);
   atexit (rps_exit_handler);
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
@@ -1094,7 +1096,7 @@ RpsClosure_t *
 rps_value_compute_method_closure (RpsValue_t val, const RpsObject_t * selob)
 {
   RpsClosure_t *closres = NULL;
-  char smallbuf[16];
+  char smallbuf[32];
   RpsOid clasid = { 0, 0 };
   RpsObject_t *clasob = NULL;
   const char *clidstr = NULL;
@@ -1161,9 +1163,9 @@ rps_value_compute_method_closure (RpsValue_t val, const RpsObject_t * selob)
     {
       const char *end = NULL;
       clasid = rps_cstr_to_oid (clidstr, &end);
-      if (end && *end == (char) 0)
+      if (end && *end == (char) 0 && clasid.id_hi != 0)
 	clasob = rps_find_object_by_oid (clasid);
-    }
+    };
   int cnt = 0;
   // Even with buggy heap, we don't want to loop indefinitely.... It
   // is likely that we will just loop less than a dozen of times.
