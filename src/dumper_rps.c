@@ -739,13 +739,15 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
 			universet);
   dumper->du_callframe = NULL;
   printf
-    ("\n** RefPerSys %s dumped into %s directory %d spaces and %d objects in %.4f real %.4f cpu seconds\n\t (%.2f real, %.2f cpu µs/obj)\n",
+    ("\n** RefPerSys %s dumped into %s directory %d spaces and %d objects in %.4f real %.4f cpu seconds\n"
+     " ... (%.2f real, %.2f cpu µs/obj) [%s:%d]\n",
      _rps_git_short_id,
      rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam), nbspace, nbobj,
      rps_real_time () - dumper->du_start_realtime,
      rps_process_cpu_time () - dumper->du_start_cputime,
      1.0e6 * (rps_real_time () - dumper->du_start_realtime) / nbobj,
-     1.0e6 * (rps_process_cpu_time () - dumper->du_start_cputime) / nbobj);
+     1.0e6 * (rps_process_cpu_time () - dumper->du_start_cputime) / nbobj,
+     __FILE__, __LINE__);
   fflush (NULL);
   rps_the_dumper = NULL;
 }				/* end rps_dump_heap */
