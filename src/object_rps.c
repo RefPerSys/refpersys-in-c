@@ -1033,8 +1033,8 @@ rps_dump_scan_object_payload (RpsDumper_t * du, RpsObject_t * ob)
   void *scandata = NULL;
   {
     pthread_mutex_lock (&rps_payload_mtx);
-    scanrout = rps_payload_dump_scanning_rout_arr[paylty];
-    scandata = rps_payload_dump_scanning_data_arr[paylty];
+    scanrout = rps_payload_dump_scanning_rout_arr[-paylty];
+    scandata = rps_payload_dump_scanning_data_arr[-paylty];
     pthread_mutex_unlock (&rps_payload_mtx);
   }
   if (scanrout)
@@ -1087,8 +1087,8 @@ rps_dump_serialize_object_payload (RpsDumper_t * du, RpsObject_t * ob,
   void *seridata = NULL;
   {
     pthread_mutex_lock (&rps_payload_mtx);
-    serirout = rps_payload_dump_serializing_rout_arr[paylty];
-    seridata = rps_payload_dump_serializing_data_arr[paylty];
+    serirout = rps_payload_dump_serializing_rout_arr[-paylty];
+    seridata = rps_payload_dump_serializing_data_arr[-paylty];
     pthread_mutex_unlock (&rps_payload_mtx);
   }
   if (serirout)
@@ -1114,12 +1114,12 @@ rps_object_put_payload (RpsObject_t * obj, void *payl)
     {
       rps_payload_remover_t *oldremover = NULL;
       void *oldremdata = NULL;
-      int oldptype = -RPS_ZONED_MEMORY_TYPE (oldpayl);
-      if (oldptype > 0 && oldptype < RPS_MAX_PAYLOAD_TYPE_INDEX)
+      int oldptype = RPS_ZONED_MEMORY_TYPE (oldpayl);
+      if (oldptype < 0 && oldptype > -RPS_MAX_PAYLOAD_TYPE_INDEX)
 	{
 	  pthread_mutex_lock (&rps_payload_mtx);
-	  oldremover = rps_payload_removing_rout_arr[oldptype];
-	  oldremdata = rps_payload_removing_data_arr[oldptype];
+	  oldremover = rps_payload_removing_rout_arr[-oldptype];
+	  oldremdata = rps_payload_removing_data_arr[-oldptype];
 	  pthread_mutex_unlock (&rps_payload_mtx);
 	}
       if (oldremover)
