@@ -497,7 +497,7 @@ rps_print_detailed_object (FILE * outf, const struct printf_info *info,
 	      {
 		RpsSymbol_t *sypayl = (RpsSymbol_t *) obj->ob_payload;
 		const RpsString_t *syname = sypayl->symb_name;
-		if (rps_value_type (syname) == RPS_TYPE_STRING)
+		if (rps_value_type ((RpsValue_t) syname) == RPS_TYPE_STRING)
 		  {
 		    int lsy =
 		      fprintf (outf, "$%s", rps_stringv_utf8bytes (syname));
@@ -1213,6 +1213,14 @@ main (int argc, char **argv)
 				     rps_agenda_payload_dump_scanner, NULL);
   rps_register_payload_dump_serializer (RpsPyt_Agenda,
 					rps_agenda_payload_dump_serializer,
+					NULL);
+  /// support for mutable setob payload
+  rps_register_payload_removal (RpsPyt_MutableSetOb,
+				rps_setob_payload_remover, NULL);
+  rps_register_payload_dump_scanner (RpsPyt_MutableSetOb,
+				     rps_setob_payload_dump_scanner, NULL);
+  rps_register_payload_dump_serializer (RpsPyt_MutableSetOb,
+					rps_setob_payload_dump_serializer,
 					NULL);
   ////
 #warning other payload routines should be registered here
