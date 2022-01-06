@@ -287,9 +287,9 @@ rps_agenda_payload_dump_scanner (RpsDumper_t * du,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_Agenda);
   RpsAgenda_t *agpayl = (RpsAgenda_t *) payl;
-  for (int ix=AgPrio__None+1;ix< AgPrio__LAST;ix++)
+  for (int ix = AgPrio__None + 1; ix < AgPrio__LAST; ix++)
     if (agpayl->agenda_que[ix])
-      rps_dumper_scan_object(du, agpayl->agenda_que[ix]);
+      rps_dumper_scan_object (du, agpayl->agenda_que[ix]);
 }				/* end rps_agenda_payload_dump_scanner */
 
 void
@@ -302,17 +302,20 @@ rps_agenda_payload_dump_serializer (RpsDumper_t * du,
   RpsAgenda_t *agpayl = (RpsAgenda_t *) payl;
   RPS_ASSERT (agpayl->payl_owner == RPS_THE_AGENDA_OBJECT);
   if (agpayl->agenda_que[AgPrio_Low])
-    json_object_set(json, "priority_low",
-		    rps_dump_json_for_object(du,
-					     agpayl->agenda_que[AgPrio_Low]));
+    json_object_set (json, "priority_low",
+		     rps_dump_json_for_object (du,
+					       agpayl->
+					       agenda_que[AgPrio_Low]));
   if (agpayl->agenda_que[AgPrio_Normal])
-    json_object_set(json, "priority_normal",
-		    rps_dump_json_for_object(du,
-					     agpayl->agenda_que[AgPrio_Normal]));
+    json_object_set (json, "priority_normal",
+		     rps_dump_json_for_object (du,
+					       agpayl->
+					       agenda_que[AgPrio_Normal]));
   if (agpayl->agenda_que[AgPrio_High])
-    json_object_set(json, "priority_high",
-		    rps_dump_json_for_object(du,
-					     agpayl->agenda_que[AgPrio_High]));
+    json_object_set (json, "priority_high",
+		     rps_dump_json_for_object (du,
+					       agpayl->
+					       agenda_que[AgPrio_High]));
 }				/* end rps_agenda_payload_dump_serializer  */
 
 
