@@ -574,7 +574,7 @@ rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
 }				/* end rps_paylsetob_remove_element */
 
 
-/* loading mutable set of objects */
+/* loading mutable set of objects - should be compatible with  rps_setob_payload_dump_scanner and rps_setob_payload_dump_serializer */
 void
 rpsldpy_setob (RpsObject_t * obj, RpsLoader_t * ld, const json_t * jv,
 	       int spix)
@@ -745,10 +745,52 @@ end:
 
 
 
+/// rps_setob_payload_remover is a rps_payload_remover_t for setob
+/// it has been registered (in main) by rps_register_payload_removal
+void
+rps_setob_payload_remover (RpsObject_t * ob,
+			   struct rps_owned_payload_st *payl, void *data)
+{
+  /// the ob has been locked...
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_MutableSetOb);
+  RpsMutableSetOb_t *paylsetob = (RpsMutableSetOb_t *) payl;
+  RPS_FATAL ("unimplemented rps_setob_payload_remover owner %O",
+	     paylsetob->payl_owner);
+  /// TODO: should we also clear the zm_length, zm_xtra fields?
+}				/* end rps_setob_payload_remover */
+
+
+void
+rps_setob_payload_dump_scanner (RpsDumper_t * du,
+				struct rps_owned_payload_st *payl, void *data)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_MutableSetOb);
+  RpsMutableSetOb_t *paylsetob = (RpsMutableSetOb_t *) payl;
+  RPS_FATAL ("unimplemented rps_setob_payload_dump_scanner owner %O",
+	     paylsetob->payl_owner);
+#warning unimplemented rps_setob_payload_dump_scanner
+}				/* end rps_setob_payload_dump_scanner */
+
+void
+rps_setob_payload_dump_serializer (RpsDumper_t * du,
+				   struct rps_owned_payload_st *payl,
+				   json_t * json, void *data)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_MutableSetOb);
+  RpsMutableSetOb_t *paylsetob = (RpsMutableSetOb_t *) payl;
+  RPS_FATAL ("unimplemented rps_setob_payload_dump_serializer owner %O",
+	     paylsetob->payl_owner);
+#warning unimplemented rps_setob_payload_dump_serializer
+}				/* end rps_setob_payload_dump_serializer  */
+
+
 
 
 /*****************************************************************
- * string dictionnary payload
+ * string dictionary payload
  ****************************************************************/
 
 static int
