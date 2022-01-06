@@ -768,9 +768,19 @@ rps_setob_payload_dump_scanner (RpsDumper_t * du,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_MutableSetOb);
   RpsMutableSetOb_t *paylsetob = (RpsMutableSetOb_t *) payl;
-  RPS_FATAL ("unimplemented rps_setob_payload_dump_scanner owner %O",
-	     paylsetob->payl_owner);
-#warning unimplemented rps_setob_payload_dump_scanner
+  struct kavl_itr_rpsmusetob iter = { };
+  int ix = 0;
+  kavl_itr_first_rpsmusetob (paylsetob->muset_root, &iter);
+  unsigned card = paylsetob->zm_length;
+  while (ix < (int) card)
+    {
+      RpsObject_t *obelem = kavl_at (&iter)->setobnodrps_obelem;
+      RPS_ASSERT (rps_is_valid_object (obelem));
+      ix++;
+      rps_dumper_scan_object (du, obelem);
+      if (!kavl_itr_next_rpsmusetob (&iter))
+	break;
+    };
 }				/* end rps_setob_payload_dump_scanner */
 
 void
@@ -781,6 +791,23 @@ rps_setob_payload_dump_serializer (RpsDumper_t * du,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_MutableSetOb);
   RpsMutableSetOb_t *paylsetob = (RpsMutableSetOb_t *) payl;
+  unsigned card = paylsetob->zm_length;
+  const RpsObject_t **arrob =
+    RPS_ALLOC_ZEROED ((card + 1) * sizeof (RpsObject_t *));
+  struct kavl_itr_rpsmusetob iter = { };
+  int ix = 0;
+  kavl_itr_first_rpsmusetob (paylsetob->muset_root, &iter);
+  while (ix < (int) card)
+    {
+      arrob[ix++] = kavl_at (&iter)->setobnodrps_obelem;
+      if (!kavl_itr_next_rpsmusetob (&iter))
+	break;
+    };
+  RPS_ASSERT (ix == card);
+  json_object_set (json, "payload", json_string ("setob"));
+  /// the sort is probably useless....
+  rps_object_array_qsort (arrob, card);
+  //// should be compatible witrh rpsldpy_setob; so use a "setob" JSON attribute...
   RPS_FATAL ("unimplemented rps_setob_payload_dump_serializer owner %O",
 	     paylsetob->payl_owner);
 #warning unimplemented rps_setob_payload_dump_serializer
