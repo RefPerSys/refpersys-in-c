@@ -633,8 +633,9 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
     }
   else
     {
-      RPS_DEBUG_PRINTF (DUMP, "dumped object %s without dump closure",
-			obidbuf);
+      RPS_DEBUG_PRINTF (DUMP,
+			"dumped object %-1O of class %-1O without dump closure",
+			obj, obclas);
 #warning should dump using rpscloj_dump_object_components & rpscloj_dump_object_attributes
     }
   fprintf (spfil, "{\n");
