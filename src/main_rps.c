@@ -488,6 +488,28 @@ rps_print_detailed_object (FILE * outf, const struct printf_info *info,
 	  ln += rps_print_encoded_string (outf, str);
 	  fputs ("`", outf);
 	}
+      else if (obj->ob_payload)
+	{
+	  int ptyp = RPS_ZONED_MEMORY_TYPE (obj->ob_payload);
+	  switch (ptyp)
+	    {
+	    case -RpsPyt_Symbol:
+	      {
+		RpsSymbol_t *sypayl = (RpsSymbol_t *) obj->ob_payload;
+		const RpsString_t *syname = sypayl->symb_name;
+		if (rps_value_type (syname) == RPS_TYPE_STRING)
+		  {
+		    int lsy =
+		      fprintf (outf, "$%s", rps_stringv_utf8bytes (syname));
+		    if (lsy > 0)
+		      ln += lsy;
+		  };
+		break;
+	      }
+	    default:
+	      break;
+	    }
+	}
       pthread_mutex_unlock (&obj->ob_mtx);
     }
   return ln;
