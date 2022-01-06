@@ -1738,4 +1738,36 @@ rps_hash_tbl_set_elements (RpsHashTblOb_t * htb)
 }				/* end rps_hash_tbl_set_elements */
 
 
+struct rps_hashtbldump_st
+{
+#define RPS_HTBDU_MAGIC 0x586490ad	/*1482985645 */
+  unsigned htbdu_magic_num;	/* should be RPS_HTBDU_MAGIC */
+  unsigned htbdu_level;
+  RpsDumper_t *htbdu_dumper;
+  void *htbdu_data1;
+  void *htbdu_data2;
+};
+
+static rps_object_callback_sig_t rps_hash_tbl_iter_for_dump;
+static bool
+rps_hash_tbl_iter_for_dump (RpsObject_t * ob, void *data)
+{
+  struct rps_hashtbldump_st *hdui = (struct rps_hashtbldump_st *) data;
+  RPS_ASSERT (hdui && hdui->htbdu_magic_num == RPS_HTBDU_MAGIC);
+  RPS_ASSERT (hdui->htbdu_dumper && rps_is_valid_dumper (hdui->htbdu_dumper));
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  switch (rps_dumper_state (hdui->htbdu_dumper))
+    {
+    case rpsdumpstate_scanning:
+      rps_dumper_scan_object (hdui->htbdu_dumper, ob);
+      return true;
+    case rpsdumpstate_dumpingdata:
+    case rpsdumpstate_emittingcode:
+    default:
+      RPS_FATAL ("unexpected dumper state#%d",
+		 (int) rps_dumper_state (hdui->htbdu_dumper));
+    }
+  return true;
+}				/* end rps_hash_tbl_iter_for_dump */
+
 /***************** end of file composite_rps.c from refpersys.org **********/
