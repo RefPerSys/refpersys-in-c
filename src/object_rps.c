@@ -470,6 +470,31 @@ rps_attr_table_iterate (const RpsAttrTable_t * tbl,
   return nbiter;
 }				/* end of rps_attr_table_iterate */
 
+unsigned
+rps_attr_table_dump_scan (RpsDumper_t * du, const RpsAttrTable_t * tbl,
+			  unsigned depth)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  if (!tbl)
+    return 0;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
+  unsigned tsiz = rps_attr_table_size (tbl);
+  int cnt = 0;
+  unsigned nbiter = 0;
+  for (int eix = 0; eix < (int) tsiz; eix++)
+    {
+      if (tbl->attr_entries[eix].ent_attr != (RpsObject_t *) NULL
+	  && tbl->attr_entries[eix].ent_attr != RPS_HTB_EMPTY_SLOT)
+	{
+	  rps_dumper_scan_object (du, tbl->attr_entries[eix].ent_attr);
+	  rps_dumper_scan_value (du, tbl->attr_entries[eix].ent_val,
+				 depth + 1);
+	  nbiter++;
+	}
+    };
+  return nbiter;
+}				/* end rps_attr_table_dump_scan */
+
 const RpsSetOb_t *
 rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
 {
@@ -1377,14 +1402,10 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
     {
       RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (clinf->pclass_methdict) ==
 		  -RpsPyt_AttrTable);
-      RPS_FATAL
-	("rps_classinfo_payload_dump_scanner unimplemented methdict@%p data @%p",
-	 clinf->pclass_methdict, data);
+      rps_attr_table_dump_scan (du, clinf->pclass_methdict, 0);
     }
-#warning unimplemented rps_classinfo_payload_dump_scanner
-  RPS_FATAL
-    ("rps_classinfo_payload_dump_scanner unimplemented payl@%p data @%p",
-     payl, data);
+  if (clinf->pclass_symbol)
+    rps_dumper_scan_object (du, clinf->pclass_symbol);
 }				/* end rps_classinfo_payload_dump_scanner */
 
 void
