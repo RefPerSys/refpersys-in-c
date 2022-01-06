@@ -1095,6 +1095,10 @@ rps_dump_scan_object_payload (RpsDumper_t * du, RpsObject_t * ob)
   }
   if (scanrout)
     (*scanrout) (du, payl, scandata);
+  else
+    RPS_DEBUG_PRINTF (DUMP,
+		      "object %-1O has payload of type #%d without scanning routine",
+		      ob, (int) paylty);
 }				/* end rps_dump_scan_object_payload */
 
 void
