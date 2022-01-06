@@ -1119,6 +1119,10 @@ void rps_run_agenda (int nbthreads);
 // assert tests...
 extern volatile bool rps_agenda_is_running (void);
 
+extern rps_payload_remover_t rps_agenda_payload_remover;
+extern rps_payload_dump_scanner_t rps_agenda_payload_dump_scanner;
+extern rps_payload_dump_serializer_t rps_agenda_payload_dump_serializer;
+
 
 ////////////////////////////////////////////////////////////////
 extern volatile double rps_real_time (void);

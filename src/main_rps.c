@@ -9,7 +9,7 @@
  *      code.
  *
  *
- *      © Copyright 2019 - 2021 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2022 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -1205,6 +1205,14 @@ main (int argc, char **argv)
 				     rps_symbol_payload_dump_scanner, NULL);
   rps_register_payload_dump_serializer (RpsPyt_Symbol,
 					rps_symbol_payload_dump_serializer,
+					NULL);
+  /// support for agenda payload
+  rps_register_payload_removal (RpsPyt_Agenda,
+				rps_agenda_payload_remover, NULL);
+  rps_register_payload_dump_scanner (RpsPyt_Agenda,
+				     rps_agenda_payload_dump_scanner, NULL);
+  rps_register_payload_dump_serializer (RpsPyt_Agenda,
+					rps_agenda_payload_dump_serializer,
 					NULL);
   ////
 #warning other payload routines should be registered here
