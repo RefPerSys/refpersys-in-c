@@ -273,6 +273,18 @@ typedef void rpsldpysig_t (RpsObject_t * obz, RpsLoader_t * ld,
 /// the dumper internals are in file dump_rps.c
 typedef struct RpsPayl_Dumper_st RpsDumper_t;	///// forward declaration
 extern bool rps_is_valid_dumper (RpsDumper_t * du);
+enum rps_dump_state_en
+{
+  //// this enumeration needs to be in generated C code of course....
+  rpsdumpstate__NONE,
+  rpsdumpstate_scanning,
+  rpsdumpstate_dumpingdata,
+  rpsdumpstate_emittingcode,
+  rpsdumpstate__HIGH
+};
+
+extern enum rps_dump_state_en rps_dumper_state (RpsDumper_t * du);
+
 extern void rps_dumper_scan_value (RpsDumper_t * du, RpsValue_t val,
 				   unsigned depth);
 extern void rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob);
