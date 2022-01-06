@@ -1336,8 +1336,13 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
 				    struct rps_owned_payload_st *payl,
 				    void *data)
 {
-#warning unimplemented rps_classinfo_payload_dump_scanner
   RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_ClassInfo);
+  RpsClassInfo_t *clinf = (RpsClassInfo_t *) payl;
+  RPS_ASSERT (clinf->pclass_magic == RPS_CLASSINFO_MAGIC);
+  if (clinf->pclass_super)
+    rps_dumper_scan_object (du, clinf->pclass_super);
+#warning unimplemented rps_classinfo_payload_dump_scanner
   RPS_FATAL
     ("rps_classinfo_payload_dump_scanner unimplemented payl@%p data @%p",
      payl, data);
@@ -1349,6 +1354,9 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
 				       json_t * json, void *data)
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_ClassInfo);
+  RpsClassInfo_t *clinf = (RpsClassInfo_t *) payl;
+  RPS_ASSERT (clinf->pclass_magic == RPS_CLASSINFO_MAGIC);
   RPS_FATAL
     ("rps_classinfo_payload_dump_scanner unimplemented  payl@%p data @%p json %s",
      payl, data, json_dumps (json, JSON_INDENT (2) | JSON_SORT_KEYS));
@@ -1380,11 +1388,14 @@ rps_symbol_payload_dump_scanner (RpsDumper_t * du,
 				 struct rps_owned_payload_st *payl,
 				 void *data)
 {
-#warning unimplemented rps_symbol_payload_dump_scanner
   RPS_ASSERT (rps_is_valid_dumper (du));
-  RPS_FATAL
-    ("rps_symbol_payload_dump_scanner unimplemented payl@%p data @%p",
-     payl, data);
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_Symbol);
+  RPS_ASSERT (payl->payl_owner != NULL);
+  RpsSymbol_t *symb = (RpsSymbol_t *) payl;
+  if (symb->symb_name)
+    rps_dumper_scan_value (du, (RpsValue_t) symb->symb_name, 0);
+  if (symb->symb_value)
+    rps_dumper_scan_value (du, symb->symb_value, 0);
 }				/* end rps_symbol_payload_dump_scanner */
 
 void
