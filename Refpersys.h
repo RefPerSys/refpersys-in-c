@@ -899,6 +899,9 @@ extern bool rps_paylsetob_add_element (RpsMutableSetOb_t * paylmset,
 extern bool rps_paylsetob_remove_element (RpsMutableSetOb_t * paylmset,
 					  const RpsObject_t * ob);
 
+extern rps_payload_remover_t rps_setob_payload_remover;
+extern rps_payload_dump_scanner_t rps_setob_payload_dump_scanner;
+extern rps_payload_dump_serializer_t rps_setob_payload_dump_serializer;
 /****************************************************************
  * Double-ended queue/linked-list payload for -RpsPyt_DequeOb
  ****************************************************************/
