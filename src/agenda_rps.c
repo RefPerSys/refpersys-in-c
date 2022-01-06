@@ -301,21 +301,25 @@ rps_agenda_payload_dump_serializer (RpsDumper_t * du,
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_Agenda);
   RpsAgenda_t *agpayl = (RpsAgenda_t *) payl;
   RPS_ASSERT (agpayl->payl_owner == RPS_THE_AGENDA_OBJECT);
+  json_object_set (json, "payload", json_string ("agenda"));
   if (agpayl->agenda_que[AgPrio_Low])
-    json_object_set (json, "priority_low",
-		     rps_dump_json_for_object (du,
-					       agpayl->
-					       agenda_que[AgPrio_Low]));
+    {
+      json_t *jlow =		//
+	rps_dump_json_for_object (du, agpayl->agenda_que[AgPrio_Low]);
+      json_object_set (json, "priority_low", jlow);
+    }
   if (agpayl->agenda_que[AgPrio_Normal])
-    json_object_set (json, "priority_normal",
-		     rps_dump_json_for_object (du,
-					       agpayl->
-					       agenda_que[AgPrio_Normal]));
+    {
+      json_t *jnormal =		//
+	rps_dump_json_for_object (du, agpayl->agenda_que[AgPrio_Normal]);
+      json_object_set (json, "priority_normal", jnormal);
+    }
   if (agpayl->agenda_que[AgPrio_High])
-    json_object_set (json, "priority_high",
-		     rps_dump_json_for_object (du,
-					       agpayl->
-					       agenda_que[AgPrio_High]));
+    {
+      json_t *jhigh =		//
+	rps_dump_json_for_object (du, agpayl->agenda_que[AgPrio_High]);
+      json_object_set (json, "priority_high", jhigh);
+    }
 }				/* end rps_agenda_payload_dump_serializer  */
 
 
