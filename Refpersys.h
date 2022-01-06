@@ -250,6 +250,9 @@ typedef bool rps_object_callback_sig_t (RpsObject_t * ob, void *data);
 /// a value is a word, sometimes a pointer, sometimes a tagged integer (odd word)
 typedef uintptr_t RpsValue_t;
 
+/// callback function, by convention returning false to "stop" or "fail" e.g. some iteration
+typedef bool rps_value_callback_sig_t (RpsValue_t val, void *data);
+
 #define RPS_NULL_VALUE ((RpsValue_t)0)
 extern enum RpsType rps_value_type (RpsValue_t val);
 
@@ -778,6 +781,10 @@ extern RpsAttrTable_t *rps_attr_table_put (RpsAttrTable_t * tbl,
 extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 					      RpsObject_t * obattr);
 extern unsigned rps_attr_table_size (const RpsAttrTable_t * tbl);
+extern unsigned rps_attr_table_iterate (const RpsAttrTable_t * tbl,
+					rps_object_callback_sig_t * routattr,
+					rps_value_callback_sig_t * routval,
+					void *data);
 extern const RpsSetOb_t *rps_attr_table_set_of_attributes (const
 							   RpsAttrTable_t *
 							   tbl);

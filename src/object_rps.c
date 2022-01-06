@@ -440,6 +440,36 @@ rps_attr_table_size (const RpsAttrTable_t * tbl)
   return tbl->zm_length;
 }				/* end rps_attr_table_size */
 
+unsigned
+rps_attr_table_iterate (const RpsAttrTable_t * tbl,
+			rps_object_callback_sig_t * routattr,
+			rps_value_callback_sig_t * routval, void *data)
+{
+  if (!tbl)
+    return NULL;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
+  unsigned tsiz = rps_attr_table_size (tbl);
+  int cnt = 0;
+  unsigned nbiter = 0;
+  for (int eix = 0; eix < (int) tsiz; eix++)
+    {
+      if (tbl->attr_entries[eix].ent_attr != (RpsObject_t *) NULL
+	  && tbl->attr_entries[eix].ent_attr != RPS_HTB_EMPTY_SLOT)
+	{
+	  if (routattr)
+	    if (!(*routattr) (tbl->attr_entries[eix].ent_attr, data))
+	      break;
+	  if (routval)
+	    {
+	      if (!(*routval) (tbl->attr_entries[eix].ent_val, data))
+		break;
+	    };
+	  nbiter++;
+	}
+    };
+  return nbiter;
+}				/* end of rps_attr_table_iterate */
+
 const RpsSetOb_t *
 rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
 {
@@ -461,6 +491,7 @@ rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
   free (obarr);
   return setv;
 }				/* end  rps_attr_table_set_of_attributes */
+
 
 
 /*****************************************************************
@@ -1342,6 +1373,14 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
   RPS_ASSERT (clinf->pclass_magic == RPS_CLASSINFO_MAGIC);
   if (clinf->pclass_super)
     rps_dumper_scan_object (du, clinf->pclass_super);
+  if (clinf->pclass_methdict)
+    {
+      RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (clinf->pclass_methdict) ==
+		  -RpsPyt_AttrTable);
+      RPS_FATAL
+	("rps_classinfo_payload_dump_scanner unimplemented methdict@%p data @%p",
+	 clinf->pclass_methdict, data);
+    }
 #warning unimplemented rps_classinfo_payload_dump_scanner
   RPS_FATAL
     ("rps_classinfo_payload_dump_scanner unimplemented payl@%p data @%p",
