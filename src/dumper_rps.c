@@ -44,6 +44,9 @@ struct RpsPayl_Dumper_st
 {
   RPSFIELDS_ZONED_VALUE;
   unsigned du_magic;		/* always RPS_DUMPER_MAGIC */
+  int du_i, du_j, du_k;		/* various indexes, for internal use; perhaps useless */
+  void *du_data1;		/* various data, for internal use; perhaps useless */
+  void *du_data2;		/* various data, for internal use; perhaps useless */
   rps_callframe_t *du_callframe;
   double du_start_realtime;
   double du_start_cputime;
@@ -71,6 +74,25 @@ struct RpsPayl_Dumper_st
     FILE *sp_file;
   } du_spacedescr[RPS_DUMP_MAX_NB_SPACE];
 };				/* end struct RpsPayl_Dumper_st */
+
+enum rps_dump_state_en
+rps_dumper_state (RpsDumper_t * du)
+{
+  if (!du)
+    return rpsdumpstate__NONE;
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (du->zm_xtra > rpsdumpstate__NONE
+	      && du->zm_xtra < rpsdumpstate__HIGH);
+  return (enum rps_dump_state_en) (du->zm_xtra);
+}
+
+void
+rps_dumper_set_state (RpsDumper_t * du, enum rps_dump_state_en state)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (state > rpsdumpstate__NONE && state < rpsdumpstate__HIGH);
+  du->zm_xtra = (int) state;
+}				/* end rps_dumper_set_state */
 
 
 // In principle, we don't need a global for the dumper. In practice,
@@ -691,7 +713,7 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
     rps_deque_for_dumper (dumper);
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
-
+  rps_dumper_set_state (dumper, rpsdumpstate_scanning);
   /* scan the global objects */
   rps_dumper_scan_value (dumper,
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);
@@ -734,10 +756,14 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
   if (nbspace >= RPS_DUMP_MAX_NB_SPACE)
     RPS_FATAL ("too many %d spaces to dump into %s", nbspace,
 	       rps_stringv_utf8bytes ((RpsValue_t) dumper->du_dirnam));
+  rps_dumper_set_state (dumper, rpsdumpstate_dumpingdata);
   for (int spix = 0; spix < nbspace; spix++)
     rps_dump_one_space (dumper, spix, rps_set_nth_member (spaceset, spix),
 			universet);
+#warning rps_dump_heap should emit code
+  //rps_dumper_set_state(dumper, rpsdumpstate_emittingcode);
   dumper->du_callframe = NULL;
+  dumper->zm_xtra = 0 /*rpsdumpstate__NONE */ ;
   printf
     ("\n** RefPerSys %s dumped into %s directory %d spaces and %d objects in %.4f real %.4f cpu seconds\n"
      " ... (%.2f real, %.2f cpu µs/obj) [%s:%d]\n",
