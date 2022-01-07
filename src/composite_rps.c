@@ -936,6 +936,51 @@ end:
 }				/* end rpsldpy_string_dictionary */
 
 
+/// rps_stringdict_payload_remover is a rps_payload_remover_t for setob
+/// it has been registered (in main) by rps_register_payload_removal
+void
+rps_stringdict_payload_remover (RpsObject_t * ob,
+				struct rps_owned_payload_st *payl, void *data)
+{
+  /// the ob has been locked...
+  RPS_ASSERT (ob && rps_is_valid_object (ob));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
+  RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
+  RPS_FATAL ("unimplemented rps_stringdict_payload_remover owner %O",
+	     paylstrdict->payl_owner);
+#warning unimplemented  rps_stringdict_payload_remover
+  /// TODO: should we also clear the zm_length, zm_xtra fields?
+}				/* end rps_stringdict_payload_remover */
+
+
+void
+rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
+				     struct rps_owned_payload_st *payl,
+				     void *data)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
+  RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
+  RPS_FATAL ("unimplemented rps_stringdict_payload_remover owner %O",
+	     paylstrdict->payl_owner);
+#warning unimplemented  rps_stringdict_payload_dump_scanner
+}				/* end rps_stringdict_payload_dump_scanner */
+
+void
+rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
+					struct rps_owned_payload_st *payl,
+					json_t * json, void *data)
+{
+  RPS_ASSERT (rps_is_valid_dumper (du));
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
+  RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
+  unsigned nbent = paylstrdict->zm_length;
+  RPS_FATAL ("unimplemented rps_stringdict_payload_dump_serializer owner %O",
+	     paylstrdict->payl_owner);
+#warning unimplemented rps_stringdict_payload_dump_serializer
+}				/* end rps_stringdict_payload_dump_serializer  */
+
+
 /* loading a payload for space */
 void
 rpsldpy_space (RpsObject_t * obj, RpsLoader_t * ld,

@@ -1031,6 +1031,9 @@ void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
 				       const RpsValue_t val);
 
 
+extern rps_payload_remover_t rps_stringdict_payload_remover;
+extern rps_payload_dump_scanner_t rps_stringdict_payload_dump_scanner;
+extern rps_payload_dump_serializer_t rps_stringdict_payload_dump_serializer;
 
 /****************************************************************
  * Callframe payloads are in call stacks only for -RpsPyt_CallFrame

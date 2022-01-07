@@ -1222,6 +1222,15 @@ main (int argc, char **argv)
   rps_register_payload_dump_serializer (RpsPyt_MutableSetOb,
 					rps_setob_payload_dump_serializer,
 					NULL);
+  /// support for string dictionnary payload
+  rps_register_payload_removal (RpsPyt_StringDict,
+				rps_stringdict_payload_remover, NULL);
+  rps_register_payload_dump_scanner (RpsPyt_StringDict,
+				     rps_stringdict_payload_dump_scanner,
+				     NULL);
+  rps_register_payload_dump_serializer (RpsPyt_StringDict,
+					rps_stringdict_payload_dump_serializer,
+					NULL);
   ////
 #warning other payload routines should be registered here
   rps_check_all_objects_buckets_are_valid ();
