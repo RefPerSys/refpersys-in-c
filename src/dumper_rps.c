@@ -568,7 +568,7 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
   pthread_mutex_lock (&(((RpsObject_t *) obj)->ob_mtx));
-  fprintf (spfil, "\n\n(//+ob%s\n", obidbuf);
+  fprintf (spfil, "\n\n//+ob%s\n", obidbuf);
   const RpsObject_t *obclas = obj->ob_class;
   _.o.classobj = obclas;
   RpsClassInfo_t *paylcla = NULL;
