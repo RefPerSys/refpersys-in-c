@@ -961,9 +961,22 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
   RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
-  RPS_FATAL ("unimplemented rps_stringdict_payload_remover owner %O",
-	     paylstrdict->payl_owner);
-#warning unimplemented  rps_stringdict_payload_dump_scanner
+  struct kavl_itr_strdicnodrps iter = { };
+  int ix = 0;
+  kavl_itr_first_strdicnodrps (paylstrdict->strdict_root, &iter);
+  unsigned siz = paylstrdict->strdict_size;
+  while (ix < (int) siz)
+    {
+      const RpsString_t *curnam = kavl_at (&iter)->strdicnodrps_name;
+      RpsValue_t curval = kavl_at (&iter)->strdicnodrps_val;
+      RPS_ASSERT (rps_value_type ((RpsValue_t) curnam) == RPS_TYPE_STRING);
+      RPS_ASSERT (curval != RPS_NULL_VALUE);
+      ix++;
+      rps_dumper_scan_value (du, (RpsValue_t) curnam, 0);
+      rps_dumper_scan_value (du, curval, 0);
+      if (!kavl_itr_next_rpsmusetob (&iter))
+	break;
+    };
 }				/* end rps_stringdict_payload_dump_scanner */
 
 void
