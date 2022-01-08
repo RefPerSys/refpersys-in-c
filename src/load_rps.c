@@ -616,7 +616,7 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 	{
 	  json_t *jstr = json_object_get (jv, "string");
 	  if (json_is_string (jstr))
-	    return (RpsValue_t) rps_alloc_string (jstr);
+	    return (RpsValue_t) rps_alloc_string (json_string_value (jstr));
 	}
       else if (!strcmp (strvtyp, "json"))
 	{
@@ -625,7 +625,39 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
       else if (!strcmp (strvtyp, "tuple"))
 	{
 	  json_t *jstuple = json_object_get (jv, "tuple");
-	  /* TODO: code load of tuples */
+	  if (json_is_array (jstuple))
+	    {
+	      unsigned tupsiz = json_array_size (jstuple);
+	      if (tupsiz < 15)
+		{
+		  RpsObject_t *tuparr[16];
+		  memset (tuparr, 0, sizeof (tuparr));
+		  for (int tix = 0; tix < (int) tupsiz; tix++)
+		    {
+		      tuparr[tix] =	//
+			rps_loader_json_to_object (ld,
+						   json_array_get (jstuple,
+								   tix));
+		    }
+		  return (RpsValue_t) rps_alloc_tuple_sized (tupsiz, tuparr);
+		}
+	      else
+		{
+		  RpsObject_t **dynarr =
+		    RPS_ALLOC_ZEROED ((tupsiz + 1) * sizeof (RpsObject_t *));
+		  for (int tix = 0; tix < (int) tupsiz; tix++)
+		    {
+		      dynarr[tix] =	//
+			rps_loader_json_to_object (ld,
+						   json_array_get (jstuple,
+								   tix));
+		    };
+		  RpsValue_t vtup =
+		    (RpsValue_t) rps_alloc_tuple_sized (tupsiz, dynarr);
+		  free (dynarr);
+		  return vtup;
+		}
+	    }
 	}
 #warning incomplete rps_loader_json_to_value
       RPS_FATAL ("incomplete rps_loader_json_to_value \n... json %s",
