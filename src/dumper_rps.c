@@ -416,6 +416,8 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
   RPS_ASSERT (rps_is_valid_dumper (du));
   if (depth > RPS_MAX_VALUE_DEPTH)
     RPS_FATAL ("too deep %u value to dump @%p", depth, (void *) val);
+  if (val == RPS_NULL_VALUE)
+    return json_null ();
   enum RpsType vtyp = rps_value_type (val);
   switch (vtyp)
     {
