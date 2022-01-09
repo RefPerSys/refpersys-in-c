@@ -292,9 +292,8 @@ rps_closure_make (RpsObject_t * conn, unsigned arity, ...)
       memset (smallarr, 0, sizeof (smallarr));
       for (int ix = 0; ix < (int) arity; ix++)
 	smallarr[ix] = va_arg (arglist, RpsValue_t);
-      clos =
-	rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity,
-				smallarr);
+      clos = rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity,
+				     smallarr);
     }
   else
     {
@@ -326,9 +325,8 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
       memset (smallarr, 0, sizeof (smallarr));
       for (int ix = 0; ix < (int) arity; ix++)
 	smallarr[ix] = va_arg (arglist, RpsValue_t);
-      clos =
-	rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity,
-				smallarr);
+      clos = rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity,
+				     smallarr);
     }
   else
     {
@@ -1007,7 +1005,9 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
   RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
   unsigned nbent = paylstrdict->zm_length;
-  json_object_set (json, "payload", json_string ("strdict"));
+  json_object_set (json, "payload", json_string ("string_dictionary"));
+  RPS_DEBUG_PRINTF (DUMP, "string_dictionary serializer start %-1O",
+		    payl->payl_owner);
   json_t *jsarr = json_array ();
   struct kavl_itr_strdicnodrps iter = { };
   int ix = 0;
@@ -1019,6 +1019,10 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
     {
       const RpsString_t *curnam = kavl_at (&iter)->strdicnodrps_name;
       RpsValue_t curval = kavl_at (&iter)->strdicnodrps_val;
+
+      RPS_DEBUG_PRINTF (DUMP,
+			"string_dictionary serialize ix#%d %O curnam %V curval %V",
+			ix, payl->payl_owner, (RpsValue_t) curnam, curval);
       RPS_ASSERT (rps_value_type ((RpsValue_t) curnam) == RPS_TYPE_STRING);
       RPS_ASSERT (curval != RPS_NULL_VALUE);
       if (rps_is_dumpable_value (du, curval))
@@ -1035,6 +1039,8 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
 	break;
     };
   json_object_set (json, "dictionary", jsarr);
+  RPS_DEBUG_PRINTF (DUMP, "string_dictionary serializer end %O\n",
+		    payl->payl_owner);
 }				/* end rps_stringdict_payload_dump_serializer  */
 
 
