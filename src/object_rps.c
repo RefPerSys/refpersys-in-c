@@ -1423,6 +1423,9 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_ClassInfo);
   RpsClassInfo_t *clinf = (RpsClassInfo_t *) payl;
   RPS_ASSERT (clinf->pclass_magic == RPS_CLASSINFO_MAGIC);
+  RpsObject_t *classob = clinf->payl_owner;
+  RPS_ASSERT (rps_is_valid_object (classob));
+  RPS_DEBUG_PRINTF (DUMP, "serializing classinfo classob %-1O", classob);
   json_object_set (json, "payload", json_string ("classinfo"));
   RpsObject_t *superob = clinf->pclass_super;
   json_object_set (json, "class_super",
@@ -1519,11 +1522,17 @@ rps_symbol_payload_dump_serializer (RpsDumper_t * du,
   json_object_set (json, "payload", json_string ("symbol"));
   RpsSymbol_t *symb = (RpsSymbol_t *) payl;
   if (symb->symb_name)
-    json_object_set (json, "symb_name",
-		     rps_dump_json_for_value (du, symb->symb_name, 0));
+    {
+      json_t *jsname =		//
+	rps_dump_json_for_value (du, (RpsValue_t) symb->symb_name, 0);
+      json_object_set (json, "symb_name", jsname);
+    };
   if (symb->symb_value)
-    json_object_set (json, "symb_val",
-		     rps_dump_json_for_value (du, symb->symb_value, 0));
+    {
+      json_t *jssyval =		//
+	rps_dump_json_for_value (du, (RpsValue_t) symb->symb_value, 0)
+	json_object_set (json, "symb_val", jsyval);
+    };
 }				/* end rps_symbol_payload_dump_serializer  */
 
 
