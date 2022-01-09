@@ -292,14 +292,14 @@ rps_closure_make (RpsObject_t * conn, unsigned arity, ...)
       memset (smallarr, 0, sizeof (smallarr));
       for (int ix = 0; ix < (int) arity; ix++)
 	smallarr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, arity, RPS_NULL_VALUE, smallarr);
+      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, smallarr);
     }
   else
     {
       arr = RPS_ALLOC_ZEROED (sizeof (RpsValue_t) * (arity + 1));
       for (int ix = 0; ix < (int) arity; ix++)
 	arr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, arity, RPS_NULL_VALUE, arr);
+      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, arr);
       free (arr);
     }
   va_end (arglist);
@@ -323,14 +323,14 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
       memset (smallarr, 0, sizeof (smallarr));
       for (int ix = 0; ix < (int) arity; ix++)
 	smallarr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, arity, RPS_NULL_VALUE, smallarr);
+      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, smallarr);
     }
   else
     {
       arr = RPS_ALLOC_ZEROED (sizeof (RpsValue_t) * (arity + 1));
       for (int ix = 0; ix < (int) arity; ix++)
 	arr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, arity, RPS_NULL_VALUE, arr);
+      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, arr);
       free (arr);
     }
   va_end (arglist);
