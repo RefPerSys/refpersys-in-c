@@ -1001,7 +1001,7 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
   RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
   unsigned nbent = paylstrdict->zm_length;
-  json_object_set (json, "payload", json_string_value ("strdict"));
+  json_object_set (json, "payload", json_string ("strdict"));
   json_t *jsarr = json_array ();
   struct kavl_itr_strdicnodrps iter = { };
   int ix = 0;
@@ -1018,8 +1018,9 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
       if (rps_is_dumpable_value (du, curval))
 	{
 	  json_t *jent = json_object ();
-	  json_object_set (jent, "str",
-			   json_string (rps_stringv_utf8bytes (curnam)));
+	  json_t *jstr = //
+	    json_string (rps_stringv_utf8bytes ((RpsValue_t)curnam));
+	  json_object_set (jent, "str", jstr);
 	  json_object_set (jent, "val",
 			   rps_dump_json_for_value (du, curval, 0));
 	  json_array_append_new (jsarr, jent);
