@@ -292,14 +292,17 @@ rps_closure_make (RpsObject_t * conn, unsigned arity, ...)
       memset (smallarr, 0, sizeof (smallarr));
       for (int ix = 0; ix < (int) arity; ix++)
 	smallarr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, smallarr);
+      clos =
+	rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity,
+				smallarr);
     }
   else
     {
       arr = RPS_ALLOC_ZEROED (sizeof (RpsValue_t) * (arity + 1));
       for (int ix = 0; ix < (int) arity; ix++)
 	arr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, arr);
+      clos =
+	rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity, arr);
       free (arr);
     }
   va_end (arglist);
@@ -323,14 +326,17 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
       memset (smallarr, 0, sizeof (smallarr));
       for (int ix = 0; ix < (int) arity; ix++)
 	smallarr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, smallarr);
+      clos =
+	rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity,
+				smallarr);
     }
   else
     {
       arr = RPS_ALLOC_ZEROED (sizeof (RpsValue_t) * (arity + 1));
       for (int ix = 0; ix < (int) arity; ix++)
 	arr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, /*meta:*/RPS_NULL_VALUE, arity, arr);
+      clos =
+	rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity, arr);
       free (arr);
     }
   va_end (arglist);
@@ -1018,8 +1024,8 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
       if (rps_is_dumpable_value (du, curval))
 	{
 	  json_t *jent = json_object ();
-	  json_t *jstr = //
-	    json_string (rps_stringv_utf8bytes ((RpsValue_t)curnam));
+	  json_t *jstr =	//
+	    json_string (rps_stringv_utf8bytes ((RpsValue_t) curnam));
 	  json_object_set (jent, "str", jstr);
 	  json_object_set (jent, "val",
 			   rps_dump_json_for_value (du, curval, 0));
