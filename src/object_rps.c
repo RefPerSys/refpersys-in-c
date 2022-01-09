@@ -1441,8 +1441,8 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
 	const RpsString_t *syname = paylsycla->symb_name;
 	if (rps_value_type ((RpsValue_t) syname) == RPS_TYPE_STRING)
 	  {
-	    json_t *jname = //
-	      json_string (rps_stringv_utf8bytes ((RpsValue_t)syname));
+	    json_t *jname =	//
+	      json_string (rps_stringv_utf8bytes ((RpsValue_t) syname));
 	    json_object_set (json, "class_name", jname);
 	  }
       };
@@ -1457,13 +1457,14 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
       for (int aix = 0; aix < (int) nbattr; aix++)
 	{
 	  const RpsObject_t *curselob = rps_set_nth_member (setattr, aix);
-	  RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)curselob));
-	  if (rps_is_dumpable_object (du, (RpsObject_t*)curselob))
+	  RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) curselob));
+	  if (rps_is_dumpable_object (du, (RpsObject_t *) curselob))
 	    {
-	      RpsValue_t curmethv = //
-		rps_attr_table_find (methdict, (RpsObject_t*)curselob);
-	      RPS_DEBUG_PRINTF(DUMP, "classob %-1O curselob %-1O curmethv %V",
-			       classob, curselob, curmethv);
+	      RpsValue_t curmethv =	//
+		rps_attr_table_find (methdict, (RpsObject_t *) curselob);
+	      RPS_DEBUG_PRINTF (DUMP,
+				"classob %-1O curselob %-1O curmethv %V",
+				classob, curselob, curmethv);
 	      if (rps_value_type (curmethv) == RPS_TYPE_CLOSURE
 		  && rps_is_dumpable_value (du, curmethv))
 		{
@@ -1535,7 +1536,7 @@ rps_symbol_payload_dump_serializer (RpsDumper_t * du,
     {
       json_t *jssyval =		//
 	rps_dump_json_for_value (du, (RpsValue_t) symb->symb_value, 0);
-	json_object_set (json, "symb_val", jssyval);
+      json_object_set (json, "symb_val", jssyval);
     };
 }				/* end rps_symbol_payload_dump_serializer  */
 
