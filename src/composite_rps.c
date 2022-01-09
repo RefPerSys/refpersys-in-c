@@ -774,7 +774,7 @@ rps_setob_payload_dump_scanner (RpsDumper_t * du,
   unsigned card = paylsetob->zm_length;
   while (ix < (int) card)
     {
-      RpsObject_t *obelem = kavl_at (&iter)->setobnodrps_obelem;
+      RpsObject_t *obelem = (RpsObject_t*) kavl_at (&iter)->setobnodrps_obelem;
       RPS_ASSERT (rps_is_valid_object (obelem));
       ix++;
       rps_dumper_scan_object (du, obelem);
