@@ -508,11 +508,8 @@ rps_dump_json_for_value (RpsDumper_t * du, RpsValue_t val, unsigned depth)
       break;
     case RPS_TYPE_OBJECT:
       {
-	json_t *jsob =		//
+	json_t *jres =		//
 	  rps_dump_json_for_object (du, (RpsObject_t *) val);
-	jres = json_object ();
-	json_object_set (jres, "vtype", json_string ("object"));
-	json_object_set (jres, "object", jres);
       }
       break;
     case RPS_TYPE_FILE:
