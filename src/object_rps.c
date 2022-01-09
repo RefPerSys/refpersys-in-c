@@ -1199,6 +1199,7 @@ void
 rpsldpy_classinfo (RpsObject_t * obj, RpsLoader_t * ld,
 		   const json_t * jv, int spacix)
 {
+  // should be compatible with rps_classinfo_payload_dump_serializer 
   char idbuf[32];
   memset (idbuf, 0, sizeof (idbuf));
   RPS_ASSERT (obj != NULL);
@@ -1417,14 +1418,59 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
 				       struct rps_owned_payload_st *payl,
 				       json_t * json, void *data)
 {
+  // should be compatible with rpsldpy_classinfo
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_ClassInfo);
   RpsClassInfo_t *clinf = (RpsClassInfo_t *) payl;
   RPS_ASSERT (clinf->pclass_magic == RPS_CLASSINFO_MAGIC);
-  RPS_FATAL
-    ("rps_classinfo_payload_dump_scanner unimplemented  payl@%p data @%p json %s",
-     payl, data, json_dumps (json, JSON_INDENT (2) | JSON_SORT_KEYS));
-#warning unimplemented rps_classinfo_payload_dump_serializer
+  json_object_set (json, "payload", json_string ("classinfo"));
+  RpsObject_t *superob = clinf->pclass_super;
+  json_object_set (json, "class_super",
+		   rps_dump_json_for_object (du, superob));
+  RpsObject_t *symbob = clinf->pclass_symbol;
+  json_object_set (json, "class_symb", rps_dump_json_for_object (du, symbob));
+  {
+    pthread_mutex_lock (&symbob->ob_mtx);
+    RpsSymbol_t *paylsycla = rps_get_object_payload_of_type (symbob,
+							     -RpsPyt_Symbol);
+    if (paylsycla)
+      {
+	const RpsString_t *syname = paylsycla->symb_name;
+	if (rps_value_type ((RpsValue_t) syname) == RPS_TYPE_STRING)
+	  {
+	    json_t *jname = json_string (rps_stringv_utf8bytes (syname));
+	    json_object_set (json, "class_name", jname);
+	  }
+      };
+    pthread_mutex_unlock (&symbob->ob_mtx);
+  }
+  RpsAttrTable_t *methdict = clinf->pclass_methdict;
+  if (methdict)
+    {
+      const RpsSetOb_t *setattr = rps_attr_table_set_of_attributes (methdict);
+      unsigned nbattr = rps_set_cardinal (setattr);
+      json_t *jarrmeth = json_array ();
+      for (int aix = 0; aix < (int) nbattr; aix++)
+	{
+	  const RpsObject_t *curselob = rps_set_nth_member (setattr, aix);
+	  RPS_ASSERT (rps_is_valid_object (curselob));
+	  if (rps_is_dumpable_object (du, curselob))
+	    {
+	      RpsValue_t curmethv = rps_attr_table_find (methdict, curselob);
+	      if (rps_value_type (curmethv) == RPS_TYPE_CLOSURE
+		  && rps_is_dumpable_value (du, curmethv))
+		{
+		  json_t *jent = json_object ();
+		  json_object_set (jent, "methosel",
+				   rps_dump_json_for_object (du, curselob));
+		  json_object_set (jent, "methclos",
+				   rps_dump_json_for_value (du, curmethv, 0));
+		  json_array_append_new (jarrmeth, jent);
+		}
+	    }
+	}
+      json_object_set (json, "class_methodict", jarrmeth);
+    }
 }				/* end rps_classinfo_payload_dump_serializer  */
 
 
