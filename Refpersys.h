@@ -705,16 +705,24 @@ extern void rps_remove_global_root_object (RpsObject_t * obj);
 extern unsigned rps_nb_global_root_objects (void);
 extern const RpsSetOb_t *rps_set_of_global_root_objects (void);
 
-
-
-
+/// function to dump object attributes, has a signature compatible with rps_apply_dumpj_sigt
+extern RpsValue_t
+rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
+				const RpsClosure_t * clos,
+				RpsDumper_t * du,
+				RpsValue_t dumpedobv, json_t * js);
+/// function to dump object components, has a signature compatible with rps_apply_dumpj_sigt
+extern RpsValue_t
+rpscloj_dump_object_components (rps_callframe_t * callerframe,
+				const RpsClosure_t * clos,
+				RpsDumper_t * du,
+				RpsValue_t dumpedobv, json_t * js);
 /****************************************************************
  * Common superfields of owned payloads
  ****************************************************************/
 #define RPSFIELDS_OWNED_PAYLOAD			\
   RPSFIELDS_ZONED_MEMORY;			\
   RpsObject_t* payl_owner
-
 /// By convention, the zm_atype of payload is a small negative index, e.g. some RpsPyt_* 
 struct rps_owned_payload_st
 {
@@ -729,14 +737,14 @@ extern void rps_register_payload_removal (int paylty,
 					  rps_payload_remover_t * rout,
 					  void *data);
 typedef void rps_payload_dump_scanner_t (RpsDumper_t * du,
-					 struct rps_owned_payload_st *payl,
-					 void *data);
+					 struct rps_owned_payload_st
+					 *payl, void *data);
 extern void rps_register_payload_dump_scanner (int paylty,
-					       rps_payload_dump_scanner_t *
-					       rout, void *data);
+					       rps_payload_dump_scanner_t
+					       * rout, void *data);
 typedef void rps_payload_dump_serializer_t (RpsDumper_t * du,
-					    struct rps_owned_payload_st *payl,
-					    json_t * json, void *data);
+					    struct rps_owned_payload_st
+					    *payl, json_t * json, void *data);
 extern void rps_register_payload_dump_serializer (int paylty, rps_payload_dump_serializer_t * rout,	///
 						  void *data);
 
@@ -782,12 +790,12 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 					      RpsObject_t * obattr);
 extern unsigned rps_attr_table_size (const RpsAttrTable_t * tbl);
 extern unsigned rps_attr_table_iterate (const RpsAttrTable_t * tbl,
-					rps_object_callback_sig_t * routattr,
-					rps_value_callback_sig_t * routval,
+					rps_object_callback_sig_t *routattr,
+					rps_value_callback_sig_t *routval,
 					void *data);
 extern const RpsSetOb_t *rps_attr_table_set_of_attributes (const
-							   RpsAttrTable_t *
-							   tbl);
+							   RpsAttrTable_t
+							   * tbl);
 /****************************************************************
  * Owned symbol payload
  ****************************************************************/
@@ -841,8 +849,8 @@ extern bool rps_is_valid_classinfo (const RpsClassInfo_t * clinf);
 extern RpsObject_t *rps_classinfo_super (const RpsClassInfo_t * clinf);
 extern RpsObject_t *rps_classinfo_symbol (const RpsClassInfo_t * clinf);
 extern RpsAttrTable_t *rps_classinfo_methdict (const RpsClassInfo_t * clinf);
-extern RpsClosure_t *rps_classinfo_get_method (const RpsClassInfo_t * clinf,
-					       RpsObject_t * selob);
+extern RpsClosure_t *rps_classinfo_get_method (const RpsClassInfo_t *
+					       clinf, RpsObject_t * selob);
 
 extern RpsObject_t *rps_obclass_super (RpsObject_t * obcla);
 extern RpsObject_t *rps_obclass_symbol (RpsObject_t * obcla);
@@ -852,8 +860,8 @@ extern RpsClosure_t *rps_obclass_get_method (RpsObject_t * obcla,
 
 //// given some non-nil value, return the closure to send a method of given selector
 extern RpsClosure_t *rps_value_compute_method_closure (RpsValue_t val,
-						       const RpsObject_t *
-						       selob);
+						       const RpsObject_t
+						       * selob);
 
 extern rps_payload_remover_t rps_classinfo_payload_remover;
 extern rps_payload_dump_scanner_t rps_classinfo_payload_dump_scanner;
@@ -1019,13 +1027,10 @@ typedef struct RpsPayl_StringDictOb_st RpsStringDictOb_t;
 
 /// initialize the payload to an empty string dictionary
 extern void rps_object_string_dictionary_initialize (RpsObject_t *);
-extern RpsValue_t rps_object_string_dictionary_cstr_find (RpsObject_t *
-							  obstrdict,
+extern RpsValue_t rps_object_string_dictionary_cstr_find (RpsObject_t * obstrdict,
 							  const char *cstr);
-extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t *
-							 obstrdict,
-							 const RpsString_t *
-							 strv);
+extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t * obstrdict,
+							 const RpsString_t * strv);
 void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
 				       const RpsString_t * strv,
 				       const RpsValue_t val);
