@@ -512,7 +512,7 @@ rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
 	  && tbl->attr_entries[eix].ent_attr != RPS_HTB_EMPTY_SLOT)
 	obarr[cnt++] = tbl->attr_entries[eix].ent_attr;
     };
-  setv = rps_alloc_set_sized (obarr, cnt);
+  setv = rps_alloc_set_sized (cnt, obarr);
   free (obarr);
   return setv;
 }				/* end  rps_attr_table_set_of_attributes */
