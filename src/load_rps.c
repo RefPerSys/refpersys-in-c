@@ -578,8 +578,11 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 	  json_t *jsmeta = json_object_get (jv, "meta");
 	  if (!json_is_array (jsenv) || !json_is_string (jsfn))
 	    goto corruptedjson;
-	  RpsValue_t vmeta =
-	    jsmeta ? rps_loader_json_to_value (ld, jsmeta) : RPS_NULL_VALUE;
+	  RpsValue_t vmeta = RPS_NULL_VALUE;
+	  if (jsmeta)
+	    vmeta = rps_loader_json_to_value (ld, jsmeta);
+	  RPS_ASSERT (vmeta == RPS_NULL_VALUE
+		      || rps_value_type (vmeta) > RPS_TYPE__NONE);
 	  RpsObject_t *obfn = rps_loader_json_to_object (ld, jsfn);
 	  RPS_ASSERT (obfn != NULL);
 	  unsigned envsiz = json_array_size (jsenv);
