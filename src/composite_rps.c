@@ -266,7 +266,7 @@ rps_closure_array_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
   int prix = rps_index_of_prime (size);
   clos =
     RPS_ALLOC_ZONE (sizeof (RpsClosure_t) + (size * sizeof (RpsValue_t)),
-		    RPS_TYPE_SET);
+		    RPS_TYPE_CLOSURE);
   clos->zm_length = arity;
   clos->zm_xtra = prix;
   clos->clos_conn = conn;
