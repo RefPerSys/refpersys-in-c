@@ -774,7 +774,8 @@ rps_setob_payload_dump_scanner (RpsDumper_t * du,
   unsigned card = paylsetob->zm_length;
   while (ix < (int) card)
     {
-      RpsObject_t *obelem = (RpsObject_t*) kavl_at (&iter)->setobnodrps_obelem;
+      RpsObject_t *obelem =
+	(RpsObject_t *) kavl_at (&iter)->setobnodrps_obelem;
       RPS_ASSERT (rps_is_valid_object (obelem));
       ix++;
       rps_dumper_scan_object (du, obelem);
@@ -794,16 +795,19 @@ rps_setob_payload_dump_serializer (RpsDumper_t * du,
   unsigned card = paylsetob->zm_length;
   const RpsObject_t **arrob =
     RPS_ALLOC_ZEROED ((card + 1) * sizeof (RpsObject_t *));
-  struct kavl_itr_rpsmusetob iter = { };
-  int ix = 0;
-  kavl_itr_first_rpsmusetob (paylsetob->muset_root, &iter);
-  while (ix < (int) card)
+  if (card > 0 && paylsetob->muset_root)
     {
-      arrob[ix++] = kavl_at (&iter)->setobnodrps_obelem;
-      if (!kavl_itr_next_rpsmusetob (&iter))
-	break;
-    };
-  RPS_ASSERT (ix == card);
+      struct kavl_itr_rpsmusetob iter = { };
+      int ix = 0;
+      kavl_itr_first_rpsmusetob (paylsetob->muset_root, &iter);
+      while (ix < (int) card)
+	{
+	  arrob[ix++] = kavl_at (&iter)->setobnodrps_obelem;
+	  if (!kavl_itr_next_rpsmusetob (&iter))
+	    break;
+	};
+      RPS_ASSERT (ix == card);
+    }
   json_object_set (json, "payload", json_string ("setob"));
   /// the sort is probably useless....
   rps_object_array_qsort (arrob, card);
