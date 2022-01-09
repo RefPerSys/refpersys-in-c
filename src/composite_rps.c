@@ -807,14 +807,14 @@ rps_setob_payload_dump_serializer (RpsDumper_t * du,
   json_object_set (json, "payload", json_string ("setob"));
   /// the sort is probably useless....
   rps_object_array_qsort (arrob, card);
-  json_t* jsarr = json_array();
-  for (int i = 0; i<(int)card; i++) {
-    const RpsObject_t* curob = arrob[i];
-    RPS_ASSERT(curob && rps_is_valid_object(curob));
-    if (rps_is_dumpable_object(du, curob))
-      json_array_append_new(jsarr,
-			    rps_dump_json_for_object(du, curob));
-  }
+  json_t *jsarr = json_array ();
+  for (int i = 0; i < (int) card; i++)
+    {
+      const RpsObject_t *curob = arrob[i];
+      RPS_ASSERT (curob && rps_is_valid_object (curob));
+      if (rps_is_dumpable_object (du, curob))
+	json_array_append_new (jsarr, rps_dump_json_for_object (du, curob));
+    }
   json_object_set (json, "setob", jsarr);
 }				/* end rps_setob_payload_dump_serializer  */
 
@@ -997,8 +997,8 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
   RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
   unsigned nbent = paylstrdict->zm_length;
-  json_object_set(json, "payload", json_string_value("strdict"));
-  json_t* jsarr = json_array();
+  json_object_set (json, "payload", json_string_value ("strdict"));
+  json_t *jsarr = json_array ();
   struct kavl_itr_strdicnodrps iter = { };
   int ix = 0;
   if (!paylstrdict->strdict_root)
@@ -1011,18 +1011,19 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
       RpsValue_t curval = kavl_at (&iter)->strdicnodrps_val;
       RPS_ASSERT (rps_value_type ((RpsValue_t) curnam) == RPS_TYPE_STRING);
       RPS_ASSERT (curval != RPS_NULL_VALUE);
-      if (rps_is_dumpable_value(du, curval)) {
-	json_t* jent = json_object();
-	json_object_set(jent, "str",
-		       json_string(rps_stringv_utf8bytes(curnam)));
-	json_object_set(jent, "val",
-			rps_dump_json_for_value(du, curval, 0));
-	json_array_append_new(jsarr, jent);
-      }
+      if (rps_is_dumpable_value (du, curval))
+	{
+	  json_t *jent = json_object ();
+	  json_object_set (jent, "str",
+			   json_string (rps_stringv_utf8bytes (curnam)));
+	  json_object_set (jent, "val",
+			   rps_dump_json_for_value (du, curval, 0));
+	  json_array_append_new (jsarr, jent);
+	}
       if (!kavl_itr_next_rpsmusetob (&iter))
 	break;
     };
-  json_object_set(json, "dictionary", jsarr);
+  json_object_set (json, "dictionary", jsarr);
 }				/* end rps_stringdict_payload_dump_serializer  */
 
 
