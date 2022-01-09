@@ -528,6 +528,8 @@ rps_loader_json_to_object (RpsLoader_t * ld, json_t * jv)
 	    obres = rps_find_object_by_oid (oid);
 	}
     }
+  else if (json_is_null(jv))
+    obres = NULL;
   return obres;
 }				/* end rps_loader_json_to_object */
 
@@ -596,8 +598,9 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 		    rps_loader_json_to_value (ld,
 					      json_array_get (jsenv, vix));
 		}
-	      return (RpsValue_t) rps_closure_array_make (obfn, /*meta:*/vmeta,
-							 envsiz, envarrv);
+	      return (RpsValue_t) rps_closure_array_make (obfn, //
+							  /*meta: */ vmeta,
+							  envsiz, envarrv);
 	    }
 	  else
 	    {
@@ -610,7 +613,7 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 					      json_array_get (jsenv, vix));
 		}
 	      const RpsClosure_t *clos =
-		rps_closure_array_make (obfn, /*meta:*/ vmeta,
+		rps_closure_array_make (obfn, /*meta: */ vmeta,
 					envsiz, envdynarr);
 	      free (envdynarr);
 	      return (RpsValue_t) clos;
