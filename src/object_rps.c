@@ -1441,7 +1441,8 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
 	const RpsString_t *syname = paylsycla->symb_name;
 	if (rps_value_type ((RpsValue_t) syname) == RPS_TYPE_STRING)
 	  {
-	    json_t *jname = json_string (rps_stringv_utf8bytes (syname));
+	    json_t *jname = //
+	      json_string (rps_stringv_utf8bytes ((RpsValue_t)syname));
 	    json_object_set (json, "class_name", jname);
 	  }
       };
@@ -1456,10 +1457,13 @@ rps_classinfo_payload_dump_serializer (RpsDumper_t * du,
       for (int aix = 0; aix < (int) nbattr; aix++)
 	{
 	  const RpsObject_t *curselob = rps_set_nth_member (setattr, aix);
-	  RPS_ASSERT (rps_is_valid_object (curselob));
-	  if (rps_is_dumpable_object (du, curselob))
+	  RPS_ASSERT (rps_is_valid_object ((RpsObject_t*)curselob));
+	  if (rps_is_dumpable_object (du, (RpsObject_t*)curselob))
 	    {
-	      RpsValue_t curmethv = rps_attr_table_find (methdict, curselob);
+	      RpsValue_t curmethv = //
+		rps_attr_table_find (methdict, (RpsObject_t*)curselob);
+	      RPS_DEBUG_PRINTF(DUMP, "classob %-1O curselob %-1O curmethv %V",
+			       classob, curselob, curmethv);
 	      if (rps_value_type (curmethv) == RPS_TYPE_CLOSURE
 		  && rps_is_dumpable_value (du, curmethv))
 		{
@@ -1490,7 +1494,7 @@ rps_symbol_payload_remover (RpsObject_t * ob,
   RpsSymbol_t *symb = (RpsSymbol_t *) clpayl;
   symb->payl_owner = NULL;
   symb->symb_name = NULL;	// will be garbage collected.
-  symb->symb_value = NULL;
+  symb->symb_value = RPS_NULL_VALUE;
 #warning rps_symbol_payload_remover need a code review
   /// TODO: should we also clear the zm_length, zm_xtra fields?
 }				/* end rps_classinfo_payload_remover */
@@ -1530,8 +1534,8 @@ rps_symbol_payload_dump_serializer (RpsDumper_t * du,
   if (symb->symb_value)
     {
       json_t *jssyval =		//
-	rps_dump_json_for_value (du, (RpsValue_t) symb->symb_value, 0)
-	json_object_set (json, "symb_val", jsyval);
+	rps_dump_json_for_value (du, (RpsValue_t) symb->symb_value, 0);
+	json_object_set (json, "symb_val", jssyval);
     };
 }				/* end rps_symbol_payload_dump_serializer  */
 
