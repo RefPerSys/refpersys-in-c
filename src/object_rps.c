@@ -1514,10 +1514,16 @@ rps_symbol_payload_dump_serializer (RpsDumper_t * du,
 				    json_t * json, void *data)
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
-  RPS_FATAL
-    ("rps_symbol_payload_dump_scanner unimplemented  payl@%p data @%p json %s",
-     payl, data, json_dumps (json, JSON_INDENT (2) | JSON_SORT_KEYS));
-#warning unimplemented rps_symbol_payload_dump_serializer
+  RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_Symbol);
+  RPS_ASSERT (payl->payl_owner != NULL);
+  json_object_set (json, "payload", json_string ("symbol"));
+  RpsSymbol_t *symb = (RpsSymbol_t *) payl;
+  if (symb->symb_name)
+    json_object_set (json, "symb_name",
+		     rps_dump_json_for_value (du, symb->symb_name, 0));
+  if (symb->symb_value)
+    json_object_set (json, "symb_val",
+		     rps_dump_json_for_value (du, symb->symb_value, 0));
 }				/* end rps_symbol_payload_dump_serializer  */
 
 
