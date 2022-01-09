@@ -596,7 +596,7 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 		    rps_loader_json_to_value (ld,
 					      json_array_get (jsenv, vix));
 		}
-	      return (RpsValue_t) rps_closure_meta_make (obfn, vmeta,
+	      return (RpsValue_t) rps_closure_array_make (obfn, /*meta:*/vmeta,
 							 envsiz, envarrv);
 	    }
 	  else
@@ -610,7 +610,8 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 					      json_array_get (jsenv, vix));
 		}
 	      const RpsClosure_t *clos =
-		rps_closure_meta_make (obfn, vmeta, envsiz, envdynarr);
+		rps_closure_array_make (obfn, /*meta:*/ vmeta,
+					envsiz, envdynarr);
 	      free (envdynarr);
 	      return (RpsValue_t) clos;
 	    }
