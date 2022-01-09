@@ -645,13 +645,12 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
       if (obj->ob_payload)
 	{
 	  int paylty = RPS_ZONED_MEMORY_TYPE (obj->ob_payload);
-	  RPS_ASSERT (paylty < 0 && paylty > RpsPyt__LAST);
+	  RPS_ASSERT (paylty < 0 && paylty > -RpsPyt__LAST);
 	  rps_dump_serialize_object_payload (du, obj, jsob);
 	};
       RPS_DEBUG_PRINTF (DUMP,
 			"dumped object %-1O of class %-1O without dump closure",
 			obj, obclas);
-#warning should dump using rpscloj_dump_object_components & rpscloj_dump_object_attributes
     }
   fprintf (spfil, "{\n");
   const char *curkey = NULL;
