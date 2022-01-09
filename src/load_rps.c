@@ -620,7 +620,7 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 	}
       else if (!strcmp (strvtyp, "json"))
 	{
-	  return rps_alloc_json (json_object_get (jv, "json"));
+	  return (RpsValue_t) rps_alloc_json (json_object_get (jv, "json"));
 	}
       else if (!strcmp (strvtyp, "tuple"))
 	{
