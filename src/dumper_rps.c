@@ -44,7 +44,8 @@ struct RpsPayl_Dumper_st
 {
   RPSFIELDS_ZONED_VALUE;
   unsigned du_magic;		/* always RPS_DUMPER_MAGIC */
-  int du_i, du_j, du_k;		/* various indexes, for internal use; perhaps useless */
+  int du_i, du_j;		/* various indexes, for internal use; perhaps useless */
+  uint8_t du_moreindent;	/* extra indentation */
   void *du_data1;		/* various data, for internal use; perhaps useless */
   void *du_data2;		/* various data, for internal use; perhaps useless */
   rps_callframe_t *du_callframe;
@@ -279,6 +280,8 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
 {
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
+  int old_dui = du->du_i;
+  du->du_i = spix;
   RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) spacob));
   char spacid[32];
   memset (spacid, 0, sizeof (spacid));
@@ -344,6 +347,7 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
       fflush (spfil);
     }
   du->du_htcurspace = NULL;
+  du->du_i = old_dui;
   RPS_DEBUG_PRINTF (DUMP, "end dump-one-space spix#%d %s\n", spix, spacid);
 }				/* end rps_dump_one_space */
 
@@ -547,6 +551,9 @@ const struct rps_callframedescr_st rpscfd_dumpobject_in_space =	//
     sizeof (struct rpsdumpobject_objects_st) / sizeof (RpsObject_t *)
 };
 
+static 
+int rps_json_dump_writing_cb (const char *buffer, size_t size, void *data);
+
 void
 rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
 			  const RpsObject_t * obj, int oix)
@@ -612,7 +619,7 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   json_object_set_new (jsob, "oid", json_string (obidbuf));
   json_object_set_new (jsob, "mtime", json_real (obj->ob_mtime));
   json_object_set_new (jsob, "class", json_string (obclaidbuf));
-#warning rps_dump_object_in_space should fill jsob, annd dump it piece by piece
+#warning rps_dump_object_in_space should fill jsob, and dump it piece by piece
   /*** TODO: Use rps_value_compute_method_closure to get a closure
        dumping the object, otherwise do a "physical" dump.
   ***/
@@ -659,8 +666,10 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   json_object_foreach (jsob, curkey, jsva)
   {
     RPS_ASSERT (jsva != NULL);
-    // We take care when duming the "mtime" field to emit only it with
-    // two decimal digits. Since clock is in practice inaccurate.
+    // We take care when dumping the "mtime" field to emit only it
+    // with two decimal digits.  Since the system clock is in practice
+    // probably accurate just to a dozen of milliseconds.  It make no
+    // sense to write more precise timing.
     if (!strcmp (curkey, "mtime") && json_is_real (jsva))
       {
 	fprintf (spfil, " \"mtime\" : %.2f", json_real_value (jsva));
@@ -668,9 +677,14 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
     else
       {
 	fprintf (spfil, " \"%s\" : ", curkey);
-	json_dumpf (jsva, spfil,
-		    JSON_INDENT (2) | JSON_SORT_KEYS |
-		    JSON_REAL_PRECISION (12) | JSON_ENCODE_ANY);
+	int oldindent = du->du_moreindent;
+	du->du_moreindent = 2;
+	json_dump_callback (jsva, rps_json_dump_writing_cb,
+			    du,
+			    JSON_INDENT (2) | JSON_SORT_KEYS |
+			    JSON_REAL_PRECISION (12) | JSON_ENCODE_ANY);
+	du->du_moreindent = oldindent;
+
       }
     if (cnt < nbat - 1)
       fputs (",\n", spfil);
@@ -683,6 +697,36 @@ rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
   json_decrefp (&jsob);
   pthread_mutex_unlock (&((RpsObject_t *) obj)->ob_mtx);
 }				/* end rps_dump_object_in_space */
+
+int
+rps_json_dump_writing_cb (const char *buffer, size_t size, void *data)
+{
+  RPS_ASSERT (data == rps_the_dumper);
+  RpsDumper_t *du = (RpsDumper_t *) data;
+  int spix = du->du_i;
+  RPS_ASSERT (spix >= 0 && spix < RPS_DUMP_MAX_NB_SPACE);
+  FILE *spfil = du->du_spacedescr[spix].sp_file;
+  RPS_ASSERT (spfil && !feof (spfil));
+  if (ferror (spfil))
+    return -1;
+  bool failed = false;
+  const char *endb = buffer + size;
+  for (const char *pc = buffer; pc < endb; pc++)
+    {
+      if (fputc (*pc, spfil) < 0)
+	failed = true;
+      if (*pc == '\n')
+	{
+	  for (int ii = (int)(du->du_moreindent & 0xf);
+	       ii > 0 && !failed; ii--)
+	    if (fputc (' ', spfil) < 0)
+	      failed = true;
+	}
+    }
+  if (failed)
+    return -1;
+  return 0;
+}				/* end rps_json_dump_writing_cb */
 
 
 #warning a lot of dumping routines are missing here
