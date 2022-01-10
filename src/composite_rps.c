@@ -926,7 +926,7 @@ rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
   RpsStringDictOb_t *paylstrdic = (RpsStringDictOb_t *) (obj->ob_payload);
   RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylstrdic) == -RpsPyt_StringDict);
   json_t *jsdict = json_object_get (jv, "dictionary");
-  RPS_DEBUG_PRINTF(LOAD,"load string_dictionary %O", obj);
+  RPS_DEBUG_PRINTF (LOAD, "load string_dictionary %O", obj);
   if (jsdict && json_is_array (jsdict))
     {
       unsigned nbent = json_array_size (jsdict);
@@ -978,13 +978,14 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
   RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
   struct kavl_itr_strdicnodrps iter = { };
   int ix = 0;
-  if (!paylstrdict->strdict_root) {
-    RPS_DEBUG_PRINTF (DUMP, "string_dictionary scanned empty %O",
-		      payl->payl_owner);
-    return;
-  }
+  if (!paylstrdict->strdict_root)
+    {
+      RPS_DEBUG_PRINTF (DUMP, "string_dictionary scanned empty %O",
+			payl->payl_owner);
+      return;
+    }
   kavl_itr_first_strdicnodrps (paylstrdict->strdict_root, &iter);
-  unsigned siz = paylstrdict->strdict_size;
+  unsigned siz = paylstrdict->zm_length;
   while (ix < (int) siz)
     {
       const RpsString_t *curnam = kavl_at (&iter)->strdicnodrps_name;
@@ -1025,7 +1026,7 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
       return;
     }
   kavl_itr_first_strdicnodrps (paylstrdict->strdict_root, &iter);
-  unsigned siz = paylstrdict->strdict_size;
+  unsigned siz = paylstrdict->zm_length;
   while (ix < (int) siz)
     {
       const RpsString_t *curnam = kavl_at (&iter)->strdicnodrps_name;

@@ -1014,7 +1014,6 @@ struct internal_string_dict_node_rps_st
 };
 #define RPSFIELDS_PAYLOAD_STRINGDICTOB			\
   RPSFIELDS_OWNED_PAYLOAD;				\
-  unsigned strdict_size;				\
   struct internal_string_dict_node_rps_st*strdict_root
 
 
