@@ -283,7 +283,9 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 		if (depth == 0)
 		  {
 		    ln +=
-		      rps_print_detailed_object (outf, info, compob, depth);
+		      rps_print_detailed_object (outf, info,
+						 (RpsObject_t *) compob,
+						 depth);
 		  }
 		else
 		  {
@@ -461,7 +463,7 @@ rps_print_detailed_object (FILE * outf, const struct printf_info *info,
   char idbuf[32];
   memset (idbuf, 0, sizeof (idbuf));
   rps_oid_to_cbuf (obj->ob_id, idbuf);
-  char *str = NULL;
+  const char *str = NULL;
   fputs (idbuf, outf);
   int ln = strlen (idbuf);
   if (depth == 0)
@@ -499,8 +501,9 @@ rps_print_detailed_object (FILE * outf, const struct printf_info *info,
 		const RpsString_t *syname = sypayl->symb_name;
 		if (rps_value_type ((RpsValue_t) syname) == RPS_TYPE_STRING)
 		  {
-		    int lsy =
-		      fprintf (outf, "$%s", rps_stringv_utf8bytes (syname));
+		    int lsy = fprintf (outf, "$%s",
+				       rps_stringv_utf8bytes ((RpsValue_t)
+							      syname));
 		    if (lsy > 0)
 		      ln += lsy;
 		  };
