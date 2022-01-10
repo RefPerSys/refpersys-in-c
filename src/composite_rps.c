@@ -993,6 +993,8 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
       if (!kavl_itr_next_rpsmusetob (&iter))
 	break;
     };
+  RPS_DEBUG_PRINTF (DUMP, "string_dictionary scanned %O with %d entries",
+		    payl->payl_owner, ix);
 }				/* end rps_stringdict_payload_dump_scanner */
 
 void
