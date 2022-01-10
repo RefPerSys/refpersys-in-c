@@ -1012,7 +1012,12 @@ rps_stringdict_payload_dump_serializer (RpsDumper_t * du,
   struct kavl_itr_strdicnodrps iter = { };
   int ix = 0;
   if (!paylstrdict->strdict_root)
-    return;
+    {
+      RPS_DEBUG_PRINTF (DUMP,
+			"string_dictionary serialize ix#%d empty dict %O",
+			ix, payl->payl_owner);
+      return;
+    }
   kavl_itr_first_strdicnodrps (paylstrdict->strdict_root, &iter);
   unsigned siz = paylstrdict->strdict_size;
   while (ix < (int) siz)
