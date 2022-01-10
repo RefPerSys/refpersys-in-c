@@ -926,6 +926,7 @@ rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
   RpsStringDictOb_t *paylstrdic = (RpsStringDictOb_t *) (obj->ob_payload);
   RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (paylstrdic) == -RpsPyt_StringDict);
   json_t *jsdict = json_object_get (jv, "dictionary");
+  RPS_DEBUG_PRINTF(LOAD,"load string_dictionary %O", obj);
   if (jsdict && json_is_array (jsdict))
     {
       unsigned nbent = json_array_size (jsdict);
@@ -935,7 +936,7 @@ rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
 	  if (!json_is_object (jent))
 	    continue;
 	  json_t *jstr = json_object_get (jent, "str");
-	  if (json_is_string (jstr))
+	  if (!json_is_string (jstr))
 	    continue;
 	  json_t *jval = json_object_get (jent, "val");
 	  if (!jval)
