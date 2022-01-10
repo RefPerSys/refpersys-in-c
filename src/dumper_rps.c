@@ -336,8 +336,8 @@ rps_dump_one_space (RpsDumper_t * du, int spix, const RpsObject_t * spacob,
   fprintf (spfil, "{\n");
   fprintf (spfil, " \"format\" : \"%s\",\n", RPS_MANIFEST_FORMAT);
   fprintf (spfil, " \"nbobjects\" : %u,\n", spacesize);
-  fprintf (spfil, " \"spaceid\" : \"%s\",\n", spacid);
-  fprintf (spfil, "}\n");
+  fprintf (spfil, " \"spaceid\" : \"%s\"\n", spacid);
+  fprintf (spfil, "}\n\n");
   fflush (spfil);
   for (int oix = 0; oix < (int) spacesize; oix++)
     {
