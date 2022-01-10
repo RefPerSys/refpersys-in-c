@@ -971,7 +971,7 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
   // setattrs should not leak, we can free it explicitly
   memset (setattrs, 0, sizeof (setattrs));
   free (setattrs);
-  json_object_set (js, "attributes", jsarr);
+  json_object_set (js, "attrs", jsarr);
   return (RpsValue_t) obdump;
 }				/* end of rpscloj_dump_object_attributes */
 
