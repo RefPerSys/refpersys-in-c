@@ -230,7 +230,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	RPS_ASSERT (js != NULL);
 	char *jbuf =
 	  json_dumps (js, JSON_COMPACT | JSON_SORT_KEYS | JSON_ENCODE_ANY);
-	int ln = fprintf (outf, "JSON %s", jbuf);
+	int ln = fprintf (outf, "¤JSON %s", jbuf);
 	free (jbuf);
 	return ln;
       }
@@ -244,7 +244,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	memset (buf, 0, sizeof (buf));
 	snprintf (buf, sizeof (buf), "%s@%p",
 		  gtk_widget_class_get_css_name (wcla), widg);
-	int ln = fprintf (outf, "GTKWIDGET %s", buf);
+	int ln = fprintf (outf, "¤GTKWIDGET %s", buf);
 	return ln;
       }
     case RPS_TYPE_TUPLE:
@@ -353,7 +353,7 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	RpsValue_t metav = rps_closure_meta (val);
 	int csiz = (int) rps_closure_size (val);
 	RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) connob));
-	int ln = fprintf (outf, "CLOSURE ");
+	int ln = fprintf (outf, "¤CLOSURE ");
 	ln += rps_print_detailed_object (outf, info, connob, depth);
 	if (ln < 0)
 	  return -1;
@@ -418,12 +418,12 @@ rps_rec_print_value (FILE * outf, const struct printf_info *info,
 	FILE *fh = filv->fileh;
 	int fd = fileno (fh);
 	if (fd > 0)
-	  return fprintf (outf, "FILE#%d", fd);
+	  return fprintf (outf, "¤FILE#%d", fd);
 	else
-	  return fprintf (outf, "FILE@%p", filv);
+	  return fprintf (outf, "¤FILE@%p", filv);
       }
     default:
-      return fprintf (outf, "BOGUS %p", (void *) val);
+      return fprintf (outf, "¤?BOGUS %p", (void *) val);
     }
 }				/* end rps_rec_print_value */
 
