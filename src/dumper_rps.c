@@ -551,8 +551,8 @@ const struct rps_callframedescr_st rpscfd_dumpobject_in_space =	//
     sizeof (struct rpsdumpobject_objects_st) / sizeof (RpsObject_t *)
 };
 
-static 
-int rps_json_dump_writing_cb (const char *buffer, size_t size, void *data);
+static
+  int rps_json_dump_writing_cb (const char *buffer, size_t size, void *data);
 
 void
 rps_dump_object_in_space (RpsDumper_t * du, int spix, FILE * spfil,
