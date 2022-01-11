@@ -159,6 +159,7 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
 				       0);
 	      }
 	  }
+	RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (atbl) == -RpsPyt_AttrTable);
       };
   }
   /// scan the components
