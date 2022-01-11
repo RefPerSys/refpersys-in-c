@@ -234,6 +234,7 @@ rps_alloc_empty_attr_table (unsigned size)
 		    -RpsPyt_AttrTable);
   tb->zm_xtra = primix;
   tb->zm_length = 0;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tb) == -RpsPyt_AttrTable);
   return tb;
 }				/* end rps_alloc_empty_attr_table */
 
@@ -353,6 +354,7 @@ rps_attr_table_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
   if (!rps_attr_table_entry_put (new_tbl, obattr, val))
     RPS_FATAL ("corruption in rps_attr_table_put for new_tbl @%p", new_tbl);
   /// we don't free the old_tbl, it will be garbage collected...
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (new_tbl) == -RpsPyt_AttrTable);
   return new_tbl;
 }				/* end rps_attr_table_put */
 
@@ -417,7 +419,8 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 	  for (int ix = pos + 1; ix < oldtbllen; ix++)
 	    new_tbl->attr_entries[ix] = old_tbl->attr_entries[ix - 1];
 	  new_tbl->zm_length = oldtbllen - 1;
-	  //// we don't free the old_tbl, it will be later garbage collected
+	  //// we don't free the old_tbl, it will be later garbage collected      
+	  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (new_tbl) == -RpsPyt_AttrTable);
 	  return new_tbl;
 	}
     };
@@ -427,6 +430,7 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
   old_tbl->attr_entries[oldtbllen - 1].ent_attr = NULL;
   old_tbl->attr_entries[oldtbllen - 1].ent_val = RPS_NULL_VALUE;
   old_tbl->zm_length = oldtbllen - 1;
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (old_tbl) == -RpsPyt_AttrTable);
   return old_tbl;
 }				/* end rps_attr_table_remove */
 
@@ -492,6 +496,7 @@ rps_attr_table_dump_scan (RpsDumper_t * du, const RpsAttrTable_t * tbl,
 	  nbiter++;
 	}
     };
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   return nbiter;
 }				/* end rps_attr_table_dump_scan */
 
@@ -514,6 +519,7 @@ rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
     };
   setv = rps_alloc_set_sized (cnt, obarr);
   free (obarr);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (setv) == RPS_TYPE_SET);
   return setv;
 }				/* end  rps_attr_table_set_of_attributes */
 
