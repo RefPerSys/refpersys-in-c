@@ -56,6 +56,7 @@ const char *rps_load_directory;
 const char *rps_dump_directory;
 const char *rps_debug_str_load;
 const char *rps_debug_str_after;
+const char *rps_shell_before_load;
 
 int rps_nb_threads;
 GOptionEntry rps_gopt_entries[] = {
@@ -71,6 +72,8 @@ GOptionEntry rps_gopt_entries[] = {
    "dump heap into directory DIR", "DIR"},
   {"nb-threads", 'T', 0, G_OPTION_ARG_INT, &rps_nb_threads,
    "set number of agenda threads to NBTHREADS", "NBTHREADS"},
+  {"shell-before-load", 's', 0, G_OPTION_ARG_STRING, &rps_shell_before_load,
+   "run shell command SHCMD before load", "SHCMD"},
   {"debug-load", 0, 0, G_OPTION_ARG_STRING, &rps_debug_str_load,
    "set debugging flags for loading to DBGFLAGS", "DBGFLAGS"},
   {"debug-after", 0, 0, G_OPTION_ARG_STRING, &rps_debug_str_after,
@@ -1249,6 +1252,21 @@ main (int argc, char **argv)
       printf ("setting debug before load to %s\n", rps_debug_str_load);
       rps_set_debug (rps_debug_str_load);
     }
+  if (rps_shell_before_load)
+    {
+      printf ("running shell command before load: %s\n",
+	      rps_shell_before_load);
+      fflush (NULL);
+      int nok = system (rps_shell_before_load);
+      fflush (NULL);
+      usleep (100);
+      if (nok != 0)
+	{
+	  printf ("shell command failed with #%d: %s\n", nok,
+		  rps_shell_before_load);
+	  return nok;
+	}
+    };
   rps_load_initial_heap ();
   if (rps_debug_str_after)
     {
