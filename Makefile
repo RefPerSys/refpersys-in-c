@@ -9,7 +9,7 @@
 ##      Abhishek Chakravarti <abhishek@taranjali.org>
 ##      Nimesh Neema <nimeshneema@gmail.com>
 ##
-##      © Copyright 2019 - 2021 The Reflective Persistent System Team
+##      © Copyright 2019 - 2022 The Reflective Persistent System Team
 ##      team@refpersys.org
 ##
 ## License:
@@ -124,5 +124,4 @@ refpersys: objects $(RPS_TSTAMP).o
 
 ## a test for dumping
 testdump: refpersys
-	-/bin/rm -rf /tmp/rpsdump
-	./refpersys --debug-after=DUMP --dump=/tmp/rpsdump
+	./refpersys --shell-before-load='rm -rf /tmp/rpsdump' --debug-after=DUMP --dump=/tmp/rpsdump
