@@ -280,6 +280,7 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
 			  RpsValue_t val)
 {
   RPS_ASSERT (tbl != NULL);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   intptr_t tblsiz = rps_prime_of_index (tbl->zm_xtra);
   unsigned tbllen = tbl->zm_length;
   RPS_ASSERT (obattr != NULL);
@@ -314,6 +315,7 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
       if (curattr == obattr)
 	{
 	  tbl->attr_entries[ix].ent_val = val;
+	  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
 	  return true;
 	}
       else if (rps_object_less (curattr, obattr))
@@ -323,9 +325,11 @@ rps_attr_table_entry_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
 	  tbl->attr_entries[ix].ent_attr = obattr;
 	  tbl->attr_entries[ix].ent_val = val;
 	  tbl->zm_length = tbllen + 1;
+	  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
 	  return true;
 	}
     }
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   return false;
 }				/* end rps_attr_table_entry_put */
 
@@ -347,6 +351,7 @@ rps_attr_table_put (RpsAttrTable_t * tbl, RpsObject_t * obattr,
   unsigned oldtbllen = old_tbl->zm_length;
   RpsAttrTable_t *new_tbl =
     rps_alloc_empty_attr_table (oldtbllen + 2 + oldtblsiz / 5);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (new_tbl) == -RpsPyt_AttrTable);
   memcpy (new_tbl->attr_entries, old_tbl->attr_entries,
 	  oldtbllen * sizeof (struct rps_attrentry_st));
   new_tbl->zm_length = oldtbllen;
@@ -397,8 +402,10 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 	    break;
 	  }
       };
-  if (pos < 0)			/* not found */
+  if (pos < 0)			/* not found */ {
+    RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (old_tbl) == -RpsPyt_AttrTable);
     return old_tbl;
+  }
   if (oldtblsiz > 6 && oldtbllen < oldtblsiz / 2)
     {
       /* perhaps shrink the table */
@@ -471,6 +478,7 @@ rps_attr_table_iterate (const RpsAttrTable_t * tbl,
 	  nbiter++;
 	}
     };
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   return nbiter;
 }				/* end of rps_attr_table_iterate */
 
@@ -519,6 +527,7 @@ rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
     };
   setv = rps_alloc_set_sized (cnt, obarr);
   free (obarr);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (setv) == RPS_TYPE_SET);
   return setv;
 }				/* end  rps_attr_table_set_of_attributes */
