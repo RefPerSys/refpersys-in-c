@@ -35,16 +35,17 @@ rps_is_valid_object (RpsObject_t * obj)
     return false;
   if (RPS_ZONED_MEMORY_TYPE (obj) != RPS_TYPE_OBJECT)
     return false;
-  pthread_mutex_lock (&obj->ob_mtx);
-  if (obj->ob_class == NULL)
-    {
-      RpsOid oid = obj->ob_id;
-      char oidbuf[32];
-      memset (oidbuf, 0, sizeof (oidbuf));
-      rps_oid_to_cbuf (oid, oidbuf);
-      RPS_FATAL ("invalid classless object %s @%p", oidbuf, obj);
-    }
-  pthread_mutex_unlock (&obj->ob_mtx);
+  RPS_ASSERT (obj->ob_class != NULL);
+//- pthread_mutex_lock (&obj->ob_mtx);
+//- if (obj->ob_class == NULL)
+//-   {
+//-     RpsOid oid = obj->ob_id;
+//-     char oidbuf[32];
+//-     memset (oidbuf, 0, sizeof (oidbuf));
+//-     rps_oid_to_cbuf (oid, oidbuf);
+//-     RPS_FATAL ("invalid classless object %s @%p", oidbuf, obj);
+//-   }
+//- pthread_mutex_unlock (&obj->ob_mtx);
   return true;
 }				/* end rps_is_valid_object */
 
@@ -402,10 +403,11 @@ rps_attr_table_remove (RpsAttrTable_t * tbl, RpsObject_t * obattr)
 	    break;
 	  }
       };
-  if (pos < 0)			/* not found */ {
-    RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (old_tbl) == -RpsPyt_AttrTable);
-    return old_tbl;
-  }
+  if (pos < 0)			/* not found */
+    {
+      RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (old_tbl) == -RpsPyt_AttrTable);
+      return old_tbl;
+    }
   if (oldtblsiz > 6 && oldtbllen < oldtblsiz / 2)
     {
       /* perhaps shrink the table */
@@ -584,7 +586,9 @@ rps_initialize_objects_machinery (void)
     RPS_FATAL ("rps_initialize_objects_machinery called twice");
   if (pthread_mutexattr_init (&rps_objmutexattr))
     RPS_FATAL ("failed to init rps_objmutexattr");
-  if (pthread_mutexattr_settype (&rps_objmutexattr, PTHREAD_MUTEX_RECURSIVE))
+  if (pthread_mutexattr_settype (&rps_objmutexattr,
+				 // was PTHREAD_MUTEX_RECURSIVE
+				 PTHREAD_MUTEX_ERRORCHECK))
     RPS_FATAL ("failed to settype rps_objmutexattr");
   for (int bix = 0; bix < RPS_OID_MAXBUCKETS; bix++)
     {
