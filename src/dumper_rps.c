@@ -132,14 +132,15 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
   memset (oidbuf, 0, sizeof (oidbuf));
   rps_oid_to_cbuf (ob->ob_id, oidbuf);
   RPS_DEBUG_NLPRINTF (DUMP, "start scan-internal-ob %s", oidbuf);
-  RPS_ASSERT(rps_oid_is_valid(ob->ob_id));
+  RPS_ASSERT (rps_oid_is_valid (ob->ob_id));
   /****** temporary check ******/
   // TODO: remove it when uneeded. This
   // catches a bug in commit 236e83b400f2647
-  if (oidbuf[1]=='0' && oidbuf[2] == '0' && oidbuf[3] == '0') {
-    RPS_DEBUG_PRINTF(DUMP, " scan-internal-ob strange %s", oidbuf);
-    asm volatile ("nop; nop");
-  };
+  if (oidbuf[1] == '0' && oidbuf[2] == '0' && oidbuf[3] == '0')
+    {
+      RPS_DEBUG_PRINTF (DUMP, " scan-internal-ob strange %s", oidbuf);
+      asm volatile ("nop; nop");
+    };
   pthread_mutex_lock (&ob->ob_mtx);
   rps_dumper_scan_object (du, ob->ob_class);
   if (ob->ob_space)
@@ -188,7 +189,7 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
 	rps_dump_scan_object_payload (du, ob);
       }
   };
- end:
+end:
   pthread_mutex_unlock (&ob->ob_mtx);
   RPS_DEBUG_PRINTF (DUMP, "end scan-internal-ob %s\n", oidbuf);
 }				/* end rps_dumper_scan_internal_object */
