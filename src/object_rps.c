@@ -35,7 +35,9 @@ rps_is_valid_object (RpsObject_t * obj)
     return false;
   if (RPS_ZONED_MEMORY_TYPE (obj) != RPS_TYPE_OBJECT)
     return false;
-  RPS_ASSERT (rps_oid_is_valid(obj->ob_id));
+  if (obj->ob_magic != RPS_OBJ_MAGIC)
+    return false;
+  RPS_ASSERT (rps_oid_is_valid (obj->ob_id));
   RPS_ASSERT (obj->ob_class != NULL);
 //- pthread_mutex_lock (&obj->ob_mtx);
 //- if (obj->ob_class == NULL)
@@ -731,6 +733,7 @@ rps_find_object_by_oid (const RpsOid oid)
       RpsObject_t *curob = curbuck->obuck_arr[ix];
       if (NULL == curob)
 	goto end;
+      RPS_ASSERT (curob->ob_magic == RPS_OBJ_MAGIC);
       if (rps_oid_equal (curob->ob_id, oid))
 	{
 	  obres = curob;
@@ -742,6 +745,7 @@ rps_find_object_by_oid (const RpsOid oid)
       RpsObject_t *curob = curbuck->obuck_arr[ix];
       if (NULL == curob)
 	goto end;
+      RPS_ASSERT (curob->ob_magic == RPS_OBJ_MAGIC);
       if (rps_oid_equal (curob->ob_id, oid))
 	{
 	  obres = curob;
@@ -891,6 +895,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 			    buckix, buck->obuck_card, buck->obuck_capacity);
 	  return;
 	}
+      RPS_ASSERT (curob->ob_magic == RPS_OBJ_MAGIC);
       if (curob == obj)
 	return;
     };
@@ -906,6 +911,7 @@ rps_add_object_to_locked_bucket (struct rps_object_bucket_st *buck,
 			    buckix, buck->obuck_card, buck->obuck_capacity);
 	  return;
 	}
+      RPS_ASSERT (curob->ob_magic == RPS_OBJ_MAGIC);
       if (curob == obj)
 	return;
     };
@@ -923,6 +929,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
       unsigned bix = rps_oid_bucket_num (oid);
       RpsObject_t *obinfant =
 	RPS_ALLOC_ZONE (sizeof (RpsObject_t), RPS_TYPE_OBJECT);
+      obinfant->ob_magic = RPS_OBJ_MAGIC;
       pthread_mutex_init (&obinfant->ob_mtx, &rps_objmutexattr);
       obinfant->ob_id = oid;
       // the infant object temporary class is the object class, which
@@ -1560,6 +1567,37 @@ rps_symbol_payload_dump_serializer (RpsDumper_t * du,
     };
 }				/* end rps_symbol_payload_dump_serializer  */
 
+static pthread_mutex_t rps_obcreate_mtx = PTHREAD_MUTEX_INITIALIZER;
+RpsObject_t *
+rps_create_object_of_class (const RpsObject_t * obclass)
+{
+  RpsObject_t *obres = NULL;
+  if (!rps_is_valid_object (obclass))
+    return NULL;
+  bool goodclass = false;
+  pthread_mutex_lock (&obclass->ob_mtx);
+  if (obclass->ob_payload
+      && rps_is_valid_classinfo ((RpsClassInfo_t *) obclass->ob_payload))
+    goodclass = true;
+  pthread_mutex_unlock (&obclass->ob_mtx);
+  if (!goodclass)
+    return NULL;
+  pthread_mutex_lock (&rps_obcreate_mtx);
+  obres = RPS_ALLOC_ZONE (sizeof (RpsObject_t), RPS_TYPE_OBJECT);
+  pthread_mutex_init (&obres->ob_mtx, &rps_objmutexattr);
+  RpsOid oid = RPS_OID_NULL;
+  do
+    {
+      oid = rps_oid_random ();
+    }
+  while (rps_find_object_by_oid (oid) != NULL);
+  obres->ob_magic = RPS_OBJ_MAGIC;
+  obres->ob_oid;
+  obres->ob_class = obclass;
+end:
+  pthread_mutex_unlock (&rps_obcreate_mtx);
+  return obres;
+}				/* end rps_create_object_of_class */
 
 
 /*************** end of file object_rps.c ****************/

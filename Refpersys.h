@@ -656,6 +656,7 @@ FILE *rps_file_of_value (RpsValue_t val);
   RPSFIELDS_ZONED_VALUE;                                        \
   RpsOid ob_id;                                                 \
   double ob_mtime;                                              \
+  long ob_magic       /*should be RPS_OBJ_MAGIC*/;              \
   pthread_mutex_t ob_mtx;                                       \
   RpsObject_t* ob_class;                                        \
   RpsObject_t* ob_space;                                        \
@@ -667,6 +668,8 @@ FILE *rps_file_of_value (RpsValue_t val);
   RpsValue_t*ob_comparr;                                        \
   void* ob_payload
 
+
+#define RPS_OBJ_MAGIC  0x4558ca5921f	/*47478392351 */
 
 #define RPS_MAX_NB_OBJECT_COMPONENTS (1U<<20)
 
@@ -687,6 +690,7 @@ extern bool rps_is_valid_object (RpsObject_t * obj);
 extern bool rps_object_less (RpsObject_t * ob1, RpsObject_t * ob2);
 extern int rps_object_cmp (const RpsObject_t * ob1, const RpsObject_t * ob2);
 extern void rps_object_array_qsort (const RpsObject_t ** arr, int size);
+extern RpsObject_t *rps_create_object_of_class (const RpsObject_t * obclass);
 extern RpsObject_t *rps_find_object_by_oid (const RpsOid oid);
 extern RpsObject_t *rps_get_loaded_object_by_oid (RpsLoader_t * ld,
 						  const RpsOid oid);
@@ -790,8 +794,8 @@ extern RpsAttrTable_t *rps_attr_table_remove (RpsAttrTable_t * tbl,
 					      RpsObject_t * obattr);
 extern unsigned rps_attr_table_size (const RpsAttrTable_t * tbl);
 extern unsigned rps_attr_table_iterate (const RpsAttrTable_t * tbl,
-					rps_object_callback_sig_t *routattr,
-					rps_value_callback_sig_t *routval,
+					rps_object_callback_sig_t * routattr,
+					rps_value_callback_sig_t * routval,
 					void *data);
 extern const RpsSetOb_t *rps_attr_table_set_of_attributes (const
 							   RpsAttrTable_t
@@ -1026,10 +1030,13 @@ typedef struct RpsPayl_StringDictOb_st RpsStringDictOb_t;
 
 /// initialize the payload to an empty string dictionary
 extern void rps_object_string_dictionary_initialize (RpsObject_t *);
-extern RpsValue_t rps_object_string_dictionary_cstr_find (RpsObject_t * obstrdict,
+extern RpsValue_t rps_object_string_dictionary_cstr_find (RpsObject_t *
+							  obstrdict,
 							  const char *cstr);
-extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t * obstrdict,
-							 const RpsString_t * strv);
+extern RpsValue_t rps_object_string_dictionary_val_find (RpsObject_t *
+							 obstrdict,
+							 const RpsString_t *
+							 strv);
 void rps_object_string_dictionary_put (RpsObject_t * obstrdict,
 				       const RpsString_t * strv,
 				       const RpsValue_t val);
