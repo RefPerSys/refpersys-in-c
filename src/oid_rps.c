@@ -72,8 +72,10 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
       strcpy (cbuf, "__");
       return;
     };
-  if (!rps_oid_is_valid (oid))
+  if (!rps_oid_is_valid (oid)) {
+    strcpy(cbuf, "_??_");
     return;
+  }
   /// example cbuf = "_0abcdefghijABCDEFG"
   ///                  |0         |11    |19
   memset (cbuf, 0, RPS_OID_BUFLEN);
