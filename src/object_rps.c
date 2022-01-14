@@ -35,6 +35,7 @@ rps_is_valid_object (RpsObject_t * obj)
     return false;
   if (RPS_ZONED_MEMORY_TYPE (obj) != RPS_TYPE_OBJECT)
     return false;
+  RPS_ASSERT (rps_oid_is_valid(obj->ob_id));
   RPS_ASSERT (obj->ob_class != NULL);
 //- pthread_mutex_lock (&obj->ob_mtx);
 //- if (obj->ob_class == NULL)
