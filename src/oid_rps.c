@@ -99,7 +99,7 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
       pc--;
     }
   while (pc > start);
-  if (rps_oid_is_valid(oid))
+  if (rps_oid_is_valid (oid))
     cbuf[0] = '_';
   else
     cbuf[0] = '!';
