@@ -1592,7 +1592,7 @@ rps_create_object_of_class (const RpsObject_t * obclass)
     }
   while (rps_find_object_by_oid (oid) != NULL);
   obres->ob_magic = RPS_OBJ_MAGIC;
-  obres->ob_oid;
+  obres->ob_id = oid;
   obres->ob_class = obclass;
 end:
   pthread_mutex_unlock (&rps_obcreate_mtx);
