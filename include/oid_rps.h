@@ -11,7 +11,7 @@
  *      Abhishek Chakravarti <abhishek@taranjali.org>
  *      Nimesh Neema <nimeshneema@gmail.com>
  *
- *      © Copyright 2019 - 2021 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2022 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -75,6 +75,13 @@ extern RpsOid rps_cstr_to_oid (const char *cstr, const char **pend);
 extern unsigned rps_oid_bucket_num (const RpsOid oid);
 extern RpsHash_t rps_oid_hash (const RpsOid oid);
 
+
+inline const char*
+rps_oid_in_cbuf(const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
+{
+  rps_oid_to_cbuf(oid, cbuf);
+  return cbuf;
+} /* end rps_oid_in_cbuf */
 
 /* Checks if two object IDs are equal. */
 inline bool
