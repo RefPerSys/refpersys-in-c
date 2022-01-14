@@ -72,10 +72,6 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
       strcpy (cbuf, "__");
       return;
     };
-  if (!rps_oid_is_valid (oid)) {
-    strcpy(cbuf, "_??_");
-    return;
-  }
   /// example cbuf = "_0abcdefghijABCDEFG"
   ///                  |0         |11    |19
   memset (cbuf, 0, RPS_OID_BUFLEN);
@@ -103,7 +99,10 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
       pc--;
     }
   while (pc > start);
-  cbuf[0] = '_';
+  if (rps_oid_is_valid(oid))
+    cbuf[0] = '_';
+  else
+    cbuf[0] = '!';
 }				/* end rps_oid_to_cbuf */
 
 RpsOid
