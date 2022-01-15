@@ -961,6 +961,16 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 				  curob->ob_id.id_lo);
 		usleep (1000);
 	      }
+	    // for object _5KVs9kaMYiU040KwVj
+	    if (obidbuf[1] == '5' && obidbuf[2] == 'K' && obidbuf[3] == 'V')
+	      {
+		RPS_DEBUG_PRINTF (LOAD,
+				  "**bug in commit  3746f439c9f for obidbuf %s id/hi=%lld,lo=%lld",
+				  obidbuf, curob->ob_id.id_hi,
+				  curob->ob_id.id_lo);
+		usleep (1000);
+	      }
+	    /// ENDTEMPORARYCHECKS
 	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject,
 						obspac);
 	    RPS_DEBUG_PRINTF (LOAD,
