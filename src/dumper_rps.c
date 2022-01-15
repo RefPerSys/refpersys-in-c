@@ -185,7 +185,8 @@ rps_dumper_scan_internal_object (RpsDumper_t * du, RpsObject_t * ob)
       (struct rps_owned_payload_st *) (ob->ob_payload);
     if (payl)
       {
-	RPS_ASSERT (payl->payl_owner == ob);
+	RPS_ASSERTPRINTF (payl->payl_owner == ob,
+			  "corrupted payload for object oid %s", oidbuf);
 	rps_dump_scan_object_payload (du, ob);
       }
   };
