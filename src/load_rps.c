@@ -697,7 +697,8 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
-  RPS_DEBUG_NLPRINTF (LOAD, "start load&fill object %s @%p", obidbuf, (void*)obj);
+  RPS_DEBUG_NLPRINTF (LOAD, "start load&fill object %s @%p", obidbuf,
+		      (void *) obj);
   pthread_mutex_lock (&obj->ob_mtx);
   /// set the object class
   {
@@ -952,11 +953,14 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 				obidbuf, lincnt);
 	    // TEMPORARY: to debug make testdump failure in commit b25fd8051caba9
 	    // for object _7oa7eIzzcxv03TmmZH
-	    if (obidbuf[1]=='7' && obidbuf[2]=='o' && obidbuf[3] == 'a') {
-	      RPS_DEBUG_PRINTF(LOAD, "**bug in commit b25fd8051 for obidbuf %s id/hi=%lld,lo=%lld",
-			       obidbuf, curob->ob_id.id_hi, curob->ob_id.id_lo);
-	      usleep (1000);
-	    }
+	    if (obidbuf[1] == '7' && obidbuf[2] == 'o' && obidbuf[3] == 'a')
+	      {
+		RPS_DEBUG_PRINTF (LOAD,
+				  "**bug in commit b25fd8051 for obidbuf %s id/hi=%lld,lo=%lld",
+				  obidbuf, curob->ob_id.id_hi,
+				  curob->ob_id.id_lo);
+		usleep (1000);
+	      }
 	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject,
 						obspac);
 	    RPS_DEBUG_PRINTF (LOAD,
