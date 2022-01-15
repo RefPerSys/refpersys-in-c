@@ -268,6 +268,10 @@ rps_dumper_scan_object (RpsDumper_t * du, RpsObject_t * ob)
   memset (obid, 0, sizeof (obid));
   rps_oid_to_cbuf (ob->ob_id, obid);
   RPS_DEBUG_PRINTF (DUMP, "start dumpscan obid %s", obid);
+  /// NOTICE: catch a bug in commit 81592ae03d15f60, make testdump...
+  if (obid[1] == '0' && obid[2] == '0' && obid[3] == '0') {
+    RPS_DEBUG_PRINTF (DUMP, "start dumpscan €strange obid %s", obid);
+  }
   RPS_ASSERT (rps_is_valid_object (ob));
   bool absent = rps_hash_tbl_ob_add (du->du_visitedht, ob);
   if (ob->ob_space)
