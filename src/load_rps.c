@@ -493,6 +493,9 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    free (bufjs), bufjs = NULL;
 	    bufsz = 0;
 	  }
+	else // invalid oid
+	  RPS_FATAL("in %s:%d invalid oid %s",
+		    filepath, lincnt, obidbuf);
       }
     }
   printf ("rps_load_first_pass created %ld objects at %s:%d (%s:%d)\n",
@@ -678,6 +681,9 @@ rps_loader_json_to_value (RpsLoader_t * ld, json_t * jv)
 	       json_dumps (jv, JSON_INDENT (2) | JSON_SORT_KEYS));
 }				/* end rps_loader_json_to_value */
 
+
+
+
 void
 rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
 				    RpsObject_t * obj, json_t * jsobj,
@@ -689,6 +695,7 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
+  RPS_DEBUG_NLPRINTF(LOAD, "start load&fill object %s", obidbuf);
   pthread_mutex_lock (&obj->ob_mtx);
   /// set the object class
   {
@@ -775,6 +782,9 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   }
   pthread_mutex_unlock (&obj->ob_mtx);
   ld->ld_totalobjectnb++;
+  RPS_DEBUG_PRINTF(LOAD, "done load&fill object#%ld %s space#%d\n",
+		     ld->ld_totalobjectnb, obidbuf,
+		     spix);
 }				/* end rps_loader_fill_object_second_pass */
 
 
@@ -946,6 +956,8 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    free (bufjs), bufjs = NULL;
 	    bufsz = 0;
 	  }
+	else
+	  RPS_FATAL("in %s:%d invalid oid %s", filepath, lincnt, obidbuf);
       }
     }
 }				/* end rps_load_second_pass */
