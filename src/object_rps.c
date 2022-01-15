@@ -985,7 +985,7 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
   for (int aix = 0; aix < (int) nbattrs; aix++)
     {
       const RpsObject_t *obattr = rps_set_nth_member (setattrs, aix);
-      if (!rps_is_dumpable_object (du, (RpsObject_t*)obattr))
+      if (!rps_is_dumpable_object (du, (RpsObject_t *) obattr))
 	continue;
       RpsValue_t curval = rps_attr_table_find (obdump->ob_attrtable, obattr);
       if (!rps_is_dumpable_value (du, curval))
@@ -996,7 +996,7 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
       json_array_append_new (jsarr, jent);
     }
   // setattrs should not leak, we can clear it then free it explicitly
-  memset ((void*)setattrs, 0, sizeof (setattrs));
+  memset ((void *) setattrs, 0, sizeof (setattrs));
   free (setattrs);
   json_object_set (js, "attrs", jsarr);
   return (RpsValue_t) obdump;
@@ -1437,7 +1437,12 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
       rps_attr_table_dump_scan (du, clinf->pclass_methdict, 0);
     }
   if (clinf->pclass_symbol)
-    rps_dumper_scan_object (du, clinf->pclass_symbol);
+    {
+      RPS_ASSERTPRINTF (rps_is_valid_object (clinf->pclass_symbol),
+			"classob %O has invalid symbol %V",
+			clinf->payl_owner, clinf->pclass_symbol);
+      rps_dumper_scan_object (du, clinf->pclass_symbol);
+    };
 }				/* end rps_classinfo_payload_dump_scanner */
 
 void
