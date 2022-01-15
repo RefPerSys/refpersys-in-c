@@ -462,7 +462,7 @@ rps_attr_table_iterate (const RpsAttrTable_t * tbl,
 			rps_value_callback_sig_t * routval, void *data)
 {
   if (!tbl)
-    return NULL;
+    return 0;
   RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   unsigned tsiz = rps_attr_table_size (tbl);
   int cnt = 0;
@@ -521,7 +521,7 @@ rps_attr_table_set_of_attributes (const RpsAttrTable_t * tbl)
     return NULL;
   RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (tbl) == -RpsPyt_AttrTable);
   unsigned tsiz = rps_attr_table_size (tbl);
-  RpsObject_t **obarr =
+  const RpsObject_t **obarr =
     RPS_ALLOC_ZEROED ((tsiz + 1) * sizeof (RpsObject_t *));
   int cnt = 0;
   for (int eix = 0; eix < (int) tsiz; eix++)
@@ -985,7 +985,7 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
   for (int aix = 0; aix < (int) nbattrs; aix++)
     {
       const RpsObject_t *obattr = rps_set_nth_member (setattrs, aix);
-      if (!rps_is_dumpable_object (du, obattr))
+      if (!rps_is_dumpable_object (du, (RpsObject_t*)obattr))
 	continue;
       RpsValue_t curval = rps_attr_table_find (obdump->ob_attrtable, obattr);
       if (!rps_is_dumpable_value (du, curval))
@@ -995,8 +995,8 @@ rpscloj_dump_object_attributes (rps_callframe_t * callerframe,
       json_object_set (jent, "va", rps_dump_json_for_value (du, curval, 1));
       json_array_append_new (jsarr, jent);
     }
-  // setattrs should not leak, we can free it explicitly
-  memset (setattrs, 0, sizeof (setattrs));
+  // setattrs should not leak, we can clear it then free it explicitly
+  memset ((void*)setattrs, 0, sizeof (setattrs));
   free (setattrs);
   json_object_set (js, "attrs", jsarr);
   return (RpsValue_t) obdump;
@@ -1566,6 +1566,7 @@ rps_symbol_payload_dump_serializer (RpsDumper_t * du,
       json_object_set (json, "symb_val", jssyval);
     };
 }				/* end rps_symbol_payload_dump_serializer  */
+
 
 static pthread_mutex_t rps_obcreate_mtx = PTHREAD_MUTEX_INITIALIZER;
 RpsObject_t *
