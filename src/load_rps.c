@@ -268,7 +268,10 @@ rps_load_initial_heap (void)
   loader->ld_start_elapsedtime = rps_clocktime (CLOCK_REALTIME);
   loader->ld_start_processcputime = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID);
   printf ("rps_load_initial_heap directory %s\n", rps_load_directory);
+  RPS_DEBUG_NLPRINTF (LOAD, "loading directory %s with loader @%p",
+		      rps_load_directory, loader);
   rps_load_parse_manifest (loader);
+  RPS_DEBUG_PRINTF (LOAD, "parsed load manifest from %s", rps_load_directory);
   rps_check_all_objects_buckets_are_valid ();
   json_t *jsspaceset = json_object_get (loader->ld_json_manifest, "spaceset");
   if (json_is_array (jsspaceset))
@@ -493,9 +496,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    free (bufjs), bufjs = NULL;
 	    bufsz = 0;
 	  }
-	else // invalid oid
-	  RPS_FATAL("in %s:%d invalid oid %s",
-		    filepath, lincnt, obidbuf);
+	else			// invalid oid
+	  RPS_FATAL ("in %s:%d invalid oid %s", filepath, lincnt, obidbuf);
       }
     }
   printf ("rps_load_first_pass created %ld objects at %s:%d (%s:%d)\n",
@@ -695,7 +697,7 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   char obidbuf[32];
   memset (obidbuf, 0, sizeof (obidbuf));
   rps_oid_to_cbuf (obj->ob_id, obidbuf);
-  RPS_DEBUG_NLPRINTF(LOAD, "start load&fill object %s", obidbuf);
+  RPS_DEBUG_NLPRINTF (LOAD, "start load&fill object %s", obidbuf);
   pthread_mutex_lock (&obj->ob_mtx);
   /// set the object class
   {
@@ -782,9 +784,8 @@ rps_loader_fill_object_second_pass (RpsLoader_t * ld, int spix,
   }
   pthread_mutex_unlock (&obj->ob_mtx);
   ld->ld_totalobjectnb++;
-  RPS_DEBUG_PRINTF(LOAD, "done load&fill object#%ld %s space#%d\n",
-		     ld->ld_totalobjectnb, obidbuf,
-		     spix);
+  RPS_DEBUG_PRINTF (LOAD, "done load&fill object#%ld %s space#%d\n",
+		    ld->ld_totalobjectnb, obidbuf, spix);
 }				/* end rps_loader_fill_object_second_pass */
 
 
@@ -946,10 +947,14 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 		 json_string_value (jsoid), obidbuf);
 	    RpsObject_t *curob = rps_find_object_by_oid (curobid);
 	    RPS_ASSERT (curob != NULL);
-	    //printf ("before ldfillobj2ndpass obidbuf=%s lincnt=%d (%s:%d)\n",
-	    //      obidbuf, lincnt, __FILE__, __LINE__);
+	    RPS_DEBUG_NLPRINTF (LOAD,
+				"before ldfillobj2ndpass obidbuf=%s lincnt=%d",
+				obidbuf, lincnt);
 	    rps_loader_fill_object_second_pass (ld, spix, curob, jsobject,
 						obspac);
+	    RPS_DEBUG_PRINTF (LOAD,
+			      "after ldfillobj2ndpass obidbuf=%s lincnt=%d curob=%-1O\n",
+			      obidbuf, lincnt, curob);
 	    objcount++;
 	    json_decref (jsobject);
 	    fclose (obstream);
@@ -957,7 +962,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    bufsz = 0;
 	  }
 	else
-	  RPS_FATAL("in %s:%d invalid oid %s", filepath, lincnt, obidbuf);
+	  RPS_FATAL ("in %s:%d invalid oid %s", filepath, lincnt, obidbuf);
       }
     }
 }				/* end rps_load_second_pass */
