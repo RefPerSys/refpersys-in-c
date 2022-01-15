@@ -216,17 +216,17 @@ enum RpsBacktrace
 enum RpsType
 {
   RPS_TYPE__NONE,
-  RPS_TYPE_INT,			/* tagged int, 63 bits, without memory zone */
+  RPS_TYPE_INT /*#1 */ ,	// tagged int, 63 bits, without memory zone */
   // the following are in garbage collected memory, our zoned values
-  RPS_TYPE_DOUBLE,
-  RPS_TYPE_STRING,
-  RPS_TYPE_JSON,
-  RPS_TYPE_GTKWIDGET,		/* some GtkWidget* pointer; of course GTK widgets are not persisted */
-  RPS_TYPE_TUPLE,
-  RPS_TYPE_SET,
-  RPS_TYPE_CLOSURE,
-  RPS_TYPE_OBJECT,
-  RPS_TYPE_FILE,		/* some opened FILE* handle; of course they are not persisted */
+  RPS_TYPE_DOUBLE /*#2 */ ,
+  RPS_TYPE_STRING /*#3 */ ,
+  RPS_TYPE_JSON /*#4 */ ,
+  RPS_TYPE_GTKWIDGET /*#5 */ ,	// some GtkWidget* pointer; of course GTK widgets are not persisted 
+  RPS_TYPE_TUPLE /*#6 */ ,
+  RPS_TYPE_SET /*#7 */ ,
+  RPS_TYPE_CLOSURE /*#8 */ ,
+  RPS_TYPE_OBJECT /*#9 */ ,
+  RPS_TYPE_FILE /*#10 */ ,	//  some opened FILE* handle; of course they are not persisted
   RPS_TYPE__LAST
 };
 
