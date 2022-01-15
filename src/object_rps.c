@@ -1438,9 +1438,13 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
     }
   if (clinf->pclass_symbol)
     {
-      RPS_ASSERTPRINTF (rps_is_valid_object (clinf->pclass_symbol),
-			"classob %O has invalid symbol %V",
-			clinf->payl_owner, clinf->pclass_symbol);
+      if (!rps_is_valid_object (clinf->pclass_symbol))
+	{
+	  usleep (1000);
+	  RPS_ASSERTPRINTF (rps_is_valid_object (clinf->pclass_symbol),
+			    "classob %O has invalid symbol @%p",
+			    clinf->payl_owner, (void *) clinf->pclass_symbol);
+	};
       rps_dumper_scan_object (du, clinf->pclass_symbol);
     };
 }				/* end rps_classinfo_payload_dump_scanner */
