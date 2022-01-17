@@ -956,27 +956,27 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    if (obidbuf[1] == '7' && obidbuf[2] == 'o' && obidbuf[3] == 'a')
 	      {
 		RPS_DEBUG_PRINTF (LOAD,
-				  "**bug in commit b25fd8051 for obidbuf %s id/hi=%lld,lo=%lld",
-				  obidbuf, curob->ob_id.id_hi,
-				  curob->ob_id.id_lo);
+				  "**bug in commit b25fd8051 for obidbuf %s curob@%p id/hi=%lld,lo=%lld",
+				  obidbuf, curob,
+				  curob->ob_id.id_hi, curob->ob_id.id_lo);
 		usleep (1000);
 	      }
 	    // for object _5KVs9kaMYiU040KwVj
 	    if (obidbuf[1] == '5' && obidbuf[2] == 'K' && obidbuf[3] == 'V')
 	      {
 		RPS_DEBUG_PRINTF (LOAD,
-				  "**bug in commit  3746f439c9f for obidbuf %s id/hi=%lld,lo=%lld",
-				  obidbuf, curob->ob_id.id_hi,
-				  curob->ob_id.id_lo);
+				  "**bug in commit 3746f439c9f for obidbuf %s curob@%p id/hi=%lld,lo=%lld",
+				  obidbuf, curob,
+				  curob->ob_id.id_hi, curob->ob_id.id_lo);
 		usleep (1000);
 	      }
 	    // for object _6NVM7sMcITg01ug5TC
 	    if (obidbuf[1] == '6' && obidbuf[2] == 'N' && obidbuf[3] == 'V')
 	      {
 		RPS_DEBUG_PRINTF (LOAD,
-				  "**bug in commit 4ca7a21e083 for obidbuf %s id/hi=%lld,lo=%lld",
-				  obidbuf, curob->ob_id.id_hi,
-				  curob->ob_id.id_lo);
+				  "**bug in commit 4ca7a21e083 for obidbuf %s curob@%p id/hi=%lld,lo=%lld",
+				  obidbuf, curob,
+				  curob->ob_id.id_hi,  curob->ob_id.id_lo);
 		usleep (1000);
 	      }
 	    /// ENDTEMPORARYCHECKS
