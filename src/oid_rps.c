@@ -105,44 +105,66 @@ rps_oid_to_cbuf (const RpsOid oid, char cbuf[RPS_OID_BUFLEN])
     cbuf[0] = '!';
 }				/* end rps_oid_to_cbuf */
 
-RpsOid
-rps_cstr_to_oid (const char *cstr, const char **pend)
+int
+rps_fprint_oid (FILE * fil, RpsOid oid)
 {
-  RPS_ASSERT (cstr != NULL);
-  if (cstr[0] != '_')
-    goto fail;
-  if (!isdigit (cstr[1]))
-    goto fail;
-  uint64_t hi = 0, lo = 0;
-  const char *lasthi = cstr + RPS_OID_HI_NBDIGITS + 1;
-  const char *lastlo = lasthi + RPS_NBDIGITS_OID_LO - 1;
-  for (const char *pcb = cstr + 1; *pcb && pcb < lasthi; pcb++)
-    {
-      const char *pcs = strchr (rps_sb62digits, *pcb);
-      if (!pcs)
-	goto fail;
-      hi = hi * 62 + (pcs - rps_sb62digits);
-    }
-  if ((hi > 0 && hi < RPS_OID_HI_MIN) || hi >= RPS_OID_HI_MAX)
-    goto fail;
-  for (const char *pcb = lasthi; *pcb && pcb < lastlo; pcb++)
-    {
-      const char *pcs = strchr (rps_sb62digits, *pcb);
-      if (!pcs)
-	goto fail;
-      lo = lo * 62 + (pcs - rps_sb62digits);
-    };
-  if ((lo > 0 && lo < RPS_MIN_OID_LO) || lo >= RPS_MAX_OID_LO)
-    goto fail;
-  if (pend)
-    *pend = lastlo;
-  RpsOid oid = {.id_hi = hi,.id_lo = lo };
-  return oid;
-fail:
-  if (pend)
-    *pend = cstr;
-  return RPS_OID_NULL;
-}				/* end rps_cstr_to_oid */
+  if (!fil)
+    return -1;
+  char buf[32];
+  memset (buf, 0, sizeof (buf));
+  rps_oid_to_cbuf (oid, buf);
+  return fputs (buf, fil);
+}				/* end rps_fprint_oid */
+
+int
+rps_print_oid (RpsOid oid)
+{
+  char buf[32];
+  memset (buf, 0, sizeof (buf));
+  rps_oid_to_cbuf (oid, buf);
+  int i = fputs (buf, stdout);
+  fflush (stdout);
+  return i;
+}				/* end rps_print_oid
+
+				   RpsOid
+				   rps_cstr_to_oid (const char *cstr, const char **pend)
+				   {
+				   RPS_ASSERT (cstr != NULL);
+				   if (cstr[0] != '_')
+				   goto fail;
+				   if (!isdigit (cstr[1]))
+				   goto fail;
+				   uint64_t hi = 0, lo = 0;
+				   const char *lasthi = cstr + RPS_OID_HI_NBDIGITS + 1;
+				   const char *lastlo = lasthi + RPS_NBDIGITS_OID_LO - 1;
+				   for (const char *pcb = cstr + 1; *pcb && pcb < lasthi; pcb++)
+				   {
+				   const char *pcs = strchr (rps_sb62digits, *pcb);
+				   if (!pcs)
+				   goto fail;
+				   hi = hi * 62 + (pcs - rps_sb62digits);
+				   }
+				   if ((hi > 0 && hi < RPS_OID_HI_MIN) || hi >= RPS_OID_HI_MAX)
+				   goto fail;
+				   for (const char *pcb = lasthi; *pcb && pcb < lastlo; pcb++)
+				   {
+				   const char *pcs = strchr (rps_sb62digits, *pcb);
+				   if (!pcs)
+				   goto fail;
+				   lo = lo * 62 + (pcs - rps_sb62digits);
+				   };
+				   if ((lo > 0 && lo < RPS_MIN_OID_LO) || lo >= RPS_MAX_OID_LO)
+				   goto fail;
+				   if (pend)
+				   *pend = lastlo;
+				   RpsOid oid = {.id_hi = hi,.id_lo = lo };
+				   return oid;
+				   fail:
+				   if (pend)
+				   *pend = cstr;
+				   return RPS_OID_NULL;
+				   }                          /* end rps_cstr_to_oid */
 
 
 

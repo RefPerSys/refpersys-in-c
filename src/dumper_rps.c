@@ -789,19 +789,25 @@ rps_dump_heap (rps_callframe_t * frame, const char *dirn)
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
   rps_dumper_set_state (dumper, rpsdumpstate_scanning);
-  if (RPS_DEBUG_ENABLED(DUMP)) {
-    FILE* fpstat = fopen("/proc/self/status", "r");
-    if (fpstat) {
-      char stbuf[256];
-      RPS_DEBUG_NLPRINTF (DUMP, "dump heap process (self pid#%d) status", (int)getpid());
-      while (memset(stbuf, 0, sizeof(stbuf)),
-	     fgets(stbuf, sizeof(stbuf), fpstat)) {
-	fputs(stbuf, stdout);
-      }
-      fclose(fpstat);
-      RPS_DEBUG_PRINTF (DUMP, "end of dumped heap process (self pid#%d) status\n", (int)getpid());
-    }
-  };
+  if (RPS_DEBUG_ENABLED (DUMP))
+    {
+      FILE *fpstat = fopen ("/proc/self/status", "r");
+      if (fpstat)
+	{
+	  char stbuf[256];
+	  RPS_DEBUG_NLPRINTF (DUMP, "dump heap process (self pid#%d) status",
+			      (int) getpid ());
+	  while (memset (stbuf, 0, sizeof (stbuf)),
+		 fgets (stbuf, sizeof (stbuf), fpstat))
+	    {
+	      fputs (stbuf, stdout);
+	    }
+	  fclose (fpstat);
+	  RPS_DEBUG_PRINTF (DUMP,
+			    "end of dumped heap process (self pid#%d) status\n",
+			    (int) getpid ());
+	}
+    };
   /* scan the global objects */
   rps_dumper_scan_value (dumper,
 			 (RpsValue_t) (rps_set_of_global_root_objects ()), 0);

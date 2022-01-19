@@ -976,7 +976,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 		RPS_DEBUG_PRINTF (LOAD,
 				  "**bug in commit 4ca7a21e083 for obidbuf %s curob@%p id/hi=%lld,lo=%lld",
 				  obidbuf, curob,
-				  curob->ob_id.id_hi,  curob->ob_id.id_lo);
+				  curob->ob_id.id_hi, curob->ob_id.id_lo);
 		usleep (1000);
 	      }
 	    /// ENDTEMPORARYCHECKS

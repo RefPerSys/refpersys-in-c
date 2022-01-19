@@ -976,7 +976,8 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_StringDict);
   RpsStringDictOb_t *paylstrdict = (RpsStringDictOb_t *) payl;
-  RPS_DEBUG_NLPRINTF(DUMP, "string_dictionary start-scan owner %O payl@%p", payl->payl_owner, (void*)payl);
+  RPS_DEBUG_NLPRINTF (DUMP, "string_dictionary start-scan owner %O payl@%p",
+		      payl->payl_owner, (void *) payl);
   struct kavl_itr_strdicnodrps iter = { };
   int ix = 0;
   if (!paylstrdict->strdict_root)
@@ -994,14 +995,16 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
       RPS_ASSERT (rps_value_type ((RpsValue_t) curnam) == RPS_TYPE_STRING);
       RPS_ASSERT (curval != RPS_NULL_VALUE);
       ix++;
-      RPS_DEBUG_PRINTF (DUMP, "string_dictionary scan ent#%d owner %O curnam %V curval %V",
+      RPS_DEBUG_PRINTF (DUMP,
+			"string_dictionary scan ent#%d owner %O curnam %V curval %V",
 			ix, payl->payl_owner, curnam, curval);
       rps_dumper_scan_value (du, (RpsValue_t) curnam, 0);
       rps_dumper_scan_value (du, curval, 0);
       if (!kavl_itr_next_rpsmusetob (&iter))
 	break;
     };
-  RPS_DEBUG_PRINTF (DUMP, "string_dictionary end-scan owner %O with %d entries",
+  RPS_DEBUG_PRINTF (DUMP,
+		    "string_dictionary end-scan owner %O with %d entries",
 		    payl->payl_owner, ix);
 }				/* end rps_stringdict_payload_dump_scanner */
 

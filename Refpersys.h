@@ -638,6 +638,11 @@ typedef struct RpsZoneFile_st RpsFile_t;	/* for RPS_TYPE_FILE */
 const RpsFile_t *rps_alloc_plain_file (FILE * f);
 FILE *rps_file_of_value (RpsValue_t val);
 
+/// printing oids
+extern int rps_fprint_oid (FILE * fil, RpsOid oid);
+extern int rps_print_oid (RpsOid oid);
+
+
 /****************************************************************
  * Mutable and mutexed heavy objects.
  * ==================================
