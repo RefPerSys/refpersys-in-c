@@ -932,6 +932,7 @@ rps_get_loaded_object_by_oid (RpsLoader_t * ld, const RpsOid oid)
       obinfant->ob_magic = RPS_OBJ_MAGIC;
       pthread_mutex_init (&obinfant->ob_mtx, &rps_objmutexattr);
       obinfant->ob_id = oid;
+      obinfant->zv_hash = rps_oid_hash (oid);
       // the infant object temporary class is the object class, which
       // might not exist yet ...
       obinfant->ob_class = RPS_ROOT_OB (_5yhJGgxLwLp00X0xEQ);	//object∈class
@@ -1441,12 +1442,13 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
       if (!rps_is_valid_object (clinf->pclass_symbol))
 	{
 	  usleep (1000);
-	  RPS_DEBUG_PRINTF (DUMP, "classob %O @%p has invalid symbol @%p",
-			    clinf->payl_owner, clinf->payl_owner,
+	  RPS_DEBUG_PRINTF (DUMP,
+			    "classob %O @%p classinfo@%p has invalid symbol @%p",
+			    clinf->payl_owner, clinf->payl_owner, clinf,
 			    clinf->pclass_symbol);
 	  RPS_ASSERTPRINTF (rps_is_valid_object (clinf->pclass_symbol),
-			    "classob %O @%p has invalid symbol @%p == %V",
-			    clinf->payl_owner, clinf->payl_owner,
+			    "classob %O @%p  classinfo@%p has invalid symbol @%p == %V",
+			    clinf->payl_owner, clinf->payl_owner, clinf,
 			    (void *) clinf->pclass_symbol,
 			    (RpsValue_t) (clinf->pclass_symbol));
 	};
@@ -1609,6 +1611,7 @@ rps_create_object_of_class (const RpsObject_t * obclass)
   obres->ob_magic = RPS_OBJ_MAGIC;
   obres->ob_id = oid;
   obres->ob_class = obclass;
+  obres->zv_hash = rps_oid_hash (oid);
 end:
   pthread_mutex_unlock (&rps_obcreate_mtx);
   return obres;
