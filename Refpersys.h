@@ -257,6 +257,8 @@ typedef bool rps_value_callback_sig_t (RpsValue_t val, void *data);
 #define RPS_NULL_VALUE ((RpsValue_t)0)
 extern enum RpsType rps_value_type (RpsValue_t val);
 
+extern void rps_verify_value (RpsValue_t val, unsigned depth);
+
 /// the loader internals are in file load_rps.c
 typedef struct RpsPayl_Loader_st RpsLoader_t;	///// forward declaration
 extern bool rps_is_valid_loader (RpsLoader_t * ld);

@@ -825,6 +825,112 @@ rps_value_type (RpsValue_t val)
   return (enum RpsType) RPS_ZONED_MEMORY_TYPE (val);
 }				/* end of rps_value_type */
 
+
+void
+rps_verify_value (RpsValue_t val, unsigned depth)
+{
+  if (val == 0)
+    return;
+  if (val & 1)
+    return;
+  enum RpsType ty = rps_value_type (val);
+  if (depth > RPS_MAX_VALUE_DEPTH)
+    RPS_FATAL ("too deep %d depth in value @%p", depth, (void *) val);
+  switch (ty)
+    {
+    case RPS_TYPE_DOUBLE:
+      {
+	const RpsDouble_t *dval = (RpsDouble_t *) val;
+	RPS_ASSERT (dval->dbl_val != NAN);
+	RPS_ASSERT (rps_hash_double (dval->dbl_val) == dval->zv_hash);
+      };
+      return;
+    case RPS_TYPE_STRING:
+      {
+	const RpsString_t *strv = (RpsString_t *) val;
+	RPS_ASSERT (rps_hash_cstr (strv->cstr) == strv->zv_hash);
+      };
+      return;
+    case RPS_TYPE_JSON:
+      {
+	const RpsJson_t *jsonv = (RpsJson_t *) val;
+	RPS_ASSERT (jsonv->json != NULL
+		    && json_typeof (jsonv->json) >= JSON_OBJECT
+		    && json_typeof (jsonv->json) <= JSON_NULL);
+	RPS_ASSERT (jsonv->zv_hash != 0);
+      };
+      return;
+    case RPS_TYPE_GTKWIDGET:
+      {
+	const RpsGtkWidget_t *gtkv = (RpsGtkWidget_t *) val;
+	RPS_ASSERT (gtkv->gtk_widget == NULL
+		    || GTK_IS_WIDGET (gtkv->gtk_widget));
+	RPS_ASSERT (gtkv->zv_hash != 0);
+      }
+      return;
+    case RPS_TYPE_TUPLE:
+      {
+	const RpsTupleOb_t *tupv = (const RpsTupleOb_t *) val;
+	unsigned tupsiz = rps_vtuple_size (tupv);
+	RPS_ASSERT (tupv->zv_hash != 0);
+      };
+      return;
+    case RPS_TYPE_SET:
+      {
+	const RpsSetOb_t *setv = (const RpsSetOb_t *) val;
+	RPS_ASSERT (setv->zv_hash != 0);
+	unsigned card = rps_set_cardinal (setv);
+	for (int ix = 0; ix < card; ix++)
+	  {
+	    const RpsObject_t *elemob = rps_set_nth_member (setv, ix);
+	    RPS_ASSERT (rps_is_valid_object (elemob));
+	    if (ix > 0)
+	      {
+		const RpsObject_t *prevob = rps_set_nth_member (setv, ix - 1);
+		RPS_ASSERT (prevob != elemob);
+		RPS_ASSERT (rps_object_cmp (prevob, elemob) < 0);
+	      }
+	  };
+      };
+      return;
+    case RPS_TYPE_CLOSURE:
+      {
+	const RpsClosure_t *closv = (const RpsClosure_t *) val;
+	RPS_ASSERT (closv->zv_hash != 0);
+	RPS_ASSERT (rps_is_valid_object (closv->clos_conn));
+	rps_verify_value (closv->clos_meta, depth + 1);
+	unsigned clsiz = rps_closure_size (val);
+	for (int ix = 0; ix < (int) clsiz; ix++)
+	  rps_verify_value (rps_closure_get_closed_value (val, ix),
+			    depth + 1);
+      };
+    case RPS_TYPE_OBJECT:
+      {
+	RpsObject_t *ob = (RpsObject_t *) val;
+	RPS_ASSERT (ob->ob_magic == RPS_OBJ_MAGIC);
+	RPS_ASSERT (rps_is_valid_object (ob));
+	RPS_ASSERT (ob->zv_hash == rps_oid_hash (ob->ob_id));
+	RPS_ASSERT (rps_is_valid_object (ob->ob_class));
+	RPS_ASSERT (ob->ob_space == NULL
+		    || rps_is_valid_object (ob->ob_space));
+	pthread_mutex_lock (&ob->ob_mtx);
+	for (int ix = 0; ix < (int) ob->ob_nbcomp; ix++)
+	  rps_verify_value (ob->ob_comparr[ix], depth + 1);
+#warning should verify the object attributes
+	pthread_mutex_unlock (&ob->ob_mtx);
+      }
+      return;
+    case RPS_TYPE_FILE:
+      {
+	const RpsFile_t *filv = (RpsFile_t *) val;
+	RPS_ASSERT (filv->fileh != NULL);
+      }
+      return;
+    default:
+      RPS_FATAL ("invalid value @%p of type#%d", val, (int) ty);
+    }				/// end switch ty
+}				/* end rps_verify_value */
+
 /// nearly copied from Ian Lance Taylor's libbacktrace/print.c
 /// see https://github.com/ianlancetaylor/libbacktrace
 struct rps_print_backtrace_data_st
