@@ -167,6 +167,33 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
 	memcpy (set->set_elem, arrcpy, card * sizeof (RpsObject_t *));
     }
   free (arrcpy);
+  {
+    RpsHash_t htup = 0;
+    unsigned long h1 = 0, h2 = rps_prime_above (5 * card + 2);
+    for (int ix = 0; ix < (int) card; ix++)
+      {
+	RpsObject_t *elemob = set->set_elem[ix];
+	RPS_ASSERT (rps_is_valid_object (elemob));
+	unsigned long oldh2 = h2;
+	if (ix % 2 == 0)
+	  {
+	    h1 =
+	      h1 * rps_prime_above (11 * ix + 9) +
+	      (rps_prime_above (5 * ix + 1) * elemob->zv_hash ^ h2);
+	    h2 = (h2 * 5503) ^ ((oldh2 - ix) + (elemob->zv_hash & 0xffff));
+	  }
+	else
+	  {
+	    h1 = (h1 * 7547 + ix) ^ oldh2;
+	    h2 += 13 * elemob->zv_hash;
+	  }
+      };
+    RpsHash_t h = (11 * h1) ^ (17 * h2);
+    if (!h)
+      h = (h1 & 0xffff) + (h2 & 0xffff) + (card & 0xff) + 3;
+    RPS_ASSERT (h != 0);
+    set->zv_hash = h;
+  }
   return set;
 }				/* end rps_alloc_set_sized */
 
