@@ -911,9 +911,9 @@ rps_fatal_stop_at (const char *fil, int lineno)
   char thnambuf[16];
   memset (thnambuf, 0, sizeof (thnambuf));
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
-  fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s\n",
+  fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s (randomize_va_space=%d)\n",
 	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf,
-	   _rps_git_short_id);
+	   _rps_git_short_id, rps_randomize_va_space);
   fflush (stderr);
   if (rps_backtrace_common_state)
     {
