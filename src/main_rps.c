@@ -59,6 +59,8 @@ const char *rps_debug_str_after;
 const char *rps_shell_before_load;
 
 int rps_nb_threads;
+int rps_randomize_va_space = -99;
+
 GOptionEntry rps_gopt_entries[] = {
   {"load-directory", 'L', 0, G_OPTION_ARG_FILENAME, &rps_load_directory,
    "load persistent heap from directory DIR", "DIR"},
@@ -1134,6 +1136,15 @@ main (int argc, char **argv)
   register_printf_specifier ('O', rps_custom_print_object,
 			     rps_custom_arginfo_object);
   atexit (rps_exit_handler);
+  {
+    int randomize= -1;
+    FILE* frandk = fopen("/proc/sys/kernel/randomize_va_space","r");
+    if (frandk) {
+      if (fscanf(frandk,"%d", &randomize))
+	rps_randomize_va_space = randomize;
+      fclose(frandk);
+    }
+  }
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
   rps_main_thread_handle = pthread_self ();
