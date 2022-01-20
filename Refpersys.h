@@ -134,7 +134,7 @@ extern int rps_index_of_prime (int64_t n);
 extern int64_t rps_prime_above (int64_t n);
 extern int64_t rps_prime_below (int64_t n);
 
-extern int rps_randomize_va_space; /// from /proc/sys/kernel/randomize_va_space
+extern int rps_randomize_va_space;	/// from /proc/sys/kernel/randomize_va_space
 //// see also https://man7.org/linux/man-pages/man5/proc.5.html
 
 

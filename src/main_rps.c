@@ -911,7 +911,8 @@ rps_fatal_stop_at (const char *fil, int lineno)
   char thnambuf[16];
   memset (thnambuf, 0, sizeof (thnambuf));
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
-  fprintf (stderr, "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s (randomize_va_space=%d)\n",
+  fprintf (stderr,
+	   "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s (randomize_va_space=%d)\n",
 	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf,
 	   _rps_git_short_id, rps_randomize_va_space);
   fflush (stderr);
@@ -1137,13 +1138,14 @@ main (int argc, char **argv)
 			     rps_custom_arginfo_object);
   atexit (rps_exit_handler);
   {
-    int randomize= -1;
-    FILE* frandk = fopen("/proc/sys/kernel/randomize_va_space","r");
-    if (frandk) {
-      if (fscanf(frandk,"%d", &randomize))
-	rps_randomize_va_space = randomize;
-      fclose(frandk);
-    }
+    int randomize = -1;
+    FILE *frandk = fopen ("/proc/sys/kernel/randomize_va_space", "r");
+    if (frandk)
+      {
+	if (fscanf (frandk, "%d", &randomize))
+	  rps_randomize_va_space = randomize;
+	fclose (frandk);
+      }
   }
 #warning temporary call to mallopt. Should be removed once loading and dumping completes.
   mallopt (M_CHECK_ACTION, 03);
