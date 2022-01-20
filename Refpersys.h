@@ -258,6 +258,7 @@ typedef bool rps_value_callback_sig_t (RpsValue_t val, void *data);
 extern enum RpsType rps_value_type (RpsValue_t val);
 
 extern void rps_verify_value (RpsValue_t val, unsigned depth);
+extern void rps_verify_object_and_payload (RpsObject_t * ob);
 
 /// the loader internals are in file load_rps.c
 typedef struct RpsPayl_Loader_st RpsLoader_t;	///// forward declaration

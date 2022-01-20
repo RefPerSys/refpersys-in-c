@@ -913,11 +913,8 @@ rps_verify_value (RpsValue_t val, unsigned depth)
 	RPS_ASSERT (rps_is_valid_object (ob->ob_class));
 	RPS_ASSERT (ob->ob_space == NULL
 		    || rps_is_valid_object (ob->ob_space));
-	pthread_mutex_lock (&ob->ob_mtx);
-	for (int ix = 0; ix < (int) ob->ob_nbcomp; ix++)
-	  rps_verify_value (ob->ob_comparr[ix], depth + 1);
-#warning should verify the object attributes
-	pthread_mutex_unlock (&ob->ob_mtx);
+	if (depth == 0)
+	  rps_verify_object_and_payload (ob);
       }
       return;
     case RPS_TYPE_FILE:
@@ -930,6 +927,50 @@ rps_verify_value (RpsValue_t val, unsigned depth)
       RPS_FATAL ("invalid value @%p of type#%d", val, (int) ty);
     }				/// end switch ty
 }				/* end rps_verify_value */
+
+
+static bool
+rps_object_attribute_verifier (RpsObject_t * obattr, void *data)
+{
+  RPS_ASSERT (rps_is_valid_object (obattr));
+  RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) data));
+  return true;
+}				/* end rps_object_attribute_verifier */
+
+static bool
+rps_object_value_verifier (RpsValue_t val, void *data)
+{
+  rps_verify_value (val, 0);
+  RPS_ASSERT (rps_is_valid_object ((RpsObject_t *) data));
+  return true;
+}				/* end rps_object_value_verifier */
+
+void
+rps_verify_object_and_payload (RpsObject_t * ob)
+{
+  RPS_ASSERT (rps_is_valid_object (ob));
+  pthread_mutex_lock (&ob->ob_mtx);
+  for (int ix = 0; ix < (int) ob->ob_nbcomp; ix++)
+    rps_verify_value (ob->ob_comparr[ix], 1);
+  if (ob->ob_attrtable)
+    {
+      rps_attr_table_iterate (ob->ob_attrtable,
+			      rps_object_attribute_verifier,
+			      rps_object_value_verifier, ob);
+    }
+  if (ob->ob_payload)
+    {
+      struct rps_owned_payload_st *payl =
+	(struct rps_owned_payload_st *) (ob->ob_payload);
+      RPS_ASSERT (payl->payl_owner == ob);
+      int8_t paylty = atomic_load (&payl->zm_atype);
+      RPS_ASSERT (paylty < 0 && paylty > -RpsPyt__LAST);
+#warning we probably should have some rps_payload_verifier_rout_arr and rps_payload_verifier_data_arr and some registering routine
+    }
+  pthread_mutex_unlock (&ob->ob_mtx);
+}				/* end rps_verify_object_and_payload */
+
+
 
 /// nearly copied from Ian Lance Taylor's libbacktrace/print.c
 /// see https://github.com/ianlancetaylor/libbacktrace
@@ -1040,8 +1081,8 @@ rps_gettid (void)
 static long rps_dbgcnt;
 
 void
-rps_debug_printf_at (const char *filname, int fline, enum Rps_Debug dbgopt,
-		     const char *fmt, ...)
+rps_debug_printf_at (const char *filname, int fline,
+		     enum Rps_Debug dbgopt, const char *fmt, ...)
 {
   if (((1 << dbgopt) & rps_debug_flags) == 0)
     return;
@@ -1140,21 +1181,18 @@ rps_emit_gplv3plus_notice (FILE * fil, const char *name,
   fprintf (fil,
 	   "%s emitted file %.64s %s\n",
 	   lineprefix ? lineprefix : "", name, linesuffix ? linesuffix : "");
-  fprintf (fil,
-	   "%s SPDX-License-Identifier: GPL-3.0-or-later %s\n",
+  fprintf (fil, "%s SPDX-License-Identifier: GPL-3.0-or-later %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
   fprintf (fil,
 	   "%s © Copyright 2019 - %s The Reflective Persistent System Team %s\n",
-	   lineprefix ? lineprefix : "",
-	   yearbuf, linesuffix ? linesuffix : "");
-  fprintf (fil,
-	   "%s team@refpersys.org & http://refpersys.org/ %s\n",
+	   lineprefix ? lineprefix : "", yearbuf,
+	   linesuffix ? linesuffix : "");
+  fprintf (fil, "%s team@refpersys.org & http://refpersys.org/ %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
-  fprintf (fil, "%s %s\n",
-	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
-  fprintf (fil,
-	   "%s License: %s\n",
-	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil, "%s %s\n", lineprefix ? lineprefix : "",
+	   linesuffix ? linesuffix : "");
+  fprintf (fil, "%s License: %s\n", lineprefix ? lineprefix : "",
+	   linesuffix ? linesuffix : "");
   fprintf (fil,
 	   "%s  This program is free software: you can redistribute it and/or modify %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
@@ -1164,12 +1202,10 @@ rps_emit_gplv3plus_notice (FILE * fil, const char *name,
   fprintf (fil,
 	   "%s  the Free Software Foundation, either version 3 of the License, or %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
-  fprintf (fil,
-	   "%s  (at your option) any later version. %s\n",
+  fprintf (fil, "%s  (at your option) any later version. %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
-  fprintf (fil,
-	   "%s %s\n",
-	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil, "%s %s\n", lineprefix ? lineprefix : "",
+	   linesuffix ? linesuffix : "");
   fprintf (fil,
 	   "%s  This program is distributed in the hope that it will be useful, %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
@@ -1179,12 +1215,10 @@ rps_emit_gplv3plus_notice (FILE * fil, const char *name,
   fprintf (fil,
 	   "%s  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
-  fprintf (fil,
-	   "%s  GNU General Public License for more details. %s\n",
+  fprintf (fil, "%s  GNU General Public License for more details. %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
-  fprintf (fil,
-	   "%s %s\n",
-	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
+  fprintf (fil, "%s %s\n", lineprefix ? lineprefix : "",
+	   linesuffix ? linesuffix : "");
   fprintf (fil,
 	   "%s  You should have received a copy of the GNU General Public License %s\n",
 	   lineprefix ? lineprefix : "", linesuffix ? linesuffix : "");
