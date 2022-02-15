@@ -761,6 +761,16 @@ typedef void rps_payload_dump_serializer_t (RpsDumper_t * du,
 extern void rps_register_payload_dump_serializer (int paylty, rps_payload_dump_serializer_t * rout,	///
 						  void *data);
 
+
+typedef void rps_payload_verifier_t (RpsObject_t * ob,
+				     struct rps_owned_payload_st *payl,
+				     void *data);
+
+extern void rps_register_payload_verifier (int paylty,
+					   rps_payload_verifier_t *,
+					   void *data);
+
+
 extern void rps_dump_scan_object_payload (RpsDumper_t * du, RpsObject_t * ob);
 extern void rps_dump_serialize_object_payload (RpsDumper_t * du,
 					       RpsObject_t * ob,

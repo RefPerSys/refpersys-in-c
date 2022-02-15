@@ -142,4 +142,6 @@ rps_allocation_initialize (void)
     }
 }				/* end rps_allocation_initialize */
 
+#warning missing rps_verify_heap routine here. See rps_register_payload_verifier
+
 /* end of file alloc_rps.c */

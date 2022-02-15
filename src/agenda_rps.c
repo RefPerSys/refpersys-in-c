@@ -323,6 +323,7 @@ rps_agenda_payload_dump_serializer (RpsDumper_t * du,
 }				/* end rps_agenda_payload_dump_serializer  */
 
 
+#warning missing rps_agenda_payload_verifier
 
 
 //////////// end of file agenda_rps.c

@@ -1043,6 +1043,9 @@ static rps_payload_dump_serializer_t
   * rps_payload_dump_serializing_rout_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
 static void
   *rps_payload_dump_serializing_data_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+static rps_payload_verifier_t
+  * rps_payload_verifying_rout_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
+static void *rps_payload_verifying_data_arr[RPS_MAX_PAYLOAD_TYPE_INDEX];
 
 void
 rps_register_payload_removal (int paylty, rps_payload_remover_t * rout,
@@ -1071,6 +1074,34 @@ rps_register_payload_removal (int paylty, rps_payload_remover_t * rout,
 end:
   pthread_mutex_unlock (&rps_payload_mtx);
 }				/* end rps_register_payload_removal */
+
+void
+rps_register_payload_verifier (int paylty, rps_payload_verifier_t * rout,
+			       void *data)
+{
+  pthread_mutex_lock (&rps_payload_mtx);
+  if (paylty == 0 || paylty >= RPS_MAX_PAYLOAD_TYPE_INDEX)
+    {
+      Dl_info routinfo = { };
+      dladdr ((void *) rout, &routinfo);
+      const char *routname = routinfo.dli_sname;
+      if (!routname)
+	routname = "???";
+      RPS_FATAL
+	("payload type#%d invalid for payload verifying routine %p / %s",
+	 paylty, (void *) rout, routname);
+    };
+  if ((void *) rout == NULL && data != NULL)
+    {
+      RPS_FATAL
+	("payload type#%d without verifying routine, but with some verifying data @%p",
+	 paylty, data);
+    }
+  rps_payload_verifying_rout_arr[paylty] = rout;
+  rps_payload_verifying_data_arr[paylty] = data;
+end:
+  pthread_mutex_unlock (&rps_payload_mtx);
+}				/* end rps_register_payload_verifier */
 
 void
 rps_register_payload_dump_scanner (int paylty, rps_payload_dump_scanner_t * rout,	//
@@ -1156,6 +1187,49 @@ rps_register_payload_dump_serializer (int paylty, rps_payload_dump_serializer_t 
 end:
   pthread_mutex_unlock (&rps_payload_mtx);
 }				/* end rps_register_payload_dump_serializer */
+
+
+
+
+/* Verify the payload of some already locked object. This might be
+   called for debugging reasons by some future verifying heap
+   routine.... */
+void
+rps_verify_locked_object_payload (RpsObject_t * ob, int paylty, void *payl)
+{
+  rps_payload_verifier_t *verifrout = NULL;
+  void *verifdata = NULL;
+  RPS_ASSERT (rps_is_valid_object (ob));
+  RPS_ASSERT (paylty < 0 && paylty > -RpsPyt__LAST);
+  RPS_ASSERT (ob->ob_payload == payl);
+  RPS_ASSERT (atomic_load (&ob->zm_atype) == paylty);
+  pthread_mutex_lock (&rps_payload_mtx);
+  verifrout = rps_payload_verifying_rout_arr[-paylty];
+  verifdata = rps_payload_verifying_data_arr[-paylty];
+  {
+    Dl_info routinfo = { };
+    dladdr ((void *) verifrout, &routinfo);
+    const char *routname = routinfo.dli_sname;
+    if (!routname)
+      routname = "???";
+    RPS_FATAL
+      ("payload type#%d invalid for payload verifying routine %p / %s",
+       paylty, (void *) verifrout, routname);
+  };
+  if ((void *) verifrout == NULL && verifdata != NULL)
+    {
+      RPS_FATAL
+	("payload type#%d without verifying routine, but with some verifying data @%p",
+	 paylty, verifdata);
+    }
+  pthread_mutex_unlock (&rps_payload_mtx);
+  if (verifrout)
+    {
+      (*verifrout) (ob, ob->ob_payload, verifdata);
+    };
+}				/* end rps_verify_locked_object_payload */
+
+
 
 /* this function is called with the object locked */
 void

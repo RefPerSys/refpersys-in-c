@@ -960,12 +960,16 @@ rps_verify_object_and_payload (RpsObject_t * ob)
     }
   if (ob->ob_payload)
     {
+      extern void		// in object_rps.c
+       
+	rps_verify_locked_object_payload (RpsObject_t * ob, int paylty,
+					  void *payl);
       struct rps_owned_payload_st *payl =
 	(struct rps_owned_payload_st *) (ob->ob_payload);
       RPS_ASSERT (payl->payl_owner == ob);
       int8_t paylty = atomic_load (&payl->zm_atype);
       RPS_ASSERT (paylty < 0 && paylty > -RpsPyt__LAST);
-#warning we probably should have some rps_payload_verifier_rout_arr and rps_payload_verifier_data_arr and some registering routine
+      rps_verify_locked_object_payload (ob, paylty, payl);
     }
   pthread_mutex_unlock (&ob->ob_mtx);
 }				/* end rps_verify_object_and_payload */
@@ -1357,6 +1361,7 @@ main (int argc, char **argv)
   rps_register_payload_dump_serializer (RpsPyt_ClassInfo,
 					rps_classinfo_payload_dump_serializer,
 					NULL);
+#warning missing registration of classinfo payload verifier (for rps_register_payload_verifier)
   /// support for symbol payload
   rps_register_payload_removal (RpsPyt_Symbol,
 				rps_symbol_payload_remover, NULL);
@@ -1365,6 +1370,7 @@ main (int argc, char **argv)
   rps_register_payload_dump_serializer (RpsPyt_Symbol,
 					rps_symbol_payload_dump_serializer,
 					NULL);
+#warning missing registration of symbol payload verifier (for rps_register_payload_verifier)
   /// support for agenda payload
   rps_register_payload_removal (RpsPyt_Agenda,
 				rps_agenda_payload_remover, NULL);
@@ -1373,6 +1379,7 @@ main (int argc, char **argv)
   rps_register_payload_dump_serializer (RpsPyt_Agenda,
 					rps_agenda_payload_dump_serializer,
 					NULL);
+#warning missing registration of agenda payload verifier (for rps_register_payload_verifier)
   /// support for mutable setob payload
   rps_register_payload_removal (RpsPyt_MutableSetOb,
 				rps_setob_payload_remover, NULL);
@@ -1381,7 +1388,8 @@ main (int argc, char **argv)
   rps_register_payload_dump_serializer (RpsPyt_MutableSetOb,
 					rps_setob_payload_dump_serializer,
 					NULL);
-  /// support for string dictionnary payload
+#warning missing registration of mutable setob payload verifier (for rps_register_payload_verifier)
+  /// support for string dictionary payload
   rps_register_payload_removal (RpsPyt_StringDict,
 				rps_stringdict_payload_remover, NULL);
   rps_register_payload_dump_scanner (RpsPyt_StringDict,
@@ -1390,8 +1398,9 @@ main (int argc, char **argv)
   rps_register_payload_dump_serializer (RpsPyt_StringDict,
 					rps_stringdict_payload_dump_serializer,
 					NULL);
+#warning missing registration of string payload verifier (for rps_register_payload_verifier)
   ////
-#warning other payload routines should be registered here
+#warning other payload routines should be registered here, including verification routines
   rps_check_all_objects_buckets_are_valid ();
   if (!rps_load_directory)
     rps_load_directory = rps_topdirectory;
