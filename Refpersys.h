@@ -372,6 +372,8 @@ rps_zoned_memory_gcmark (const void *ad)
   return atomic_load (&((struct RpsZonedMemory_st *) ad)->zm_gcmark);
 }				/* end rps_zoned_memory_gcmark */
 
+/// for debugging, a routine verifying all the objects in the heap:
+extern void rps_verify_heap (void);
 
 /// zoned values all have some non-zero hash
 #define RPSFIELDS_ZONED_VALUE \
@@ -717,6 +719,11 @@ extern void rps_add_global_root_object (RpsObject_t * obj);
 extern void rps_remove_global_root_object (RpsObject_t * obj);
 extern unsigned rps_nb_global_root_objects (void);
 extern const RpsSetOb_t *rps_set_of_global_root_objects (void);
+/* Verify the payload of some already locked object. This might be
+   called for debugging reasons by some future verifying heap
+   routine.... */
+extern void rps_verify_locked_object_payload (RpsObject_t * ob, int paylty,
+					      void *payl);
 
 /// function to dump object attributes, has a signature compatible with rps_apply_dumpj_sigt
 extern RpsValue_t

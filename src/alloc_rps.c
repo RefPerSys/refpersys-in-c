@@ -8,7 +8,7 @@
  *      It has the memory allocator and possibly the garbage collector.
  *
  *
- *      © Copyright 2019 - 2021 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2022 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -142,6 +142,13 @@ rps_allocation_initialize (void)
     }
 }				/* end rps_allocation_initialize */
 
+
+/// for debugging, a routine verifying all the objects in the heap
+void
+rps_verify_heap (void)
+{
 #warning missing rps_verify_heap routine here. See rps_register_payload_verifier
+  RPS_FATAL ("unimplemented rps_verify_heap");
+}				/* end rps_verify_heap */
 
 /* end of file alloc_rps.c */

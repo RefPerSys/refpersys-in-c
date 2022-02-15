@@ -1202,20 +1202,13 @@ rps_verify_locked_object_payload (RpsObject_t * ob, int paylty, void *payl)
   RPS_ASSERT (rps_is_valid_object (ob));
   RPS_ASSERT (paylty < 0 && paylty > -RpsPyt__LAST);
   RPS_ASSERT (ob->ob_payload == payl);
+  if (paylty == 0 || paylty >= RPS_MAX_PAYLOAD_TYPE_INDEX)
+    RPS_FATAL
+      ("payload type#%d invalid for object %O payl@%p", paylty, ob, payl);
   RPS_ASSERT (atomic_load (&ob->zm_atype) == paylty);
   pthread_mutex_lock (&rps_payload_mtx);
   verifrout = rps_payload_verifying_rout_arr[-paylty];
   verifdata = rps_payload_verifying_data_arr[-paylty];
-  {
-    Dl_info routinfo = { };
-    dladdr ((void *) verifrout, &routinfo);
-    const char *routname = routinfo.dli_sname;
-    if (!routname)
-      routname = "???";
-    RPS_FATAL
-      ("payload type#%d invalid for payload verifying routine %p / %s",
-       paylty, (void *) verifrout, routname);
-  };
   if ((void *) verifrout == NULL && verifdata != NULL)
     {
       RPS_FATAL
