@@ -149,44 +149,59 @@ rps_verify_heap (void)
 {
   int obarrsiz = 1024;
   int obarrcnt = 0;
-  RpsObject_t**obarr = NULL;
-  obarr = calloc(obarrsiz, sizeof(RpsObject_t*));
+  RpsObject_t **obarr = NULL;
+  double startcpu = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID);
+  double startreal = rps_clocktime (CLOCK_REALTIME);
+  obarr = calloc (obarrsiz, sizeof (RpsObject_t *));
   if (!obarr)
-    RPS_FATAL("failed to allocate obarr for %d objects", obarrsiz);
+    RPS_FATAL ("failed to allocate obarr for %d objects", obarrsiz);
   for (int zix = 0; zix < RPS_NB_ZONED_CHAINS; zix++)
     {
-      pthread_mutex_lock(&rps_zoned_mtxarr[zix]);
-      for (struct RpsZonedMemory_st *zm = rps_zoned_chainarr[zix];
-	   zm != NULL;
-	   zm = atomic_load(&zm->zm_gclink)) {
-	if (atomic_load(&zm->zm_atype) == RPS_TYPE_OBJECT) {
-	  RpsObject_t*curob = (RpsObject_t*)zm;
-	  if (obarrcnt + 2 >= obarrsiz) {
-	    int newsiz = ((3*obarrsiz/2+5) | 0xfff) + 1;
-	    RPS_ASSERT(newsiz > obarrsiz);
-	    RpsObject_t**newobarr = calloc(newsiz, sizeof(RpsObject_t*));
-	    if (!newobarr)
-	      RPS_FATAL("failed to allocate newobarr for %d objects", newsiz);
-	    memcpy (newobarr, obarr, obarrsiz*sizeof(RpsObject_t*));
-	    free (obarr);
-	    obarr = newobarr;
-	    obarrsiz = newsiz;
-	  }
-	  obarr[obarrcnt++] = curob;
+      pthread_mutex_lock (&rps_zoned_mtxarr[zix]);
+      for (struct RpsZonedMemory_st * zm = rps_zoned_chainarr[zix];
+	   zm != NULL; zm = atomic_load (&zm->zm_gclink))
+	{
+	  if (atomic_load (&zm->zm_atype) == RPS_TYPE_OBJECT)
+	    {
+	      RpsObject_t *curob = (RpsObject_t *) zm;
+	      if (obarrcnt + 2 >= obarrsiz)
+		{
+		  int newsiz = ((3 * obarrsiz / 2 + 5) | 0xfff) + 1;
+		  RPS_ASSERT (newsiz > obarrsiz);
+		  RpsObject_t **newobarr =
+		    calloc (newsiz, sizeof (RpsObject_t *));
+		  if (!newobarr)
+		    RPS_FATAL ("failed to allocate newobarr for %d objects",
+			       newsiz);
+		  memcpy (newobarr, obarr, obarrsiz * sizeof (RpsObject_t *));
+		  free (obarr);
+		  obarr = newobarr;
+		  obarrsiz = newsiz;
+		}
+	      obarr[obarrcnt++] = curob;
+	    }
 	}
-      }
-      pthread_mutex_unlock(&rps_zoned_mtxarr[zix]);
+      pthread_mutex_unlock (&rps_zoned_mtxarr[zix]);
     };
   /// now obarr contains all the objects; their number is obarrcnt
-  for (int oix = 0; oix<obarrcnt; oix++) {
-    RpsObject_t*curob = obarr[oix];
-    RPS_ASSERT(rps_is_valid_object(curob));
-    pthread_mutex_lock(&curob->ob_mtx);
-    if (curob->ob_payload)
-      rps_verify_locked_object_payload(curob, RPS_ZONED_MEMORY_TYPE(curob->ob_payload),
-				       curob->ob_payload);
-    pthread_mutex_unlock(&curob->ob_mtx);
-  }
+  for (int oix = 0; oix < obarrcnt; oix++)
+    {
+      RpsObject_t *curob = obarr[oix];
+      RPS_ASSERT (rps_is_valid_object (curob));
+      pthread_mutex_lock (&curob->ob_mtx);
+      if (curob->ob_payload)
+	rps_verify_locked_object_payload (curob,
+					  RPS_ZONED_MEMORY_TYPE
+					  (curob->ob_payload),
+					  curob->ob_payload);
+      pthread_mutex_unlock (&curob->ob_mtx);
+    }
+  double endcpu = rps_clocktime (CLOCK_PROCESS_CPUTIME_ID);
+  double endreal = rps_clocktime (CLOCK_REALTIME);
+  printf
+    ("Verified RefPerSys (git %s) heap of %d objects in %.3f cpu %.3f real seconds\n",
+     _rps_git_short_id, obarrcnt, endcpu - startcpu, endreal - startreal);
+  fflush (NULL);
 }				/* end rps_verify_heap */
 
 /* end of file alloc_rps.c */
