@@ -38,8 +38,7 @@ rps_is_valid_object (RpsObject_t * obj)
   if (obj->ob_magic != RPS_OBJ_MAGIC)
     return false;
   RPS_ASSERT (rps_oid_is_valid (obj->ob_id));
-  RPS_ASSERTPRINTF (obj->ob_class != NULL,
-		    "object %O without class", obj);
+  RPS_ASSERTPRINTF (obj->ob_class != NULL, "object %O without class", obj);
 //- pthread_mutex_lock (&obj->ob_mtx);
 //- if (obj->ob_class == NULL)
 //-   {
@@ -1206,7 +1205,7 @@ rps_verify_locked_object_payload (RpsObject_t * ob, int paylty, void *payl)
   if (paylty == 0 || paylty >= RPS_MAX_PAYLOAD_TYPE_INDEX)
     RPS_FATAL
       ("payload type#%d invalid for object %O payl@%p", paylty, ob, payl);
-  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE(payl) == paylty);
+  RPS_ASSERT (RPS_ZONED_MEMORY_TYPE (payl) == paylty);
   pthread_mutex_lock (&rps_payload_mtx);
   verifrout = rps_payload_verifying_rout_arr[-paylty];
   verifdata = rps_payload_verifying_data_arr[-paylty];
