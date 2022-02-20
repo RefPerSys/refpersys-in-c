@@ -1430,8 +1430,8 @@ main (int argc, char **argv)
 	}
     };
   rps_load_initial_heap ();
-  if (RPS_DEBUG_ENABLED(GARBCOLL))
-    rps_verify_heap();
+  if (RPS_DEBUG_ENABLED (GARBCOLL))
+    rps_verify_heap ();
   if (rps_debug_str_after)
     {
       printf ("setting debug after load to %s\n", rps_debug_str_after);
@@ -1441,8 +1441,8 @@ main (int argc, char **argv)
     rps_run_agenda (rps_nb_threads);
   if (rps_with_gui)
     rps_run_gui (&argc, argv);
-  if (RPS_DEBUG_ENABLED(GARBCOLL))
-    rps_verify_heap();
+  if (RPS_DEBUG_ENABLED (GARBCOLL))
+    rps_verify_heap ();
   if (rps_dump_directory)
     rps_dump_heap (NULL, rps_dump_directory);
 }				/* end of main function */
