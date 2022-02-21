@@ -869,7 +869,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
     {
       if (feof (spfil))
 	RPS_FATAL
-	  ("rps_load_first_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
+	  ("rps_load_second_pass space#%d incomplete file %s:%d - loaded only %ld objects expecting %ld of them",
 	   spix, filepath, lincnt, objcount, nbobjects);
       if (objcount % 8 == 0)
 	{
@@ -881,7 +881,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    }
 	  // if (objcount % 16 == 0)
 	  //  printf
-	  //    ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
+	  //    ("rps_load_second_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
 	  //     spix, objcount, filepath, lincnt, __FILE__, __LINE__);
 	};
       memset (linbuf, 0, linsz);
