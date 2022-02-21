@@ -876,8 +876,12 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	  rps_check_all_objects_buckets_are_valid ();
 	  if (objcount % 16 == 0)
 	    {
-#warning temporary call to mallopt. Should be removed once loading and dumping completes.
+#warning temporary call to mallopt, and RPS_VERIFY_HEAP.
+	      /// Only for debugging.  This should be removed once
+	      /// loading and dumping completes.
 	      mallopt (M_CHECK_ACTION, 03);
+	      if (objcount % 64 == 0 && RPS_DEBUG_ENABLED (GARBCOLL))
+		RPS_VERIFY_HEAP ();
 	    }
 	  // if (objcount % 16 == 0)
 	  //  printf
