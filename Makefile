@@ -124,4 +124,4 @@ refpersys: objects $(RPS_TSTAMP).o
 
 ## a test for dumping
 testdump: refpersys
-	./refpersys --shell-before-load='rm -rf /tmp/rpsdump' --debug-after=DUMP --dump=/tmp/rpsdump
+	./refpersys --shell-before-load='rm -rf /tmp/rpsdump' --debug-load=GARBCOLL --debug-after=DUMP --dump=/tmp/rpsdump
