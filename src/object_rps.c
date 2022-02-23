@@ -38,14 +38,14 @@ rps_is_valid_object (RpsObject_t * obj)
   if (obj->ob_magic != RPS_OBJ_MAGIC)
     return false;
   RPS_ASSERT (rps_oid_is_valid (obj->ob_id));
-  if (obj->ob_class == NULL) {
-    char idstr[32];
-    memset (idstr, 0, sizeof(idstr));
-    rps_oid_to_cbuf(obj->ob_id, idstr);
-    RPS_ASSERTPRINTF (obj->ob_class != NULL,
-		      "object of oid %s without class",
-		      idstr);
-  }
+  if (obj->ob_class == NULL)
+    {
+      char idstr[32];
+      memset (idstr, 0, sizeof (idstr));
+      rps_oid_to_cbuf (obj->ob_id, idstr);
+      RPS_ASSERTPRINTF (obj->ob_class != NULL,
+			"object of oid %s without class", idstr);
+    }
 //- pthread_mutex_lock (&obj->ob_mtx);
 //- if (obj->ob_class == NULL)
 //-   {
