@@ -27,6 +27,8 @@
  ******************************************************************************/
 
 #include "Refpersys.h"
+#include "oid_rps.h"
+
 
 bool
 rps_is_valid_object (RpsObject_t * obj)
@@ -1502,6 +1504,7 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
   RPS_ASSERT (rps_is_valid_dumper (du));
   RPS_ASSERT (payl && rps_zoned_memory_type (payl) == -RpsPyt_ClassInfo);
   RpsClassInfo_t *clinf = (RpsClassInfo_t *) payl;
+  RpsObject_t *clob = payl->payl_owner;
   RPS_ASSERT (clinf->pclass_magic == RPS_CLASSINFO_MAGIC);
   if (clinf->pclass_super)
     rps_dumper_scan_object (du, clinf->pclass_super);
@@ -1517,9 +1520,20 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
 	{
 	  usleep (1000);
 	  RPS_DEBUG_PRINTF (DUMP,
-			    "classob %O @%p classinfo@%p has invalid symbol @%p",
-			    clinf->payl_owner, clinf->payl_owner, clinf,
-			    clinf->pclass_symbol);
+			    "classob %O @%p classinfo@%p has invalid symbol @%p of type#%d",
+			    clob, clob,
+			    clinf->pclass_symbol,
+			    RPS_ZONED_MEMORY_TYPE (clinf->pclass_symbol));
+	  if (RPS_ZONED_MEMORY_TYPE (clinf->pclass_symbol) == RPS_TYPE_OBJECT)
+	    {
+	      char sybufoid[32];
+	      memset (sybufoid, 0, sizeof (sybufoid));
+	      rps_oid_to_cbuf (clinf->pclass_symbol->ob_id, (sybufoid));
+	      RPS_DEBUG_PRINTF (DUMP,
+				"classob %O has pclass_symbol %s",
+				clob, sybufoid);
+	    };
+
 	  RPS_ASSERTPRINTF (rps_is_valid_object (clinf->pclass_symbol),
 			    "classob %O @%p  classinfo@%p has invalid symbol @%p == %V",
 			    clinf->payl_owner, clinf->payl_owner, clinf,
