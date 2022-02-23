@@ -373,7 +373,7 @@ rps_zoned_memory_gcmark (const void *ad)
 }				/* end rps_zoned_memory_gcmark */
 
 /// for debugging, a routine verifying all the objects in the heap:
-extern void rps_verify_heap_at (const char*fil, int lin);
+extern void rps_verify_heap_at (const char *fil, int lin);
 #define RPS_VERIFY_HEAP() do { rps_verify_heap_at(__FILE__,__LINE__); \
   } while(0)
 

@@ -145,7 +145,7 @@ rps_allocation_initialize (void)
 
 /// for debugging, a routine verifying all the objects in the heap
 void
-rps_verify_heap_at (const char*fil, int lin)
+rps_verify_heap_at (const char *fil, int lin)
 {
   int obarrsiz = 1024;
   int obarrcnt = 0;
@@ -201,8 +201,7 @@ rps_verify_heap_at (const char*fil, int lin)
   printf
     ("Verified RefPerSys (git %s) heap of %d objects from %s:%d in %.3f cpu %.3f real seconds\n",
      _rps_git_short_id, obarrcnt,
-     fil, lin,
-     endcpu - startcpu, endreal - startreal);
+     fil, lin, endcpu - startcpu, endreal - startreal);
   fflush (NULL);
 }				/* end rps_verify_heap_at */
 
