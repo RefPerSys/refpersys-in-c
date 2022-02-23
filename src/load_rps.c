@@ -209,8 +209,8 @@ rps_load_parse_manifest (RpsLoader_t * ld)
       /// now that the infant root objects are created, we can assign
       /// them to global C variables:
 #define RPS_INSTALL_ROOT_OB(Oid) do {                           \
-        RpsOid curoid##Oid =					\
-          rps_cstr_to_oid(#Oid, NULL);				\
+        RpsOid curoid##Oid =                                    \
+          rps_cstr_to_oid(#Oid, NULL);                          \
         RPS_ROOT_OB(Oid) =                                      \
           rps_find_object_by_oid(curoid##Oid);                  \
         if (!RPS_ROOT_OB(Oid))                                  \
@@ -218,9 +218,25 @@ rps_load_parse_manifest (RpsLoader_t * ld)
                       #Oid);                                    \
             } while (0);
 #include "generated/rps-roots.h"
+      ///
     }
   else
     RPS_FATAL ("missing globalroots in manifest file %s", manifestpath);
+  ///
+  /// Every root object belong temporarily to the object class
+#define RPS_INSTALL_ROOT_OB(Oid) do {                           \
+        RpsOid curoid##Oid =                                    \
+          rps_cstr_to_oid(#Oid, NULL);                          \
+        RPS_ROOT_OB(Oid) =                                      \
+          rps_find_object_by_oid(curoid##Oid);                  \
+        if (!RPS_ROOT_OB(Oid))                                  \
+            RPS_FATAL("failed to install root object %s",       \
+                      #Oid);                                    \
+         RPS_ROOT_OB(Oid)->ob_class =                           \
+           RPS_ROOT_OB(_5yhJGgxLwLp00X0xEQ); /*object∈class*/   \
+            } while (0);
+#include "generated/rps-roots.h"
+  ///
   json_t *jsconstset = json_object_get (ld->ld_json_manifest, "constset");
   if (json_is_array (jsconstset))
     {
@@ -298,6 +314,17 @@ rps_load_initial_heap (void)
     RPS_FATAL ("bad spaceset in load directory %s", rps_load_directory);
   loader->ld_state = RPSLOADING_FILL_OBJECTS_PASS;
   rps_load_initialize_root_objects (loader);
+  //// before the second loading pass, we check that root objects are valid and have some class
+#define RPS_INSTALL_ROOT_OB(Oid) do {                           \
+    RPS_ASSERTPRINTF(rps_is_valid_object(RPS_ROOT_OB(Oid)),	\
+		     "corrupted root object %s", #Oid);		\
+            } while (0);
+#include "generated/rps-roots.h"
+  /// to ease debugging...
+  if (RPS_DEBUG_ENABLED (GARBCOLL) || RPS_DEBUG_ENABLED(LOAD)) {
+    rps_check_all_objects_buckets_are_valid ();
+    RPS_VERIFY_HEAP();
+  };
   for (int spix = 0; spix < (int) nbspace; spix++)
     {
       json_t *jscurspace = json_array_get (jsspaceset, spix);
@@ -342,6 +369,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
   if (!spfil)
     RPS_FATAL ("failed to open %s for space #%d : %m", filepath, spix);
   rps_check_all_objects_buckets_are_valid ();
+  RPS_ASSERTPRINTF (NULL != RPS_ROOT_OB (_5yhJGgxLwLp00X0xEQ),	//object∈class
+		    "missing object root");
   long linoff = 0;
   int lincnt = 0;
   size_t linsz = 256;
@@ -410,6 +439,8 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
       if (objcount % 8 == 0)
 	{
 	  rps_check_all_objects_buckets_are_valid ();
+	  if (objcount % 16 == 0 && RPS_DEBUG_ENABLED (GARBCOLL))
+	    RPS_VERIFY_HEAP ();
 //     if (objcount % 16 == 0)
 //       printf
 //         ("rps_load_first_pass space#%d objcount %ld file %s:%d (%s:%d)\n",
@@ -480,17 +511,25 @@ rps_load_first_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	    RpsObject_t *obclass = NULL;
 	    if (json_is_string (jsclass))
 	      obclass = rps_load_create_object_from_json_id (ld, jsclass);
-	    else
+	    if (!obclass)
 	      obclass = RPS_ROOT_OB (_5yhJGgxLwLp00X0xEQ);	//object∈class
-	    RPS_ASSERTPRINTF (obclass != NULL,
-			      "no class for object of oid %s near %s:%d",
-			      obidbuf, filepath, lincnt);
+	    objcount++;
 	    RpsObject_t *curob =
 	      rps_load_create_object_from_json_id (ld, jsoid);
+	    RPS_DEBUG_PRINTF (LOAD, "load-created object#%ld curob %s",
+			      objcount, obidbuf);
 	    if (curob && obclass)
 	      curob->ob_class = obclass;
+	    // for object _9Gz1oNPCnkB00I6VRS; in commit 4fbdb7e1ca7d7bda it is losing its class...
+	    if (obidbuf[1] == '9' && obidbuf[2] == 'G' && obidbuf[3] == 'z')
+	      {
+		RPS_DEBUG_PRINTF (LOAD,
+				  "**bug in commit 4fbdb7e1c for obidbuf %s curob@%p id/hi=%lld,lo=%lld",
+				  obidbuf, curob,
+				  curob->ob_id.id_hi, curob->ob_id.id_lo);
+		usleep (1000);
+	      }
 	    /// the other fields of curob are set later... in the second pass
-	    objcount++;
 	    json_decref (jsobject);
 	    fclose (obstream);
 	    free (bufjs), bufjs = NULL;
@@ -880,7 +919,7 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	      /// Only for debugging.  This should be removed once
 	      /// loading and dumping completes.
 	      mallopt (M_CHECK_ACTION, 03);
-	      if (objcount % 64 == 0 && RPS_DEBUG_ENABLED (GARBCOLL))
+	      if (objcount % 32 == 0 && RPS_DEBUG_ENABLED (GARBCOLL))
 		RPS_VERIFY_HEAP ();
 	    }
 	  // if (objcount % 16 == 0)
@@ -979,6 +1018,15 @@ rps_load_second_pass (RpsLoader_t * ld, int spix, RpsOid spaceid)
 	      {
 		RPS_DEBUG_PRINTF (LOAD,
 				  "**bug in commit 4ca7a21e083 for obidbuf %s curob@%p id/hi=%lld,lo=%lld",
+				  obidbuf, curob,
+				  curob->ob_id.id_hi, curob->ob_id.id_lo);
+		usleep (1000);
+	      }
+	    // for object _9Gz1oNPCnkB00I6VRS; in commit 4fbdb7e1ca7d7bda it is losing its class...
+	    if (obidbuf[1] == '9' && obidbuf[2] == 'G' && obidbuf[3] == 'z')
+	      {
+		RPS_DEBUG_PRINTF (LOAD,
+				  "**bug in commit 4fbdb7e1c for obidbuf %s curob@%p id/hi=%lld,lo=%lld",
 				  obidbuf, curob,
 				  curob->ob_id.id_hi, curob->ob_id.id_lo);
 		usleep (1000);
