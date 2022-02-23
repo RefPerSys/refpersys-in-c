@@ -321,10 +321,11 @@ rps_load_initial_heap (void)
             } while (0);
 #include "generated/rps-roots.h"
   /// to ease debugging...
-  if (RPS_DEBUG_ENABLED (GARBCOLL) || RPS_DEBUG_ENABLED(LOAD)) {
-    rps_check_all_objects_buckets_are_valid ();
-    RPS_VERIFY_HEAP();
-  };
+  if (RPS_DEBUG_ENABLED (GARBCOLL) || RPS_DEBUG_ENABLED (LOAD))
+    {
+      rps_check_all_objects_buckets_are_valid ();
+      RPS_VERIFY_HEAP ();
+    };
   for (int spix = 0; spix < (int) nbspace; spix++)
     {
       json_t *jscurspace = json_array_get (jsspaceset, spix);
