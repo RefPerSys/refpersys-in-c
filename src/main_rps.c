@@ -462,9 +462,9 @@ int
 rps_print_detailed_object (FILE * outf, const struct printf_info *info,
 			   RpsObject_t * obj, unsigned depth)
 {
+  RPS_ASSERT (obj && RPS_ZONED_MEMORY_TYPE (obj) == RPS_TYPE_OBJECT);
   RpsValue_t vname = RPS_NULL_VALUE;
   RpsValue_t vsurname = RPS_NULL_VALUE;
-  RPS_ASSERT (rps_is_valid_object (obj));
   char idbuf[32];
   memset (idbuf, 0, sizeof (idbuf));
   rps_oid_to_cbuf (obj->ob_id, idbuf);
@@ -473,6 +473,7 @@ rps_print_detailed_object (FILE * outf, const struct printf_info *info,
   int ln = strlen (idbuf);
   if (depth == 0)
     {
+      RPS_ASSERT (rps_is_valid_object (obj));
       pthread_mutex_lock (&obj->ob_mtx);
       vname = rps_get_object_attribute (obj, RPS_ROOT_OB (_1EBVGSfW2m200z18rx));	//name∈named_attribute
       vsurname = rps_get_object_attribute (obj, RPS_ROOT_OB (_4FBkYDlynyC02QtkfG));	//"name"∈named_attribute
