@@ -1064,9 +1064,10 @@ rps_fatal_stop_at (const char *fil, int lineno)
   memset (thnambuf, 0, sizeof (thnambuf));
   pthread_getname_np (pthread_self (), thnambuf, sizeof (thnambuf));
   fprintf (stderr,
-	   "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s (randomize_va_space=%d)\n",
+	   "** FATAL STOP %s:%d (tid#%d/%s) - shortgitid %s (randomize_va_space=%d, pid#%d on %s)\n",
 	   fil ? fil : "???", lineno, (int) rps_gettid (), thnambuf,
-	   _rps_git_short_id, rps_randomize_va_space);
+	   _rps_git_short_id, rps_randomize_va_space,
+	   (int)getpid(), rps_hostname());
   fflush (stderr);
   if (rps_backtrace_common_state)
     {
@@ -1438,14 +1439,23 @@ main (int argc, char **argv)
       printf ("setting debug after load to %s\n", rps_debug_str_after);
       rps_set_debug (rps_debug_str_after);
     }
-  if (rps_nb_threads > 0)
+  if (rps_nb_threads > 0) {
+    printf("%s git %s running agenda with %d threads pid %d on %s\n",
+	   argv[0], _rps_git_short_id, rps_nb_threads,
+	   (int)getpid(), rps_hostname());
     rps_run_agenda (rps_nb_threads);
+  }
+  else
+    printf("%s git %s without agenda and threads pid %d on %s\n",
+	   argv[0], _rps_git_short_id, (int)getpid(), rps_hostname());
   if (rps_with_gui)
     rps_run_gui (&argc, argv);
   if (RPS_DEBUG_ENABLED (GARBCOLL))
     RPS_VERIFY_HEAP ();
   if (rps_dump_directory)
     rps_dump_heap (NULL, rps_dump_directory);
+  printf("%s git %s ended pid %d on %s\n",
+	 argv[0], _rps_git_short_id, (int)getpid(), rps_hostname());
 }				/* end of main function */
 
 
