@@ -1521,7 +1521,7 @@ rps_classinfo_payload_dump_scanner (RpsDumper_t * du,
 	  usleep (1000);
 	  RPS_DEBUG_PRINTF (DUMP,
 			    "classob %O @%p classinfo@%p has invalid symbol @%p of type#%d",
-			    clob, clob,
+			    clob, clob, clinf,
 			    clinf->pclass_symbol,
 			    RPS_ZONED_MEMORY_TYPE (clinf->pclass_symbol));
 	  if (RPS_ZONED_MEMORY_TYPE (clinf->pclass_symbol) == RPS_TYPE_OBJECT)
