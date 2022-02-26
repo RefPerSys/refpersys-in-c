@@ -972,6 +972,7 @@ rpsldpy_string_dictionary (RpsObject_t * obj, RpsLoader_t * ld,
 	  RpsValue_t curval = rps_loader_json_to_value (ld, jval);
 	  rps_payl_string_dictionary_add_cstr (paylstrdic, str, curval);
 	}
+      RPS_ASSERT(paylstrdic->zm_length == nbent);
     }
 end:
   pthread_mutex_unlock (&obj->ob_mtx);
