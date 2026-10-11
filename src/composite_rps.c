@@ -8,7 +8,7 @@
  *      It supports composite values.
  *
  *
- *      © Copyright 2019 - 2022 The Reflective Persistent System Team
+ *      © Copyright 2019 - 2026 The Reflective Persistent System Team
  *      team@refpersys.org & http://refpersys.org/
  *
  * License:
@@ -1020,7 +1020,8 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
     {
       const RpsString_t *curnam = kavl_at (&iter)->strdicnodrps_name;
       RpsValue_t curval = kavl_at (&iter)->strdicnodrps_val;
-      RPS_ASSERT (rps_value_type ((RpsValue_t) curnam) == RPS_TYPE_STRING);
+      RPS_ASSERT (rps_value_type ((RpsValue_t) curnam)
+		  == RPS_TYPE_STRING);
       RPS_ASSERT (curval != RPS_NULL_VALUE);
       ix++;
       RPS_DEBUG_PRINTF (DUMP,
@@ -1028,6 +1029,7 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
 			ix, payl->payl_owner, curnam, curval);
       rps_dumper_scan_value (du, (RpsValue_t) curnam, 0);
       rps_dumper_scan_value (du, curval, 0);
+#warning the below need a fix (incompatible types)
       if (!kavl_itr_next_rpsmusetob (&iter))
 	break;
     };
