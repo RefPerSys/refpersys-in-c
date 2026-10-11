@@ -214,7 +214,7 @@ rps_compare_cstr_ptr (const void *p1, const void *p2)
 
 /// internal recursive functon to compute two hashes
 static void
-rps_compute_json_two_hash (int depth, const json_t * js, long *pl1, long *pl2)
+rps_compute_json_two_hash (int depth, const json_t *js, long *pl1, long *pl2)
 {
   if (!js)
     return;
@@ -244,7 +244,8 @@ rps_compute_json_two_hash (int depth, const json_t * js, long *pl1, long *pl2)
 	    if (ix % 2 == 0)
 	      {
 		*pl1 ^= 17 * ix + sl1 - 37 * sl2 + (oldl1 ^ oldl2 + depth);
-		*pl2 += ix + 31 * sl1 ^ 43 * sl2 + (17 * oldl1 - 49 * oldl2);
+		*pl2 += ix + (31 * sl1 ^ 43)
+		  * sl2 + (17 * oldl1 - 49 * oldl2);
 	      }
 	    else
 	      {
@@ -276,8 +277,8 @@ rps_compute_json_two_hash (int depth, const json_t * js, long *pl1, long *pl2)
 		*pl1 -=
 		  2557 * sl1 + 1567 * oldl1 + 13 * oldl2 - 409 * sl2 - depth;
 		*pl2 ^=
-		  17 * ix ^ 419 * sl1 - 353 * oldl1 + 17 * oldl2 - 439 * sl2 +
-		  ix;
+		  (17 * ix) ^ (419 * sl1 - 353) * oldl1 + 17 * oldl2 -
+		  439 * sl2 + ix;
 	      }
 	  }
       }
@@ -346,7 +347,7 @@ rps_compute_json_two_hash (int depth, const json_t * js, long *pl1, long *pl2)
 }				/* end rps_compute_json_two_hash */
 
 RpsHash_t
-rps_json_hash (const json_t * js)
+rps_json_hash (const json_t *js)
 {
   RpsHash_t h = 0;
   long l1 = 15017, l2 = 65183;
@@ -361,7 +362,7 @@ rps_json_hash (const json_t * js)
 }				/* end rps_json_hash */
 
 const RpsFile_t *
-rps_alloc_plain_file (FILE * f)
+rps_alloc_plain_file (FILE *f)
 {
   if (!f)
     return NULL;
@@ -383,7 +384,7 @@ rps_file_of_value (RpsValue_t val)
 }				/* end rps_file_of_value */
 
 const RpsJson_t *
-rps_alloc_json (const json_t * js)
+rps_alloc_json (const json_t *js)
 {
   RpsJson_t *vj = NULL;
   if (!js)
@@ -395,7 +396,7 @@ rps_alloc_json (const json_t * js)
 }				/* end rps_alloc_json */
 
 const RpsJson_t *
-rps_load_json (const json_t * js, RpsLoader_t * ld)
+rps_load_json (const json_t *js, RpsLoader_t *ld)
 {
   json_t *jv = json_object_get (js, "json");
   RPS_ASSERT (rps_is_valid_filling_loader (ld));
@@ -413,7 +414,7 @@ rps_json_value (RpsValue_t val)
 }				/* end rps_json_value */
 
 RpsValue_t
-rps_alloc_gtk_widget (GtkWidget * widg)
+rps_alloc_gtk_widget (GtkWidget *widg)
 {
   RpsGtkWidget_t *vw = RPS_NULL_VALUE;
   RpsHash_t h = 0;
