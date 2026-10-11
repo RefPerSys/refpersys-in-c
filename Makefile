@@ -9,7 +9,7 @@
 ##      Abhishek Chakravarti <abhishek@taranjali.org>
 ##      Nimesh Neema <nimeshneema@gmail.com>
 ##
-##      © Copyright 2019 - 2022 The Reflective Persistent System Team
+##      © Copyright 2019 - 2026 The Reflective Persistent System Team
 ##      team@refpersys.org
 ##
 ## License:
@@ -64,13 +64,13 @@ CC := gcc
 
 
 ## extra compile flags (debugging, profiling, etc); in particular use CXTRAFLAGS=-fsanitize=address
-CXTRAFLAGS=
+CXTRAFLAGS= -Wall -Wextra -Wmissing-prototypes
 
 ## extra link flags
 LINKXTRAFLAGS=
 
 ## should be changed later to -Og, once loading succeeds
-CFLAGS := -O0 -ggdb3 $(CXTRAFLAGS)
+CFLAGS := -Og -ggdb3 $(CXTRAFLAGS)
 
 ## preprocessor flags for gcc
 CPPFLAGS += $(RPS_PKG_CFLAGS) \
