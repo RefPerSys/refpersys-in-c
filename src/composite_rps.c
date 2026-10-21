@@ -107,7 +107,7 @@ rps_vtuple_nth (const RpsTupleOb_t * tup, int rk)
   unsigned sz = tup->zm_length;
   if (rk < 0)
     rk += (int) sz;
-  if (rk >= 0 && rk < sz)
+  if (rk >= 0 && rk < (int)sz)
     return tup->tuple_comp[rk];
   return NULL;
 }				/* end rps_vtuple_nth */
@@ -126,7 +126,7 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
   const RpsObject_t **arrcpy =
     RPS_ALLOC_ZEROED ((nbcomp + 1) * sizeof (RpsObject_t *));
   int nbob = 0;
-  for (int ix = 0; ix < nbcomp; ix++)
+  for (int ix = 0; ix < (int)nbcomp; ix++)
     if (arr[ix] && rps_is_valid_object ((RpsObject_t *) (arr[ix])))
       arrcpy[nbob++] = arr[ix];
   rps_object_array_qsort (arrcpy, (int) nbob);
@@ -168,11 +168,10 @@ rps_alloc_set_sized (unsigned nbcomp, const RpsObject_t ** arr)
     }
   free (arrcpy);
   {
-    RpsHash_t htup = 0;
     unsigned long h1 = 0, h2 = rps_prime_above (5 * card + 2);
     for (int ix = 0; ix < (int) card; ix++)
       {
-	RpsObject_t *elemob = set->set_elem[ix];
+	const RpsObject_t *elemob = set->set_elem[ix];
 	RPS_ASSERT (rps_is_valid_object (elemob));
 	unsigned long oldh2 = h2;
 	if (ix % 2 == 0)
@@ -275,7 +274,7 @@ rps_set_nth_member (const RpsSetOb_t * setv, int n)
   unsigned card = setv->zm_length;
   if (n < 0)
     n += card;
-  if (n >= 0 && n < card)
+  if (n >= 0 && n < (int) card)
     return setv->set_elem[n];
   return NULL;
 }				/* end rps_set_nth_member */
@@ -352,7 +351,7 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
       memset (smallarr, 0, sizeof (smallarr));
       for (int ix = 0; ix < (int) arity; ix++)
 	smallarr[ix] = va_arg (arglist, RpsValue_t);
-      clos = rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity,
+      clos = rps_closure_array_make (conn, /*meta: */ meta, arity,
 				     smallarr);
     }
   else
@@ -361,7 +360,7 @@ rps_closure_meta_make (RpsObject_t * conn, RpsValue_t meta, unsigned arity,
       for (int ix = 0; ix < (int) arity; ix++)
 	arr[ix] = va_arg (arglist, RpsValue_t);
       clos =
-	rps_closure_array_make (conn, /*meta: */ RPS_NULL_VALUE, arity, arr);
+	rps_closure_array_make (conn, /*meta: */ meta, arity, arr);
       free (arr);
     }
   va_end (arglist);
@@ -387,7 +386,7 @@ rps_closure_get_closed_value (RpsValue_t val, int ix)
   const RpsClosure_t *clos = (const RpsClosure_t *) val;
   if (ix < 0)
     ix += clos->zm_length;
-  if (ix >= 0 && ix < clos->zm_length)
+  if (ix >= 0 && ix < (int)clos->zm_length)
     return clos->clos_val[ix];
   return RPS_NULL_VALUE;
 }				/* end rps_closure_value */
@@ -1994,5 +1993,13 @@ rps_hash_tbl_iter_for_dump (RpsObject_t * ob, void *data)
     }
   return true;
 }				/* end rps_hash_tbl_iter_for_dump */
+
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** mode: c ;;
+ ** compile-command: "cd .. && make -j2" ;;
+ ** End: ;;
+ ****************/
 
 /***************** end of file composite_rps.c from refpersys.org **********/
