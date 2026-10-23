@@ -1029,8 +1029,10 @@ rps_stringdict_payload_dump_scanner (RpsDumper_t * du,
       rps_dumper_scan_value (du, (RpsValue_t) curnam, 0);
       rps_dumper_scan_value (du, curval, 0);
 #warning the below need a fix (incompatible types)
+#if 0
       if (!kavl_itr_next_rpsmusetob (&iter))
 	break;
+#endif
     };
   RPS_DEBUG_PRINTF (DUMP,
 		    "string_dictionary end-scan owner %O with %d entries",
